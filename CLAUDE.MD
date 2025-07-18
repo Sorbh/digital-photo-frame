@@ -18,7 +18,7 @@ A web-based digital photo frame application that transforms any device with a br
 
 ### Dependencies
 - **Backend**: Node.js, Express.js, Multer (file uploads), Sharp (image processing), dotenv (environment variables)
-- **Frontend**: HTML5, CSS3, JavaScript (vanilla ES6+), Web APIs (Fullscreen, Keyboard)
+- **Frontend**: HTML5, CSS3, JavaScript (vanilla ES6+), Web APIs (Fullscreen, Keyboard, Wake Lock)
 - **Database**: File system-based storage for image metadata
 
 ## Architecture
@@ -159,7 +159,14 @@ The backend follows a clean MVC (Model-View-Controller) pattern with proper sepa
 - **Error Handling**: Graceful handling of failed API calls and image loading
 - **Responsive Design**: Works on desktop, tablet, and mobile browsers
 - **API Integration**: Uses `/api/random-image` endpoint with full URL support
-- **Image Fitting**: Automatic scaling to fit screen while maintaining aspect ratio
+- **Image Orientation**: Automatic detection and proper display of landscape vs portrait photos
+  - Landscape images: Displayed in landscape orientation with full screen width
+  - Portrait images: Displayed in portrait orientation with proper aspect ratio
+  - Object-fit optimization for different screen orientations
+- **Wake Lock**: Prevents device from sleeping during slideshow using Wake Lock API
+  - Automatically re-activates wake lock when page becomes visible
+  - Graceful handling for browsers without Wake Lock API support
+  - Proper cleanup on page unload
 
 ### Admin Panel Design
 - **Design System**: Material Design 3 principles and components
@@ -201,6 +208,8 @@ The backend follows a clean MVC (Model-View-Controller) pattern with proper sepa
 - [x] Automatic image rotation and scaling
 - [x] Fullscreen mode support
 - [x] Progress bar showing time until next image
+- [x] Landscape photo orientation detection and proper display
+- [x] Wake lock functionality to prevent device sleep during slideshow
 
 ### Advanced Features
 - [x] Breadcrumb navigation in admin panel
@@ -293,6 +302,8 @@ DEFAULT_FOLDERS=family,vacation,holidays,misc
 - [x] Implement error handling and retry logic
 - [x] Add responsive design for mobile and desktop
 - [x] Optimize for digital photo frame use cases
+- [x] Implement landscape photo orientation detection and proper display
+- [x] Add Wake Lock API integration to prevent device sleep
 
 ### Phase 2: Integration & Testing
 - [x] Test image upload and display workflow

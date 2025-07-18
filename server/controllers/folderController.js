@@ -1,5 +1,6 @@
 const path = require('path');
 const fs = require('fs-extra');
+const imageController = require('./imageController');
 
 class FolderController {
   constructor() {
@@ -77,6 +78,10 @@ class FolderController {
       }
       
       await fs.remove(fullPath);
+      
+      // Clear image cache after folder deletion as it might contain images
+      imageController.clearImageCache();
+      
       res.json({ message: 'Folder deleted successfully' });
     } catch (error) {
       console.error('Error deleting folder:', error);

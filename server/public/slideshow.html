@@ -43,11 +43,36 @@
         }
 
         .slide img {
-            max-width: 100%;
-            max-height: 100%;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+            border-radius: 0;
+        }
+        
+        /* For landscape images on landscape screens */
+        @media (orientation: landscape) {
+            .slide img {
+                object-fit: contain;
+                width: 100vw;
+                height: 100vh;
+            }
+        }
+        
+        /* For portrait images */
+        .slide img[data-orientation="portrait"] {
             object-fit: contain;
-            border-radius: 8px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            width: auto;
+            height: 100vh;
+            max-width: 100vw;
+        }
+        
+        /* For landscape images */
+        .slide img[data-orientation="landscape"] {
+            object-fit: contain;
+            width: 100vw;
+            height: auto;
+            max-height: 100vh;
         }
 
         .loading {
@@ -216,9 +241,11 @@
                 this.progressTimer = null;
                 this.preloadedImages = [];
                 this.currentImageData = null;
+                this.wakeLock = null;
                 
                 this.initializeElements();
                 this.setupEventListeners();
+                this.requestWakeLock();
                 this.startSlideshow();
             }
 
@@ -308,6 +335,11 @@
                     const onLoad = () => {
                         img.removeEventListener('load', onLoad);
                         img.removeEventListener('error', onError);
+                        
+                        // Detect image orientation
+                        const orientation = img.naturalWidth > img.naturalHeight ? 'landscape' : 'portrait';
+                        img.setAttribute('data-orientation', orientation);
+                        
                         this.currentImageData = imageData;
                         resolve(true);
                     };
@@ -456,6 +488,39 @@
                 this.loading.classList.add('hidden');
             }
 
+            async requestWakeLock() {
+                try {
+                    if ('wakeLock' in navigator) {
+                        this.wakeLock = await navigator.wakeLock.request('screen');
+                        console.log('Screen wake lock activated');
+                        
+                        // Re-request wake lock when page becomes visible
+                        document.addEventListener('visibilitychange', async () => {
+                            if (this.wakeLock !== null && document.visibilityState === 'visible') {
+                                try {
+                                    this.wakeLock = await navigator.wakeLock.request('screen');
+                                    console.log('Screen wake lock re-activated');
+                                } catch (err) {
+                                    console.error('Failed to re-activate wake lock:', err);
+                                }
+                            }
+                        });
+                    } else {
+                        console.warn('Wake Lock API not supported');
+                    }
+                } catch (err) {
+                    console.error('Failed to activate wake lock:', err);
+                }
+            }
+
+            releaseWakeLock() {
+                if (this.wakeLock !== null) {
+                    this.wakeLock.release();
+                    this.wakeLock = null;
+                    console.log('Screen wake lock released');
+                }
+            }
+
             async startSlideshow() {
                 // Load first image
                 const imageData = await this.fetchRandomImage();
@@ -475,7 +540,12 @@
 
         // Initialize slideshow when DOM is loaded
         document.addEventListener('DOMContentLoaded', () => {
-            new PhotoFrameSlideshow();
+            const slideshow = new PhotoFrameSlideshow();
+            
+            // Clean up wake lock when page is unloaded
+            window.addEventListener('beforeunload', () => {
+                slideshow.releaseWakeLock();
+            });
         });
     </script>
 </body>
