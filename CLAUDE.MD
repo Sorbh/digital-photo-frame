@@ -26,21 +26,28 @@ A web-based digital photo frame application that transforms any device with a br
 ### Backend Structure
 ```
 /server
+├── /controllers
+│   ├── imageController.js
+│   ├── folderController.js
+│   └── viewController.js
+├── /middleware
+│   ├── upload.js
+│   ├── errorHandler.js
+│   └── logger.js
+├── /routes
+│   ├── index.js
+│   ├── api.js
+│   └── views.js
 ├── /uploads
 │   ├── /family
 │   ├── /vacation
 │   ├── /holidays
 │   └── /misc
-├── /routes
-│   ├── upload.js
-│   ├── images.js
-│   ├── categories.js
-│   └── admin.js
-├── /middleware
 ├── /public
 │   ├── admin.html
 │   ├── admin.css
-│   └── admin.js
+│   ├── admin.js
+│   └── slideshow.html
 └── server.js
 ```
 
@@ -63,6 +70,31 @@ A web-based digital photo frame application that transforms any device with a br
 
 ## Implementation Notes
 
+### MVC Architecture
+The backend follows a clean MVC (Model-View-Controller) pattern with proper separation of concerns:
+
+**Controllers:**
+- `imageController.js` - Handles image upload, processing, retrieval, and deletion
+- `folderController.js` - Manages folder operations (create, read, delete)
+- `viewController.js` - Serves static HTML pages and handles redirects
+
+**Routes:**
+- `index.js` - Main router that mounts all route modules
+- `api.js` - API endpoints for image and folder operations
+- `views.js` - Routes for serving HTML pages
+
+**Middleware:**
+- `upload.js` - Multer configuration for file uploads with validation
+- `errorHandler.js` - Global error handling with proper HTTP status codes
+- `logger.js` - Request logging for debugging and monitoring
+
+**Benefits:**
+- **Separation of Concerns**: Each component has a single responsibility
+- **Maintainability**: Easy to modify individual features without affecting others
+- **Scalability**: Simple to add new controllers, routes, or middleware
+- **Error Handling**: Centralized error management with consistent responses
+- **Code Reusability**: Controllers can be easily tested and reused
+
 ### Backend Specifications
 - **Framework**: Express.js for minimal REST API
 - **Storage**: Organized folder structure by categories
@@ -70,6 +102,11 @@ A web-based digital photo frame application that transforms any device with a br
 - **API Endpoints**: 
   - `GET /api/random-image` - Get random image from any folder with folder name, relative path, and full URL
     - Response format: `{ "path": "/uploads/image.jpg", "url": "http://localhost:3000/uploads/image.jpg", "folder": "family", "filename": "image.jpg" }`
+  - `GET /api/folders` - Get folder contents with files and subfolders
+  - `POST /api/folders` - Create new folder
+  - `DELETE /api/folders` - Delete folder and contents
+  - `POST /api/upload` - Upload images with processing and optimization
+  - `DELETE /api/images` - Delete specific image
   - `GET /admin` - Admin panel web interface (for manual file management)
   - `GET /slideshow` - Web-based slideshow interface for displaying photos with 15-second intervals
 
@@ -202,6 +239,9 @@ A web-based digital photo frame application that transforms any device with a br
 - [x] Add play/pause and navigation controls
 - [x] Implement keyboard shortcuts and fullscreen mode
 - [x] Add progress indicator and image information overlay
+- [x] Refactor server into MVC architecture with controllers, routes, and middleware
+- [x] Implement proper error handling and logging
+- [x] Create modular and maintainable code structure
 
 ### Phase 1.5: Web Slideshow ✅ COMPLETED
 - [x] Create responsive HTML5 slideshow interface
