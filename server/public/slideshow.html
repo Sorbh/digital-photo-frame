@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Photo Frame - Slideshow</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #000;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            overflow: hidden;
+            cursor: none;
+        }
+
+        .slideshow-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .slide {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .slide.active {
+            opacity: 1;
+        }
+
+        .slide img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: 8px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #fff;
+            font-size: 24px;
+            font-weight: 300;
+            text-align: center;
+        }
+
+        .loading::after {
+            content: '';
+            display: block;
+            width: 40px;
+            height: 40px;
+            margin: 20px auto;
+            border: 3px solid rgba(255, 255, 255, 0.2);
+            border-top: 3px solid #fff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .info {
+            position: absolute;
+            bottom: 40px;
+            left: 40px;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 16px;
+            font-weight: 300;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 12px 20px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            transition: opacity 0.3s ease;
+        }
+
+        .info.hidden {
+            opacity: 0;
+        }
+
+        .progress-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.3);
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+
+        .controls {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            display: flex;
+            gap: 15px;
+        }
+
+        .control-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 12px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .error {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #ff6b6b;
+            font-size: 20px;
+            text-align: center;
+            background: rgba(255, 107, 107, 0.1);
+            padding: 30px;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+        }
+
+        /* Fullscreen mode */
+        .fullscreen {
+            cursor: none;
+        }
+
+        .fullscreen .controls {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .fullscreen:hover .controls {
+            opacity: 1;
+        }
+
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            .info {
+                bottom: 20px;
+                left: 20px;
+                font-size: 14px;
+                padding: 10px 16px;
+            }
+
+            .controls {
+                top: 20px;
+                right: 20px;
+            }
+
+            .control-btn {
+                padding: 10px;
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slideshow-container">
+        <div class="loading" id="loading">Loading your photos...</div>
+        <div class="error hidden" id="error">Unable to load images. Please check your connection.</div>
+        
+        <div class="slide" id="slide1">
+            <img id="image1" alt="Photo">
+        </div>
+        
+        <div class="slide" id="slide2">
+            <img id="image2" alt="Photo">
+        </div>
+        
+        <div class="info hidden" id="info">
+            <div id="filename"></div>
+            <div id="folder"></div>
+        </div>
+        
+        <div class="progress-bar" id="progressBar"></div>
+        
+        <div class="controls">
+            <button class="control-btn" id="playPauseBtn" title="Play/Pause">⏸️</button>
+            <button class="control-btn" id="nextBtn" title="Next">⏭️</button>
+            <button class="control-btn" id="fullscreenBtn" title="Fullscreen">⛶</button>
+        </div>
+    </div>
+
+    <script>
+        class PhotoFrameSlideshow {
+            constructor() {
+                this.currentSlide = 0;
+                this.isPlaying = true;
+                this.interval = 15000; // 15 seconds
+                this.timer = null;
+                this.progressTimer = null;
+                this.preloadedImages = [];
+                this.currentImageData = null;
+                
+                this.initializeElements();
+                this.setupEventListeners();
+                this.startSlideshow();
+            }
+
+            initializeElements() {
+                this.slides = [
+                    document.getElementById('slide1'),
+                    document.getElementById('slide2')
+                ];
+                this.images = [
+                    document.getElementById('image1'),
+                    document.getElementById('image2')
+                ];
+                this.loading = document.getElementById('loading');
+                this.error = document.getElementById('error');
+                this.info = document.getElementById('info');
+                this.filename = document.getElementById('filename');
+                this.folder = document.getElementById('folder');
+                this.progressBar = document.getElementById('progressBar');
+                this.playPauseBtn = document.getElementById('playPauseBtn');
+                this.nextBtn = document.getElementById('nextBtn');
+                this.fullscreenBtn = document.getElementById('fullscreenBtn');
+            }
+
+            setupEventListeners() {
+                this.playPauseBtn.addEventListener('click', () => this.togglePlayPause());
+                this.nextBtn.addEventListener('click', () => this.nextImage());
+                this.fullscreenBtn.addEventListener('click', () => this.toggleFullscreen());
+                
+                // Keyboard controls
+                document.addEventListener('keydown', (e) => {
+                    switch(e.key) {
+                        case ' ':
+                        case 'k':
+                            e.preventDefault();
+                            this.togglePlayPause();
+                            break;
+                        case 'ArrowRight':
+                        case 'n':
+                            e.preventDefault();
+                            this.nextImage();
+                            break;
+                        case 'f':
+                            e.preventDefault();
+                            this.toggleFullscreen();
+                            break;
+                        case 'i':
+                            e.preventDefault();
+                            this.toggleInfo();
+                            break;
+                    }
+                });
+
+                // Touch/click to show controls temporarily
+                document.addEventListener('click', () => {
+                    this.showControlsTemporarily();
+                });
+
+                // Image load error handling
+                this.images.forEach(img => {
+                    img.addEventListener('error', () => {
+                        this.showError('Failed to load image');
+                    });
+                });
+            }
+
+            async fetchRandomImage() {
+                try {
+                    const response = await fetch('/api/random-image');
+                    if (!response.ok) throw new Error('Failed to fetch image');
+                    const data = await response.json();
+                    console.log('Fetched image:', data);
+                    return data;
+                } catch (error) {
+                    console.error('Error fetching random image:', error);
+                    this.showError('Failed to load new image');
+                    return null;
+                }
+            }
+
+            async loadImage(imageData) {
+                if (!imageData) return false;
+                
+                return new Promise((resolve) => {
+                    const nextSlide = (this.currentSlide + 1) % 2;
+                    const img = this.images[nextSlide];
+                    
+                    const onLoad = () => {
+                        img.removeEventListener('load', onLoad);
+                        img.removeEventListener('error', onError);
+                        this.currentImageData = imageData;
+                        resolve(true);
+                    };
+                    
+                    const onError = () => {
+                        img.removeEventListener('load', onLoad);
+                        img.removeEventListener('error', onError);
+                        console.error('Failed to load image:', imageData.url);
+                        resolve(false);
+                    };
+                    
+                    img.addEventListener('load', onLoad);
+                    img.addEventListener('error', onError);
+                    img.src = imageData.url;
+                });
+            }
+
+            showImage() {
+                const currentSlideEl = this.slides[this.currentSlide];
+                const nextSlideEl = this.slides[(this.currentSlide + 1) % 2];
+                
+                // Switch active slide
+                currentSlideEl.classList.remove('active');
+                nextSlideEl.classList.add('active');
+                
+                // Update current slide index
+                this.currentSlide = (this.currentSlide + 1) % 2;
+                
+                // Update info
+                this.updateInfo();
+                
+                // Hide loading and error
+                this.loading.classList.add('hidden');
+                this.error.classList.add('hidden');
+            }
+
+            updateInfo() {
+                if (this.currentImageData) {
+                    this.filename.textContent = this.currentImageData.filename;
+                    this.folder.textContent = `📁 ${this.currentImageData.folder}`;
+                    this.info.classList.remove('hidden');
+                    
+                    // Auto-hide info after 3 seconds
+                    setTimeout(() => {
+                        this.info.classList.add('hidden');
+                    }, 3000);
+                }
+            }
+
+            async nextImage() {
+                this.resetProgress();
+                const imageData = await this.fetchRandomImage();
+                if (imageData) {
+                    const loaded = await this.loadImage(imageData);
+                    if (loaded) {
+                        this.showImage();
+                    }
+                }
+                
+                if (this.isPlaying) {
+                    this.scheduleNext();
+                }
+            }
+
+            scheduleNext() {
+                this.clearTimers();
+                this.timer = setTimeout(() => this.nextImage(), this.interval);
+                this.startProgress();
+            }
+
+            startProgress() {
+                this.progressBar.style.width = '0%';
+                let progress = 0;
+                const increment = 100 / (this.interval / 100);
+                
+                this.progressTimer = setInterval(() => {
+                    progress += increment;
+                    if (progress >= 100) {
+                        progress = 100;
+                        clearInterval(this.progressTimer);
+                    }
+                    this.progressBar.style.width = progress + '%';
+                }, 100);
+            }
+
+            resetProgress() {
+                this.progressBar.style.width = '0%';
+                if (this.progressTimer) {
+                    clearInterval(this.progressTimer);
+                    this.progressTimer = null;
+                }
+            }
+
+            clearTimers() {
+                if (this.timer) {
+                    clearTimeout(this.timer);
+                    this.timer = null;
+                }
+                if (this.progressTimer) {
+                    clearInterval(this.progressTimer);
+                    this.progressTimer = null;
+                }
+            }
+
+            togglePlayPause() {
+                this.isPlaying = !this.isPlaying;
+                this.playPauseBtn.textContent = this.isPlaying ? '⏸️' : '▶️';
+                this.playPauseBtn.title = this.isPlaying ? 'Pause' : 'Play';
+                
+                if (this.isPlaying) {
+                    this.scheduleNext();
+                } else {
+                    this.clearTimers();
+                }
+            }
+
+            toggleFullscreen() {
+                if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen().then(() => {
+                        document.body.classList.add('fullscreen');
+                    });
+                } else {
+                    document.exitFullscreen().then(() => {
+                        document.body.classList.remove('fullscreen');
+                    });
+                }
+            }
+
+            toggleInfo() {
+                this.info.classList.toggle('hidden');
+            }
+
+            showControlsTemporarily() {
+                if (document.fullscreenElement) {
+                    const controls = document.querySelector('.controls');
+                    controls.style.opacity = '1';
+                    setTimeout(() => {
+                        controls.style.opacity = '0';
+                    }, 3000);
+                }
+            }
+
+            showError(message) {
+                this.error.textContent = message;
+                this.error.classList.remove('hidden');
+                this.loading.classList.add('hidden');
+            }
+
+            async startSlideshow() {
+                // Load first image
+                const imageData = await this.fetchRandomImage();
+                if (imageData) {
+                    const loaded = await this.loadImage(imageData);
+                    if (loaded) {
+                        this.showImage();
+                        this.scheduleNext();
+                    } else {
+                        this.showError('Failed to load first image');
+                    }
+                } else {
+                    this.showError('No images available');
+                }
+            }
+        }
+
+        // Initialize slideshow when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            new PhotoFrameSlideshow();
+        });
+    </script>
+</body>
+</html>

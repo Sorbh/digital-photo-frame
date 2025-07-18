@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Photo Frame Admin</title>
+    <link rel="stylesheet" href="admin.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+    <div class="app">
+        <header class="toolbar">
+            <div class="toolbar-left">
+                <button id="backBtn" class="btn-icon" title="Back">
+                    <span class="material-icons">arrow_back</span>
+                </button>
+                <h1 class="app-title">Photo Frame Admin</h1>
+            </div>
+            <div class="toolbar-right">
+                <button id="createFolderBtn" class="btn-primary" title="Create Folder">
+                    <span class="material-icons">create_new_folder</span>
+                    New Folder
+                </button>
+                <button id="uploadBtn" class="btn-primary" title="Upload Images">
+                    <span class="material-icons">upload</span>
+                    Upload
+                </button>
+            </div>
+        </header>
+
+        <nav class="breadcrumb">
+            <div id="breadcrumbContainer">
+                <span class="breadcrumb-item" data-path="uploads">Home</span>
+            </div>
+        </nav>
+
+        <main class="main-content">
+            <div id="dropZone" class="drop-zone hidden">
+                <div class="drop-zone-content">
+                    <span class="material-icons">cloud_upload</span>
+                    <p>Drop images here to upload</p>
+                </div>
+            </div>
+
+            <div class="file-grid" id="fileGrid">
+                <!-- Files and folders will be populated here -->
+            </div>
+
+            <div id="emptyState" class="empty-state hidden">
+                <span class="material-icons">photo_library</span>
+                <h3>No images yet</h3>
+                <p>Upload some images to get started</p>
+            </div>
+        </main>
+
+        <!-- Context Menu -->
+        <div id="contextMenu" class="context-menu hidden">
+            <div class="menu-item" data-action="delete">
+                <span class="material-icons">delete</span>
+                Delete
+            </div>
+        </div>
+
+        <!-- Modals -->
+        <div id="createFolderModal" class="modal hidden">
+            <div class="modal-content">
+                <h2>Create New Folder</h2>
+                <input type="text" id="folderNameInput" placeholder="Folder name" maxlength="50">
+                <div class="modal-actions">
+                    <button id="cancelCreateBtn" class="btn-secondary">Cancel</button>
+                    <button id="confirmCreateBtn" class="btn-primary">Create</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="uploadModal" class="modal hidden">
+            <div class="modal-content">
+                <h2>Upload Images</h2>
+                <div class="upload-area">
+                    <input type="file" id="fileInput" multiple accept="image/*" hidden>
+                    <div class="upload-drop-zone" id="uploadDropZone">
+                        <span class="material-icons">cloud_upload</span>
+                        <p>Click to select images or drag and drop</p>
+                        <small>Supports JPEG, PNG, GIF, WebP (max 10MB each)</small>
+                    </div>
+                </div>
+                <div id="uploadProgress" class="upload-progress hidden">
+                    <div class="progress-bar">
+                        <div class="progress-fill"></div>
+                    </div>
+                    <span class="progress-text">Uploading...</span>
+                </div>
+                <div class="modal-actions">
+                    <button id="cancelUploadBtn" class="btn-secondary">Cancel</button>
+                    <button id="confirmUploadBtn" class="btn-primary" disabled>Upload</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast notifications -->
+        <div id="toastContainer" class="toast-container"></div>
+    </div>
+
+    <script src="admin.js"></script>
+</body>
+</html>
