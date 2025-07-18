@@ -17,7 +17,7 @@ A web-based digital photo frame application that transforms any device with a br
 - Storage space for image files
 
 ### Dependencies
-- **Backend**: Node.js, Express.js, Multer (file uploads), Sharp (image processing)
+- **Backend**: Node.js, Express.js, Multer (file uploads), Sharp (image processing), dotenv (environment variables)
 - **Frontend**: HTML5, CSS3, JavaScript (vanilla ES6+), Web APIs (Fullscreen, Keyboard)
 - **Database**: File system-based storage for image metadata
 
@@ -29,15 +29,18 @@ A web-based digital photo frame application that transforms any device with a br
 ├── /controllers
 │   ├── imageController.js
 │   ├── folderController.js
-│   └── viewController.js
+│   ├── viewController.js
+│   └── authController.js
 ├── /middleware
 │   ├── upload.js
 │   ├── errorHandler.js
-│   └── logger.js
+│   ├── logger.js
+│   └── auth.js
 ├── /routes
 │   ├── index.js
 │   ├── api.js
-│   └── views.js
+│   ├── views.js
+│   └── auth.js
 ├── /uploads
 │   ├── /family
 │   ├── /vacation
@@ -47,7 +50,9 @@ A web-based digital photo frame application that transforms any device with a br
 │   ├── admin.html
 │   ├── admin.css
 │   ├── admin.js
-│   └── slideshow.html
+│   ├── slideshow.html
+│   └── login.html
+├── .env
 └── server.js
 ```
 
@@ -84,9 +89,19 @@ The backend follows a clean MVC (Model-View-Controller) pattern with proper sepa
 - `views.js` - Routes for serving HTML pages
 
 **Middleware:**
-- `upload.js` - Multer configuration for file uploads with validation
+- `upload.js` - Multer configuration for file uploads with validation and environment-based limits
 - `errorHandler.js` - Global error handling with proper HTTP status codes
 - `logger.js` - Request logging for debugging and monitoring
+
+**Configuration:**
+- `.env` file for environment variables (PORT, file sizes, image processing settings)
+- Environment-based configuration for different deployment environments
+
+**Security:**
+- Password-based authentication for admin panel access
+- Session management with secure cookies
+- Protected API endpoints for admin operations
+- Public slideshow access (no authentication required)
 
 **Benefits:**
 - **Separation of Concerns**: Each component has a single responsibility
@@ -107,8 +122,18 @@ The backend follows a clean MVC (Model-View-Controller) pattern with proper sepa
   - `DELETE /api/folders` - Delete folder and contents
   - `POST /api/upload` - Upload images with processing and optimization
   - `DELETE /api/images` - Delete specific image
-  - `GET /admin` - Admin panel web interface (for manual file management)
-  - `GET /slideshow` - Web-based slideshow interface for displaying photos with 15-second intervals
+  - `GET /admin` - Admin panel web interface (for manual file management) **[Protected]**
+  - `GET /slideshow` - Web-based slideshow interface for displaying photos with 15-second intervals **[Public]**
+  - `GET /login` - Login page for admin authentication **[Public]**
+  - `POST /api/auth/login` - Authenticate admin user **[Public]**
+  - `POST /api/auth/logout` - Logout admin user **[Protected]**
+  - `GET /api/auth/status` - Check authentication status **[Public]**
+
+**Security Model:**
+- **Public Access**: Slideshow, login page, random image API, authentication endpoints
+- **Protected Access**: Admin panel, upload/delete operations, folder management
+- **Session-based**: 24-hour session duration with secure cookies
+- **Password Protection**: Simple password authentication via environment variables
 
 ### Frontend Specifications
 - **Framework**: Vanilla HTML5, CSS3, and JavaScript for maximum compatibility
@@ -195,15 +220,27 @@ The backend follows a clean MVC (Model-View-Controller) pattern with proper sepa
 ## Configuration
 
 ### Server Configuration
-```javascript
-{
-  "port": 3000,
-  "uploadPath": "./uploads",
-  "maxFileSize": "10MB",
-  "supportedFormats": ["jpg", "jpeg", "png", "gif"],
-  "imageQuality": 85,
-  "maxResolution": "1920x1080"
-}
+Environment variables are used for configuration via `.env` file:
+
+```bash
+# Server Configuration
+PORT=3000
+NODE_ENV=development
+
+# Upload Configuration
+MAX_FILE_SIZE=10485760
+UPLOAD_DIR=uploads
+
+# Image Processing
+IMAGE_QUALITY=85
+MAX_RESOLUTION_WIDTH=1920
+MAX_RESOLUTION_HEIGHT=1080
+
+# Slideshow Configuration
+DEFAULT_SLIDESHOW_INTERVAL=15000
+
+# Default Folders
+DEFAULT_FOLDERS=family,vacation,holidays,misc
 ```
 
 ### Web Slideshow Configuration

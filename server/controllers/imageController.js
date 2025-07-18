@@ -76,8 +76,12 @@ class ImageController {
         const processedPath = path.join(path.dirname(file.path), `processed_${file.filename}`);
         
         await sharp(file.path)
-          .resize(1920, 1080, { fit: 'inside', withoutEnlargement: true })
-          .jpeg({ quality: 85 })
+          .resize(
+            parseInt(process.env.MAX_RESOLUTION_WIDTH) || 1920, 
+            parseInt(process.env.MAX_RESOLUTION_HEIGHT) || 1080, 
+            { fit: 'inside', withoutEnlargement: true }
+          )
+          .jpeg({ quality: parseInt(process.env.IMAGE_QUALITY) || 85 })
           .toFile(processedPath);
         
         // Remove original and move processed to target location

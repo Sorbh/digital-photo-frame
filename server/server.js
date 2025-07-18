@@ -1,7 +1,11 @@
+// Load environment variables
+require('dotenv').config();
+
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs-extra');
+const session = require('express-session');
 
 // Import middleware
 const logger = require('./middleware/logger');
@@ -17,6 +21,19 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Session configuration
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'your-secret-key-here',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: process.env.NODE_ENV === 'production',
+    httpOnly: true,
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  }
+}));
+
 app.use(logger);
 
 // Static files
@@ -31,13 +48,13 @@ app.use(errorHandler);
 
 // Initialize uploads directory
 const initializeUploads = async () => {
-  const uploadsDir = path.join(__dirname, 'uploads');
-  const defaultFolders = ['family', 'vacation', 'holidays', 'misc'];
+  const uploadsDir = path.join(__dirname, process.env.UPLOAD_DIR || 'uploads');
+  const defaultFolders = (process.env.DEFAULT_FOLDERS || 'family,vacation,holidays,misc').split(',');
   
   await fs.ensureDir(uploadsDir);
   
   for (const folder of defaultFolders) {
-    await fs.ensureDir(path.join(uploadsDir, folder));
+    await fs.ensureDir(path.join(uploadsDir, folder.trim()));
   }
 };
 

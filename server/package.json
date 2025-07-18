@@ -17,7 +17,10 @@
     "sharp": "^0.32.6",
     "cors": "^2.8.5",
     "path": "^0.12.7",
-    "fs-extra": "^11.1.1"
+    "fs-extra": "^11.1.1",
+    "dotenv": "^16.3.1",
+    "express-session": "^1.17.3",
+    "bcryptjs": "^2.4.3"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
