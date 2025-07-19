@@ -239,6 +239,8 @@
                 this.interval = 15000; // 15 seconds
                 this.timer = null;
                 this.progressTimer = null;
+                this.activityTimer = null;
+                this.fullscreenTimer = null;
                 this.preloadedImages = [];
                 this.currentImageData = null;
                 this.wakeLock = null;
@@ -511,6 +513,92 @@
                 } catch (err) {
                     console.error('Failed to activate wake lock:', err);
                 }
+
+                // Additional screen saver prevention methods for Android TV and other devices
+                this.initScreenSaverPrevention();
+            }
+
+            initScreenSaverPrevention() {
+                // Method 1: Invisible video playing to prevent screen saver
+                this.createKeepAliveVideo();
+                
+                // Method 2: Periodic user activity simulation
+                this.startActivitySimulation();
+                
+                // Method 3: Fullscreen API to prevent system sleep
+                this.maintainFullscreen();
+            }
+
+            createKeepAliveVideo() {
+                // Create a silent, invisible video that loops to trick the system
+                const video = document.createElement('video');
+                video.style.position = 'absolute';
+                video.style.top = '-1px';
+                video.style.left = '-1px';
+                video.style.width = '1px';
+                video.style.height = '1px';
+                video.style.opacity = '0';
+                video.style.pointerEvents = 'none';
+                video.muted = true;
+                video.loop = true;
+                video.autoplay = true;
+                video.playsInline = true;
+                
+                // Create a minimal video data URL (1-second transparent video)
+                video.src = 'data:video/mp4;base64,AAAAIGZ0eXBpc29tAAACAGlzb21pc28yYXZjMW1wNDEAAAAIZnJlZQAAAr1tZGF0AAACrgYF//+q3EXpvebZSLeWLNgg2SPu73gyNjQgLSBjb3JlIDE0OCByMjc1NSBkZDBhNjEwIC0gSC4yNjQvTVBFRy00IEFWQyBjb2RlYyAtIENvcHlsZWZ0IDIwMDMtMjAxNSAtIGh0dHA6Ly93d3cudmlkZW9sYW4ub3JnL3gyNjQuaHRtbCAtIG9wdGlvbnM6IGNhYmFjPTEgcmVmPTMgZGVibG9jaz0xOjA6MCBhbmFseXNlPTB4MzoweDExMyBtZT1oZXggc3VibWU9NyBwc3k9MSBwc3lfcmQ9MS4wMDowLjAwIG1peGVkX3JlZj0xIG1lX3JhbmdlPTE2IGNocm9tYV9tZT0xIHRyZWxsaXM9MSA4eDhkY3Q9MSBjcWZtPTAgZGVhZHpvbmU9MjEsMTEgZmFzdF9wc2tpcD0xIGNocm9tYV9xcF9vZmZzZXQ9LTIgdGhyZWFkcz02IGxvb2thaGVhZF90aHJlYWRzPTEgc2xpY2VkX3RocmVhZHM9MCBucj0wIGRlY2ltYXRlPTEgaW50ZXJsYWNlZD0wIGJsdXJheV9jb21wYXQ9MCBjb25zdHJhaW5lZF9pbnRyYT0wIGJmcmFtZXM9MyBiX3B5cmFtaWQ9MiBiX2FkYXB0PTEgYl9iaWFzPTAgZGlyZWN0PTEgd2VpZ2h0Yj0xIG9wZW5fZ29wPTAgd2VpZ2h0cD0yIGtleWludD0yNTAga2V5aW50X21pbj0yNSBzY2VuZWN1dD00MCBpbnRyYV9yZWZyZXNoPTAgcmNfbG9va2FoZWFkPTQwIHJjPWNyZiBtYnRyZWU9MSBjcmY9MjMuMCBxY29tcD0wLjYwIHFwbWluPTAgcXBtYXg9NjkgcXBzdGVwPTQgaXBfcmF0aW89MS4yNSBhcT0xOjEuMDAAgAAAAAxliIQAL//+9Qom+JAQAW5vbG6';
+                
+                document.body.appendChild(video);
+                
+                // Ensure video starts playing
+                video.play().catch(err => {
+                    console.log('Keep-alive video autoplay failed:', err);
+                });
+                
+                console.log('Keep-alive video created for screen saver prevention');
+            }
+
+            startActivitySimulation() {
+                // Simulate user activity every 30 seconds to prevent sleep
+                this.activityTimer = setInterval(() => {
+                    // Dispatch a minimal mouse move event
+                    const event = new MouseEvent('mousemove', {
+                        bubbles: true,
+                        cancelable: true,
+                        clientX: 1,
+                        clientY: 1
+                    });
+                    document.dispatchEvent(event);
+                    
+                    // Also try to re-request wake lock if it was lost
+                    this.checkAndRenewWakeLock();
+                }, 30000);
+                
+                console.log('Activity simulation started for screen saver prevention');
+            }
+
+            async checkAndRenewWakeLock() {
+                try {
+                    if ('wakeLock' in navigator && (!this.wakeLock || this.wakeLock.released)) {
+                        this.wakeLock = await navigator.wakeLock.request('screen');
+                        console.log('Wake lock renewed');
+                    }
+                } catch (err) {
+                    console.log('Wake lock renewal failed:', err);
+                }
+            }
+
+            maintainFullscreen() {
+                // Periodically check and maintain fullscreen to prevent system sleep
+                this.fullscreenTimer = setInterval(() => {
+                    if (!document.fullscreenElement) {
+                        // Try to enter fullscreen if not already
+                        document.documentElement.requestFullscreen().catch(() => {
+                            // Fullscreen failed, that's okay
+                        });
+                    }
+                }, 60000); // Check every minute
+                
+                console.log('Fullscreen maintenance started for screen saver prevention');
             }
 
             releaseWakeLock() {
@@ -519,6 +607,24 @@
                     this.wakeLock = null;
                     console.log('Screen wake lock released');
                 }
+            }
+
+            cleanup() {
+                // Clean up all timers and resources
+                this.clearTimers();
+                
+                if (this.activityTimer) {
+                    clearInterval(this.activityTimer);
+                    this.activityTimer = null;
+                }
+                
+                if (this.fullscreenTimer) {
+                    clearInterval(this.fullscreenTimer);
+                    this.fullscreenTimer = null;
+                }
+                
+                this.releaseWakeLock();
+                console.log('Slideshow cleanup completed');
             }
 
             async startSlideshow() {
@@ -544,7 +650,7 @@
             
             // Clean up wake lock when page is unloaded
             window.addEventListener('beforeunload', () => {
-                slideshow.releaseWakeLock();
+                slideshow.cleanup();
             });
         });
     </script>
