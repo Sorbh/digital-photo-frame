@@ -132,6 +132,7 @@ class ImageController {
         const processedPath = path.join(path.dirname(file.path), `processed_${file.filename}`);
         
         await sharp(file.path)
+          .rotate() // Auto-rotate based on EXIF orientation
           .resize(
             parseInt(process.env.MAX_RESOLUTION_WIDTH) || 1920, 
             parseInt(process.env.MAX_RESOLUTION_HEIGHT) || 1080, 
@@ -183,6 +184,45 @@ class ImageController {
       res.json({ message: 'Image deleted successfully' });
     } catch (error) {
       console.error('Error deleting image:', error);
+      res.status(500).json({ message: 'Server error' });
+    }
+  }
+
+  // Rotate image
+  async rotateImage(req, res) {
+    try {
+      const { path: imagePath, angle = 90 } = req.body;
+      const fullPath = path.join(__dirname, '..', imagePath);
+      
+      if (!await fs.pathExists(fullPath)) {
+        return res.status(404).json({ message: 'Image not found' });
+      }
+      
+      // Validate angle (should be multiple of 90)
+      if (angle % 90 !== 0) {
+        return res.status(400).json({ message: 'Angle must be a multiple of 90 degrees' });
+      }
+      
+      // Create a temporary file for the rotated image
+      const tempPath = path.join(path.dirname(fullPath), `rotated_temp_${Date.now()}_${path.basename(fullPath)}`);
+      
+      // Rotate image by specified angle
+      await sharp(fullPath)
+        .rotate(angle)
+        .jpeg({ quality: parseInt(process.env.IMAGE_QUALITY) || 85 })
+        .toFile(tempPath);
+      
+      // Replace original with rotated image
+      await fs.remove(fullPath);
+      await fs.move(tempPath, fullPath);
+      
+      // Clear cache after rotation to update available images
+      this.clearImageCache();
+      
+      const direction = angle > 0 ? 'clockwise' : 'counter-clockwise';
+      res.json({ message: `Image rotated ${Math.abs(angle)}° ${direction} successfully` });
+    } catch (error) {
+      console.error('Error rotating image:', error);
       res.status(500).json({ message: 'Server error' });
     }
   }

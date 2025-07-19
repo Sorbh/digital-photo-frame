@@ -50,31 +50,11 @@
             border-radius: 0;
         }
         
-        /* For landscape images on landscape screens */
-        @media (orientation: landscape) {
-            .slide img {
-                object-fit: contain;
-                width: 100vw;
-                height: 100vh;
-            }
-        }
-        
-        /* For portrait images */
-        .slide img[data-orientation="portrait"] {
+        /* Images should display in their correct orientation (EXIF handled by backend) */
+        .slide img {
             object-fit: contain;
-            width: auto;
+            width: 100vw;
             height: 100vh;
-            max-width: 100vw;
-        }
-        
-        /* For landscape images - rotate 90 degrees to display correctly */
-        .slide img[data-orientation="landscape"] {
-            object-fit: contain;
-            transform: rotate(90deg);
-            width: 100vh;
-            height: 100vw;
-            max-width: 100vh;
-            max-height: 100vw;
         }
 
         .loading {
@@ -227,8 +207,6 @@
         <div class="progress-bar" id="progressBar"></div>
         
         <div class="controls">
-            <button class="control-btn" id="playPauseBtn" title="Play/Pause">⏸️</button>
-            <button class="control-btn" id="nextBtn" title="Next">⏭️</button>
             <button class="control-btn" id="fullscreenBtn" title="Fullscreen">⛶</button>
         </div>
     </div>
@@ -268,29 +246,15 @@
                 this.filename = document.getElementById('filename');
                 this.folder = document.getElementById('folder');
                 this.progressBar = document.getElementById('progressBar');
-                this.playPauseBtn = document.getElementById('playPauseBtn');
-                this.nextBtn = document.getElementById('nextBtn');
                 this.fullscreenBtn = document.getElementById('fullscreenBtn');
             }
 
             setupEventListeners() {
-                this.playPauseBtn.addEventListener('click', () => this.togglePlayPause());
-                this.nextBtn.addEventListener('click', () => this.nextImage());
                 this.fullscreenBtn.addEventListener('click', () => this.toggleFullscreen());
                 
                 // Keyboard controls
                 document.addEventListener('keydown', (e) => {
                     switch(e.key) {
-                        case ' ':
-                        case 'k':
-                            e.preventDefault();
-                            this.togglePlayPause();
-                            break;
-                        case 'ArrowRight':
-                        case 'n':
-                            e.preventDefault();
-                            this.nextImage();
-                            break;
                         case 'f':
                             e.preventDefault();
                             this.toggleFullscreen();
@@ -339,10 +303,6 @@
                     const onLoad = () => {
                         img.removeEventListener('load', onLoad);
                         img.removeEventListener('error', onError);
-                        
-                        // Detect image orientation
-                        const orientation = img.naturalWidth > img.naturalHeight ? 'landscape' : 'portrait';
-                        img.setAttribute('data-orientation', orientation);
                         
                         this.currentImageData = imageData;
                         resolve(true);
@@ -448,17 +408,6 @@
                 }
             }
 
-            togglePlayPause() {
-                this.isPlaying = !this.isPlaying;
-                this.playPauseBtn.textContent = this.isPlaying ? '⏸️' : '▶️';
-                this.playPauseBtn.title = this.isPlaying ? 'Pause' : 'Play';
-                
-                if (this.isPlaying) {
-                    this.scheduleNext();
-                } else {
-                    this.clearTimers();
-                }
-            }
 
             toggleFullscreen() {
                 if (!document.fullscreenElement) {

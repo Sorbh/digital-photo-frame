@@ -2,6 +2,15 @@
 
 A web-based digital photo frame application that transforms any device with a browser into a smart photo display with image management capabilities.
 
+## Project Documentation
+All the documentation for the project is available in ./documentation/
+
+**project.spec.md** - The overview of the project ALWAYS READ THIS FILE
+
+**backend.spec.md** - Technical specification about the backend ALWAYS READ THIS FILE IF MENTIONED IN THE CURRENT TASK or read as needed
+
+**frontend.spec.md** - Technical specification about the frontend ALWAYS READ THIS FILE IF MENTIONED IN THE CURRENT TASK or read as needed
+
 ## Overview
 - **Backend**: Node.js server for image upload, categorization, and management
 - **Web Slideshow**: Browser-based slideshow interface for displaying photos with automatic transitions

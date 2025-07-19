@@ -406,6 +406,12 @@ class PhotoFrameAdmin {
         this.contextMenuTarget = item;
         const menu = document.getElementById('contextMenu');
         
+        // Show/hide menu items based on item type
+        const rotateItems = menu.querySelectorAll('[data-for="image"]');
+        rotateItems.forEach(rotateItem => {
+            rotateItem.style.display = item.type === 'image' ? 'flex' : 'none';
+        });
+        
         menu.classList.remove('hidden');
         menu.style.left = event.pageX + 'px';
         menu.style.top = event.pageY + 'px';
@@ -436,6 +442,12 @@ class PhotoFrameAdmin {
         switch (action) {
             case 'delete':
                 await this.deleteItem(targetItem);
+                break;
+            case 'rotate-right':
+                await this.rotateImage(targetItem, 90);
+                break;
+            case 'rotate-left':
+                await this.rotateImage(targetItem, -90);
                 break;
         }
     }
@@ -471,6 +483,64 @@ class PhotoFrameAdmin {
         } catch (error) {
             console.error('Error deleting item:', error);
             this.showToast('Delete failed', 'error');
+        }
+    }
+
+    async rotateImage(item, angle = 90) {
+        console.log('Attempting to rotate image:', item, 'by', angle, 'degrees');
+        
+        if (!item || !item.path || item.type !== 'image') {
+            console.error('Invalid item for rotation:', item);
+            this.showToast('Cannot rotate: Invalid item', 'error');
+            return;
+        }
+        
+        try {
+            const direction = angle > 0 ? 'right' : 'left';
+            this.showToast(`Rotating image ${direction}...`, 'info');
+            const response = await fetch('/api/images/rotate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ 
+                    path: item.path,
+                    angle: angle
+                })
+            });
+            
+            const data = await response.json();
+            console.log('Rotate response:', data);
+            
+            if (response.ok) {
+                this.showToast(`Image rotated ${direction} successfully`, 'success');
+                // Force UI refresh with cache busting
+                await this.refreshImageInGrid(item);
+            } else {
+                this.showToast(data.message || 'Rotation failed', 'error');
+            }
+        } catch (error) {
+            console.error('Error rotating image:', error);
+            this.showToast('Rotation failed', 'error');
+        }
+    }
+
+    async refreshImageInGrid(item) {
+        // Find the image element in the grid and refresh it with cache busting
+        const imageElement = document.querySelector(`[data-path="${item.path}"] img`);
+        if (imageElement) {
+            // Add cache-busting timestamp to force browser to reload the image
+            const timestamp = Date.now();
+            const originalSrc = imageElement.src.split('?')[0]; // Remove existing query params
+            imageElement.src = `${originalSrc}?t=${timestamp}`;
+            
+            // Also reload the folder contents to get updated metadata
+            setTimeout(() => {
+                this.loadFolderContents();
+            }, 500); // Small delay to ensure server has processed the rotation
+        } else {
+            // Fallback: reload entire folder contents
+            this.loadFolderContents();
         }
     }
 

@@ -1,0 +1,1 @@
+You have just completed work on the current project. Analyze changes based on the provided context and automatically push the code with proper commit message.

@@ -11,6 +11,7 @@ router.get('/random-image', imageController.getRandomImage.bind(imageController)
 // Protected routes (authentication required)
 router.post('/upload', requireAuth, upload.array('images'), imageController.uploadImages.bind(imageController));
 router.delete('/images', requireAuth, imageController.deleteImage.bind(imageController));
+router.post('/images/rotate', requireAuth, imageController.rotateImage.bind(imageController));
 
 // Folder routes (protected)
 router.get('/folders', requireAuth, folderController.getFolderContents.bind(folderController));
