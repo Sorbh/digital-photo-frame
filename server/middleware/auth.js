@@ -31,10 +31,21 @@ const login = async (req, res) => {
     return res.status(400).json({ message: 'Password is required' });
   }
   
-  // Simple password comparison (in production, use bcrypt)
-  const adminPassword = process.env.ADMIN_PASSWORD || 'photoframe123';
+  // Secure password comparison using bcrypt
+  const adminPassword = process.env.ADMIN_PASSWORD;
   
-  if (password === adminPassword) {
+  if (!adminPassword) {
+    console.error('ADMIN_PASSWORD environment variable not set');
+    return res.status(500).json({ message: 'Server configuration error' });
+  }
+  
+  // For bcrypt hashed passwords, use bcrypt.compare()
+  // For plain text passwords (development only), use direct comparison
+  const isValidPassword = adminPassword.startsWith('$2') 
+    ? await bcrypt.compare(password, adminPassword)
+    : password === adminPassword;
+  
+  if (isValidPassword) {
     req.session.authenticated = true;
     req.session.loginTime = new Date();
     
