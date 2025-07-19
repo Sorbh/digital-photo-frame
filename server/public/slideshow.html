@@ -67,12 +67,14 @@
             max-width: 100vw;
         }
         
-        /* For landscape images */
+        /* For landscape images - rotate 90 degrees to display correctly */
         .slide img[data-orientation="landscape"] {
             object-fit: contain;
-            width: 100vw;
-            height: auto;
-            max-height: 100vh;
+            transform: rotate(90deg);
+            width: 100vh;
+            height: 100vw;
+            max-width: 100vh;
+            max-height: 100vw;
         }
 
         .loading {
