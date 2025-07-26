@@ -171,3 +171,8 @@ docs/build/
 tmp/
 temp/
 .tmp/
+
+docs/
+.claude/
+commands/
+CLAUDE.md

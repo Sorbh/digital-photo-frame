@@ -1,10 +1,26 @@
 class PhotoFrameAdmin {
     constructor() {
-        this.currentPath = 'uploads';
+        this.currentPath = this.getInitialPath();
         this.selectedFiles = [];
         this.contextMenuTarget = null;
         this.initializeEventListeners();
         this.loadFolderContents();
+    }
+
+    getInitialPath() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const pathParam = urlParams.get('path');
+        return pathParam || 'uploads';
+    }
+
+    updateURL() {
+        const url = new URL(window.location);
+        if (this.currentPath === 'uploads') {
+            url.searchParams.delete('path');
+        } else {
+            url.searchParams.set('path', this.currentPath);
+        }
+        window.history.replaceState({}, '', url);
     }
 
     initializeEventListeners() {
@@ -208,6 +224,7 @@ class PhotoFrameAdmin {
 
     navigateTo(path) {
         this.currentPath = path;
+        this.updateURL();
         this.loadFolderContents();
     }
 
@@ -217,6 +234,7 @@ class PhotoFrameAdmin {
         const pathParts = this.currentPath.split('/');
         pathParts.pop();
         this.currentPath = pathParts.join('/') || 'uploads';
+        this.updateURL();
         this.loadFolderContents();
     }
 
