@@ -385,6 +385,10 @@ class FolderSelector {
                 color: #ff6b6b;
                 text-align: center;
             }
+            
+            .folder-error.hidden {
+                display: none;
+            }
 
             .folder-error .material-icons {
                 font-size: 24px;
