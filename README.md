@@ -6,6 +6,7 @@ A web-based digital photo frame application that transforms any device with a br
 
 - **Cross-Platform Compatibility**: Works on any device with a modern web browser (tablets, desktops, laptops, smart TVs)
 - **Web-Based Slideshow**: Full-screen photo display with smooth transitions and automatic advance
+- **Smart Folder Selection**: Interactive folder selector with nested folder support for targeted slideshows
 - **Remote Management**: Upload and organize photos from any device on your network
 - **Finder-Like Admin Panel**: Drag-and-drop file management with folder organization
 - **Material Design Interface**: Clean, modern UI following Material Design 3 principles
@@ -90,20 +91,54 @@ A web-based digital photo frame application that transforms any device with a br
 - **Folder organization**: Create nested folders for better organization
 - **Supported formats**: JPEG, PNG, WebP, GIF
 
+#### Folder Selection on Slideshow
+The slideshow screen features an intelligent folder selector that allows you to filter images by specific folders:
+
+**Features:**
+- **All Folders**: Default mode showing images from all directories
+- **Nested Folder Support**: Expandable folder tree with visual hierarchy
+- **Real-time Filtering**: Instantly switches slideshow to selected folder
+- **Visual Indicators**: Arrow icons show which folders contain subfolders
+- **Smart Indentation**: Each nesting level shows 20px left padding for clear structure
+- **Image Count Display**: Shows number of images in each folder
+
+**How to Use:**
+1. **Access Folder Selector**: Click the folder button in the top-right corner of slideshow
+2. **Browse Folders**: View all available folders with image counts
+3. **Expand Nested Folders**: Click arrow icons (▶️) to expand folders with subfolders
+4. **Select Folder**: Click any folder name to filter slideshow to that folder only
+5. **Return to All**: Select "All Folders" to show images from all directories
+
+**Visual Hierarchy:**
+- Root folders appear with no indentation
+- Subfolders are indented 20px per nesting level
+- Different background shades indicate nesting depth
+- Hover effects provide clear interaction feedback
+
 #### Keyboard Shortcuts (Slideshow)
 - `Space` or `K`: Play/pause slideshow
 - `Right Arrow` or `N`: Next image
 - `F`: Toggle fullscreen mode
 - `I`: Show/hide image information
 
-### Default Folder Structure
+### Folder Structure Example
 ```
 uploads/
-├── family/     # Family photos
-├── vacation/   # Vacation memories
-├── holidays/   # Holiday celebrations
-└── misc/       # Other photos
+├── family/           # Family photos
+│   ├── pets/         # Pet photos  
+│   └── parents/      # Parent photos
+├── vacation/         # Vacation memories
+├── holidays/         # Holiday celebrations
+│   ├── christmas/    # Christmas photos
+│   └── summer/       # Summer holiday photos
+└── misc/             # Other photos
 ```
+
+**Nested Folder Benefits:**
+- **Organized Collections**: Group related photos logically
+- **Targeted Slideshows**: Show only specific photo categories
+- **Easy Navigation**: Expand/collapse folder trees as needed
+- **Visual Clarity**: Indented structure shows folder relationships
 
 ## 🛠️ Development
 
@@ -146,12 +181,15 @@ digital-photo-frame/
 #### Public Endpoints
 - `GET /slideshow` - Slideshow interface
 - `GET /login` - Login page
-- `GET /api/random-image` - Get random image for slideshow
+- `GET /api/images/random` - Get random image for slideshow
+- `GET /api/images/random?folder=path` - Get random image from specific folder
+- `GET /api/folders` - Get folder structure for slideshow selector
+- `GET /api/folders/:folderPath` - Get specific folder contents and subfolders
 - `POST /api/auth/login` - User authentication
 
 #### Protected Endpoints (Requires Authentication)
 - `GET /admin` - Admin panel interface
-- `GET /api/folders` - List folder contents
+- `GET /api/folders` - List folder contents (admin)
 - `POST /api/folders` - Create new folder
 - `DELETE /api/folders` - Delete folder
 - `POST /api/upload` - Upload images
@@ -174,12 +212,15 @@ digital-photo-frame/
 
 ### Slideshow Configuration
 
-The slideshow automatically:
-- Displays random images from all folders
-- Advances every 15 seconds
-- Applies smooth fade transitions (1 second)
-- Optimizes display for landscape/portrait orientations
-- Prevents device sleep using Wake Lock API
+The slideshow features:
+- **Random Image Display**: Shows random images from selected folder(s)
+- **Folder Filtering**: Interactive folder selector for targeted slideshows
+- **Auto-Advance**: 15-second intervals with smooth fade transitions (1 second)
+- **Nested Folder Support**: Expandable folder tree with visual hierarchy
+- **Smart Selection Memory**: Remembers last selected folder across sessions
+- **Display Optimization**: Automatic landscape/portrait orientation handling
+- **Wake Lock Support**: Prevents device sleep during slideshow
+- **Real-time Updates**: Instantly switches content when folder selection changes
 
 ## 🚀 Deployment
 
