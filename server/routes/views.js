@@ -6,6 +6,7 @@ const { requireAuth, requireGuest } = require('../middleware/auth');
 // Public routes
 router.get('/', viewController.redirectToSlideshow.bind(viewController));
 router.get('/slideshow', viewController.serveSlideshow.bind(viewController));
+router.get('/folder-selection', viewController.serveFolderSelection.bind(viewController));
 router.get('/login', requireGuest, viewController.serveLogin.bind(viewController));
 
 // Protected routes

@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Photo Frame - Select Folder</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            min-height: 100vh;
+            color: white;
+        }
+
+        .header {
+            background: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 8px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .title {
+            font-size: 24px;
+            font-weight: 500;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .slideshow-btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.3s ease;
+            text-decoration: none;
+        }
+
+        .slideshow-btn:hover {
+            background: #45a049;
+        }
+
+        .main-content {
+            padding: 24px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .current-selection {
+            background: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .selection-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .selection-header .material-icons {
+            color: #4CAF50;
+            font-size: 28px;
+        }
+
+        .selection-title {
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+        .selection-info {
+            color: rgba(255, 255, 255, 0.8);
+            margin-left: 40px;
+        }
+
+        .folder-browser-container {
+            background: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .browser-header {
+            margin-bottom: 20px;
+        }
+
+        .browser-title {
+            font-size: 20px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .browser-subtitle {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 12px 16px;
+            }
+
+            .title {
+                font-size: 20px;
+            }
+
+            .main-content {
+                padding: 16px;
+            }
+
+            .current-selection {
+                padding: 16px;
+            }
+
+            .folder-browser-container {
+                padding: 16px;
+            }
+
+            .header-right .slideshow-btn span:not(.material-icons) {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-left">
+            <button class="back-btn" onclick="goBack()">
+                <span class="material-icons">arrow_back</span>
+            </button>
+            <h1 class="title">Select Folder</h1>
+        </div>
+        <div class="header-right">
+            <a href="/slideshow" class="slideshow-btn">
+                <span class="material-icons">slideshow</span>
+                <span>Start Slideshow</span>
+            </a>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="current-selection">
+            <div class="selection-header">
+                <span class="material-icons">check_circle</span>
+                <div class="selection-title">Current Selection</div>
+            </div>
+            <div class="selection-info" id="currentSelection">
+                All Folders - All images will be shown
+            </div>
+        </div>
+
+        <div class="folder-browser-container">
+            <div class="browser-header">
+                <h2 class="browser-title">Choose a Folder</h2>
+                <p class="browser-subtitle">Select a folder to display only images from that folder in the slideshow</p>
+            </div>
+            
+            <div id="folderBrowser">
+                <!-- Folder browser will be initialized here -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Load required scripts -->
+    <script src="/js/folderService.js"></script>
+    <script src="/js/folderStorage.js"></script>
+    <script src="/js/folderBrowser.js"></script>
+
+    <script>
+        let folderBrowser;
+        
+        // Initialize folder browser when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeFolderBrowser();
+            updateCurrentSelection();
+        });
+
+        function initializeFolderBrowser() {
+            const container = document.getElementById('folderBrowser');
+            
+            folderBrowser = new FolderBrowser(container, {
+                showBreadcrumb: true,
+                showAllFoldersOption: true,
+                onFolderSelected: onFolderSelected,
+                onFolderChanged: onFolderChanged
+            });
+        }
+
+        function onFolderSelected(folderPath, folderName) {
+            console.log('Folder selected:', folderPath, folderName);
+            updateCurrentSelection();
+            
+            // Show success feedback
+            showNotification(`Selected: ${folderName}`, 'success');
+        }
+
+        function onFolderChanged(folderPath, folderName) {
+            console.log('Folder changed:', folderPath, folderName);
+            updateCurrentSelection();
+        }
+
+        function updateCurrentSelection() {
+            const storage = new FolderStorage();
+            const selection = storage.loadSelectedFolder();
+            const selectionElement = document.getElementById('currentSelection');
+            
+            if (selection) {
+                selectionElement.textContent = `${selection.name} - Images from this folder will be shown`;
+            } else {
+                selectionElement.textContent = 'All Folders - All images will be shown';
+            }
+        }
+
+        function goBack() {
+            // Check if there's a referrer, otherwise go to slideshow
+            if (document.referrer && document.referrer !== window.location.href) {
+                window.history.back();
+            } else {
+                window.location.href = '/slideshow';
+            }
+        }
+
+        function showNotification(message, type = 'info') {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'success' ? '#4CAF50' : '#2196F3'};
+                color: white;
+                padding: 12px 20px;
+                border-radius: 8px;
+                z-index: 10000;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+                animation: slideIn 0.3s ease;
+            `;
+            notification.textContent = message;
+            
+            // Add animation keyframes if not already added
+            if (!document.getElementById('notification-styles')) {
+                const style = document.createElement('style');
+                style.id = 'notification-styles';
+                style.textContent = `
+                    @keyframes slideIn {
+                        from { transform: translateX(100%); opacity: 0; }
+                        to { transform: translateX(0); opacity: 1; }
+                    }
+                    @keyframes slideOut {
+                        from { transform: translateX(0); opacity: 1; }
+                        to { transform: translateX(100%); opacity: 0; }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+            
+            document.body.appendChild(notification);
+            
+            // Remove notification after 3 seconds
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }, 3000);
+        }
+
+        // Handle browser navigation
+        window.addEventListener('popstate', () => {
+            goBack();
+        });
+    </script>
+</body>
+</html>

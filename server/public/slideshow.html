@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Digital Photo Frame - Slideshow</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -15,6 +16,11 @@
             background-color: #000;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             overflow: hidden;
+            cursor: auto;
+            transition: cursor 0.3s ease;
+        }
+
+        body.hide-cursor {
             cursor: none;
         }
 
@@ -43,18 +49,13 @@
         }
 
         .slide img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            object-position: center;
-            border-radius: 0;
-        }
-        
-        /* Images should display in their correct orientation (EXIF handled by backend) */
-        .slide img {
-            object-fit: contain;
             width: 100vw;
             height: 100vh;
+            object-fit: contain;
+            object-position: center;
+            border-radius: 0;
+            max-width: 100vw;
+            max-height: 100vh;
         }
 
         .loading {
@@ -125,16 +126,28 @@
             background: rgba(255, 255, 255, 0.2);
             border: none;
             color: white;
-            padding: 12px;
+            padding: 0;
             border-radius: 50%;
             cursor: pointer;
-            font-size: 18px;
             transition: background 0.3s ease;
             backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
         }
 
         .control-btn:hover {
             background: rgba(255, 255, 255, 0.3);
+        }
+
+        .folder-selector-container {
+            margin-right: 15px;
+        }
+
+        .control-btn .material-icons {
+            font-size: 20px;
         }
 
         .error {
@@ -153,7 +166,7 @@
 
         /* Fullscreen mode */
         .fullscreen {
-            cursor: none;
+            /* Cursor is now handled dynamically by JavaScript */
         }
 
         .fullscreen .controls {
@@ -207,9 +220,19 @@
         <div class="progress-bar" id="progressBar"></div>
         
         <div class="controls">
-            <button class="control-btn" id="fullscreenBtn" title="Fullscreen">⛶</button>
+            <div id="folderSelector" class="folder-selector-container">
+                <!-- Folder selector will be initialized here -->
+            </div>
+            <button class="control-btn" id="fullscreenBtn" title="Fullscreen">
+                <span class="material-icons">fullscreen</span>
+            </button>
         </div>
     </div>
+
+    <!-- Load folder selection scripts -->
+    <script src="/js/folderService.js"></script>
+    <script src="/js/folderStorage.js"></script>
+    <script src="/js/folderSelector.js"></script>
 
     <script>
         class PhotoFrameSlideshow {
@@ -224,9 +247,14 @@
                 this.preloadedImages = [];
                 this.currentImageData = null;
                 this.wakeLock = null;
+                this.folderSelector = null;
+                this.folderStorage = new FolderStorage();
+                this.cursorHideTimer = null;
                 
                 this.initializeElements();
                 this.setupEventListeners();
+                this.initializeFolderSelector();
+                this.setupCursorAutoHide();
                 this.requestWakeLock();
                 this.startSlideshow();
             }
@@ -281,14 +309,24 @@
 
             async fetchRandomImage() {
                 try {
-                    const response = await fetch('/api/random-image');
+                    const selectedFolderPath = this.folderStorage.getCurrentFolderPath();
+                    const url = selectedFolderPath 
+                        ? `/api/images/random?folder=${encodeURIComponent(selectedFolderPath)}`
+                        : '/api/images/random';
+                    
+                    const response = await fetch(url);
                     if (!response.ok) throw new Error('Failed to fetch image');
                     const data = await response.json();
-                    console.log('Fetched image:', data);
-                    return data;
+                    
+                    if (!data.success) {
+                        throw new Error(data.error || 'Failed to fetch image');
+                    }
+                    
+                    console.log('Fetched image from', selectedFolderPath || 'all folders', ':', data.image);
+                    return data.image;
                 } catch (error) {
                     console.error('Error fetching random image:', error);
-                    this.showError('Failed to load new image');
+                    this.showError(`Failed to load image: ${error.message}`);
                     return null;
                 }
             }
@@ -573,9 +611,61 @@
                     clearInterval(this.fullscreenTimer);
                     this.fullscreenTimer = null;
                 }
+
+                if (this.cursorHideTimer) {
+                    clearTimeout(this.cursorHideTimer);
+                    this.cursorHideTimer = null;
+                }
                 
                 this.releaseWakeLock();
                 console.log('Slideshow cleanup completed');
+            }
+
+            initializeFolderSelector() {
+                const container = document.getElementById('folderSelector');
+                if (container) {
+                    this.folderSelector = new FolderSelector(container, {
+                        onFolderChanged: (folderPath, folderName) => {
+                            console.log('Folder changed in slideshow:', folderPath, folderName);
+                            this.onFolderChanged(folderPath, folderName);
+                        },
+                        showFolderCount: true,
+                        autoClose: true
+                    });
+                }
+            }
+
+            onFolderChanged(folderPath, folderName) {
+                // Stop current slideshow
+                this.clearTimers();
+                
+                // Reset progress
+                this.resetProgress();
+                
+                // Load new image from selected folder
+                this.nextImage();
+                
+                console.log(`Slideshow switched to folder: ${folderName}`);
+            }
+
+            setupCursorAutoHide() {
+                const hideCursor = () => {
+                    document.body.classList.add('hide-cursor');
+                };
+
+                const showCursor = () => {
+                    document.body.classList.remove('hide-cursor');
+                    clearTimeout(this.cursorHideTimer);
+                    this.cursorHideTimer = setTimeout(hideCursor, 3000); // Hide after 3 seconds of inactivity
+                };
+
+                // Show cursor on mouse movement
+                document.addEventListener('mousemove', showCursor);
+                document.addEventListener('mousedown', showCursor);
+                document.addEventListener('keydown', showCursor);
+
+                // Initially hide cursor after 3 seconds
+                this.cursorHideTimer = setTimeout(hideCursor, 3000);
             }
 
             async startSlideshow() {

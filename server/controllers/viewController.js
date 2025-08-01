@@ -11,6 +11,11 @@ class ViewController {
     res.sendFile(path.join(__dirname, '..', 'public', 'slideshow.html'));
   }
 
+  // Serve folder selection page
+  serveFolderSelection(req, res) {
+    res.sendFile(path.join(__dirname, '..', 'public', 'folder-selection.html'));
+  }
+
   // Serve login page
   serveLogin(req, res) {
     res.sendFile(path.join(__dirname, '..', 'public', 'login.html'));

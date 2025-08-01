@@ -49,16 +49,38 @@ class ImageController {
     return images;
   }
 
-  // Get random image endpoint with anti-repeat logic
+  // Get random image endpoint with anti-repeat logic and folder filtering
   async getRandomImage(req, res) {
     try {
+      const folderFilter = req.query.folder;
       const allImages = await this.getAllImages();
       
       if (allImages.length === 0) {
-        return res.status(404).json({ message: 'No images found' });
+        return res.status(404).json({ 
+          success: false,
+          error: 'No images found',
+          code: 'NO_IMAGES_FOUND'
+        });
       }
       
       let availableImages = allImages;
+      
+      // Apply folder filter if specified
+      if (folderFilter) {
+        const decodedFolder = decodeURIComponent(folderFilter);
+        availableImages = allImages.filter(img => {
+          const imgFolder = path.dirname(img.relativePath);
+          return imgFolder === decodedFolder || imgFolder.startsWith(decodedFolder + path.sep);
+        });
+        
+        if (availableImages.length === 0) {
+          return res.status(404).json({ 
+            success: false,
+            error: `No images found in folder: ${decodedFolder}`,
+            code: 'FOLDER_EMPTY'
+          });
+        }
+      }
       
       // If we have enough images, filter out recently shown ones
       if (allImages.length > this.maxRecentCount) {
@@ -89,17 +111,65 @@ class ImageController {
       const relativePath = `/uploads/${randomImage.relativePath}`;
       const fullUrl = `${req.protocol}://${req.get('host')}${relativePath}`;
       
-      console.log(`Selected image: ${randomImage.id}, Recently shown count: ${this.recentlyShown.size}/${allImages.length}`);
+      console.log(`Selected image: ${randomImage.id}, Recently shown count: ${this.recentlyShown.size}/${availableImages.length}, Folder filter: ${folderFilter || 'none'}`);
       
       res.json({
-        path: relativePath,
-        url: fullUrl,
-        folder: randomImage.folder,
-        filename: path.basename(randomImage.path)
+        success: true,
+        image: {
+          id: randomImage.id,
+          filename: path.basename(randomImage.path),
+          path: relativePath,
+          folder: path.dirname(randomImage.relativePath),
+          url: fullUrl,
+          thumbnail: `${req.protocol}://${req.get('host')}/api/images/${encodeURIComponent(randomImage.id)}/thumbnail`,
+          metadata: {
+            size: null, // Would need fs.stat to get actual size
+            dimensions: {
+              width: null,
+              height: null
+            },
+            createdAt: null
+          }
+        }
       });
     } catch (error) {
       console.error('Error getting random image:', error);
       res.status(500).json({ message: 'Server error' });
+    }
+  }
+
+  // Get image thumbnail
+  async getImageThumbnail(req, res) {
+    try {
+      const imageId = decodeURIComponent(req.params.imageId);
+      const imagePath = path.join(this.uploadsDir, imageId);
+      
+      if (!await fs.pathExists(imagePath)) {
+        return res.status(404).json({
+          success: false,
+          error: 'Image not found',
+          code: 'IMAGE_NOT_FOUND'
+        });
+      }
+      
+      // Generate thumbnail
+      const thumbnailBuffer = await sharp(imagePath)
+        .resize(200, 200, { fit: 'cover' })
+        .jpeg({ quality: 80 })
+        .toBuffer();
+      
+      res.set({
+        'Content-Type': 'image/jpeg',
+        'Cache-Control': 'public, max-age=3600'
+      });
+      res.send(thumbnailBuffer);
+    } catch (error) {
+      console.error('Error generating image thumbnail:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Server error',
+        code: 'SERVER_ERROR'
+      });
     }
   }
 

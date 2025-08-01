@@ -149,7 +149,7 @@ class PhotoFrameAdmin {
 
     async loadFolderContents() {
         try {
-            const response = await fetch(`/api/folders?path=${encodeURIComponent(this.currentPath)}`);
+            const response = await fetch(`/api/admin/folders?path=${encodeURIComponent(this.currentPath)}`);
             const data = await response.json();
             
             if (response.ok) {
@@ -282,7 +282,7 @@ class PhotoFrameAdmin {
         }
         
         try {
-            const response = await fetch('/api/folders', {
+            const response = await fetch('/api/admin/folders', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -483,7 +483,7 @@ class PhotoFrameAdmin {
         if (!confirmDelete) return;
         
         try {
-            const endpoint = item.type === 'folder' ? '/api/folders' : '/api/images';
+            const endpoint = item.type === 'folder' ? '/api/admin/folders' : '/api/images';
             console.log('Delete endpoint:', endpoint, 'Path:', item.path);
             const response = await fetch(`${endpoint}?path=${encodeURIComponent(item.path)}`, {
                 method: 'DELETE'
