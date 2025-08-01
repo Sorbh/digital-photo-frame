@@ -316,7 +316,6 @@ class FolderSelector {
             }
 
             .folder-option.all-folders .folder-option-content {
-                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
                 background: rgba(33, 150, 243, 0.1);
             }
 
