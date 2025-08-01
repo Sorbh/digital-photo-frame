@@ -26,7 +26,7 @@ A web-based digital photo frame application that transforms any device with a br
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/digital-photo-frame.git
+   git clone https://github.com/sorbh/digital-photo-frame.git
    cd digital-photo-frame
    ```
 
