@@ -455,8 +455,14 @@ class FolderSelector {
      * @param {string} folderName - Display name of selected folder
      */
     selectFolder(folderPath, folderName) {
+        console.log('🎯 Folder selected:', folderPath, folderName);
+        
         // Save selection
         this.folderStorage.saveSelectedFolder(folderPath, folderName);
+        
+        // Verify it was saved
+        const saved = this.folderStorage.getCurrentFolderPath();
+        console.log('💾 Saved folder path:', saved);
         
         // Update display
         this.updateCurrentSelection();
@@ -469,6 +475,7 @@ class FolderSelector {
         
         // Trigger callback
         if (this.options.onFolderChanged) {
+            console.log('🔄 Triggering onFolderChanged callback');
             this.options.onFolderChanged(folderPath, folderName);
         }
     }

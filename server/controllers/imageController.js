@@ -68,12 +68,22 @@ class ImageController {
       // Apply folder filter if specified
       if (folderFilter) {
         const decodedFolder = decodeURIComponent(folderFilter);
+        console.log('🔍 API Filter - Requested folder:', decodedFolder);
+        console.log('📁 API Filter - Total images before filter:', allImages.length);
+        
         availableImages = allImages.filter(img => {
           const imgFolder = path.dirname(img.relativePath);
-          return imgFolder === decodedFolder || imgFolder.startsWith(decodedFolder + path.sep);
+          const match = imgFolder === decodedFolder || imgFolder.startsWith(decodedFolder + path.sep);
+          if (match) {
+            console.log('✅ API Filter - Match found:', img.relativePath, 'in folder:', imgFolder);
+          }
+          return match;
         });
         
+        console.log('📁 API Filter - Images after filter:', availableImages.length);
+        
         if (availableImages.length === 0) {
+          console.log('❌ API Filter - No images found in folder:', decodedFolder);
           return res.status(404).json({ 
             success: false,
             error: `No images found in folder: ${decodedFolder}`,
@@ -83,20 +93,24 @@ class ImageController {
       }
       
       // If we have enough images, filter out recently shown ones
-      if (allImages.length > this.maxRecentCount) {
-        availableImages = allImages.filter(img => !this.recentlyShown.has(img.id));
+      if (availableImages.length > this.maxRecentCount) {
+        const filteredByRecent = availableImages.filter(img => !this.recentlyShown.has(img.id));
         
         // If all images have been shown recently, reset the recently shown list
-        if (availableImages.length === 0) {
-          console.log('All images shown recently, resetting recent list');
+        if (filteredByRecent.length === 0) {
+          console.log('All images in folder shown recently, resetting recent list');
           this.recentlyShown.clear();
-          availableImages = allImages;
+          // Keep availableImages as is (with folder filter applied)
+        } else {
+          availableImages = filteredByRecent;
         }
       }
       
       // Select random image from available pool
       const randomIndex = Math.floor(Math.random() * availableImages.length);
       const randomImage = availableImages[randomIndex];
+      
+      console.log('🎲 API Filter - Selected image:', randomImage.relativePath, 'from folder:', path.dirname(randomImage.relativePath));
       
       // Add to recently shown list
       this.recentlyShown.add(randomImage.id);
