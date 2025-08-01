@@ -19,6 +19,8 @@ class FolderSelector {
         this.isOpen = false;
         this.folders = [];
         this.isLoading = false;
+        this.expandedFolders = new Set(); // Track expanded folders
+        this.loadedSubfolders = new Map(); // Cache loaded subfolders
         
         this.initializeComponent();
         this.loadFolders();
@@ -95,8 +97,20 @@ class FolderSelector {
             this.closeDropdown();
         });
 
-        // Folder selection
+        // Folder selection and expansion
         this.container.addEventListener('click', (e) => {
+            // Handle expand/collapse button
+            const expandBtn = e.target.closest('.expand-btn');
+            if (expandBtn) {
+                e.preventDefault();
+                e.stopPropagation();
+                const folderOption = expandBtn.closest('.folder-option');
+                const folderPath = folderOption.dataset.path;
+                this.toggleFolderExpansion(folderPath);
+                return;
+            }
+
+            // Handle folder selection
             const folderOption = e.target.closest('.folder-option');
             if (folderOption && !e.target.closest('.close-dropdown')) {
                 e.preventDefault();
@@ -244,20 +258,56 @@ class FolderSelector {
             }
 
             .folder-option {
-                display: flex;
-                align-items: center;
-                gap: 12px;
-                padding: 12px 16px;
+                display: block;
                 cursor: pointer;
                 transition: background 0.2s;
                 color: white;
             }
+            
+            .folder-option-content {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                padding: 12px 16px;
+                transition: background 0.2s;
+            }
+            
+            .expand-btn {
+                background: none;
+                border: none;
+                color: rgba(255, 255, 255, 0.7);
+                cursor: pointer;
+                padding: 2px;
+                border-radius: 4px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 24px;
+                height: 24px;
+                transition: all 0.2s;
+                flex-shrink: 0;
+            }
+            
+            .expand-btn:hover {
+                background: rgba(255, 255, 255, 0.1);
+                color: white;
+            }
+            
+            .expand-btn .material-icons {
+                font-size: 18px;
+            }
+            
+            .folder-spacer {
+                width: 24px;
+                height: 24px;
+                flex-shrink: 0;
+            }
 
-            .folder-option:hover {
+            .folder-option:hover .folder-option-content {
                 background: rgba(255, 255, 255, 0.1);
             }
 
-            .folder-option.selected {
+            .folder-option.selected .folder-option-content {
                 background: rgba(76, 175, 80, 0.2);
                 border-left: 3px solid #4CAF50;
             }
@@ -271,9 +321,10 @@ class FolderSelector {
                 background: rgba(33, 150, 243, 0.2);
             }
 
-            .folder-option .material-icons {
+            .folder-option .folder-icon {
                 font-size: 20px;
                 color: rgba(255, 255, 255, 0.7);
+                flex-shrink: 0;
             }
 
             .folder-option.all-folders .material-icons {
@@ -283,6 +334,7 @@ class FolderSelector {
             .folder-details {
                 flex: 1;
                 min-width: 0;
+                margin-left: 4px;
             }
 
             .folder-name {
@@ -350,6 +402,31 @@ class FolderSelector {
                 background: #ff5252;
             }
 
+            /* Nested folder visual enhancements */
+            .folder-option[data-level="1"] .folder-option-content {
+                background: rgba(255, 255, 255, 0.02);
+            }
+            
+            .folder-option[data-level="2"] .folder-option-content {
+                background: rgba(255, 255, 255, 0.04);
+            }
+            
+            .folder-option[data-level="3"] .folder-option-content {
+                background: rgba(255, 255, 255, 0.06);
+            }
+            
+            .folder-option:hover[data-level="1"] .folder-option-content {
+                background: rgba(255, 255, 255, 0.12);
+            }
+            
+            .folder-option:hover[data-level="2"] .folder-option-content {
+                background: rgba(255, 255, 255, 0.14);
+            }
+            
+            .folder-option:hover[data-level="3"] .folder-option-content {
+                background: rgba(255, 255, 255, 0.16);
+            }
+
             @media (max-width: 600px) {
                 .folder-dropdown {
                     width: 250px;
@@ -361,6 +438,15 @@ class FolderSelector {
                     max-width: 150px;
                     font-size: 12px;
                     padding: 6px 10px;
+                }
+                
+                .folder-option-content {
+                    padding: 10px 12px;
+                }
+                
+                .expand-btn {
+                    width: 20px;
+                    height: 20px;
                 }
             }
         `;
@@ -431,21 +517,49 @@ class FolderSelector {
         if (!list) return;
 
         list.innerHTML = '';
+        this.renderFolderLevel(this.folders, list, 0);
+    }
 
-        this.folders.forEach(folder => {
+    /**
+     * Render folders at a specific level with indentation
+     * @param {Array} folders - Folders to render
+     * @param {Element} container - Container to append to
+     * @param {number} level - Nesting level for indentation
+     */
+    renderFolderLevel(folders, container, level) {
+        folders.forEach(folder => {
             const element = document.createElement('div');
             element.className = 'folder-option';
             element.dataset.path = folder.path;
-
+            element.dataset.level = level;
+            
+            const isExpanded = this.expandedFolders.has(folder.path);
+            const hasSubfolders = folder.hasSubfolders;
+            const indentPadding = level * 20; // 20px per level
+            
             element.innerHTML = `
-                <span class="material-icons">folder</span>
-                <div class="folder-details">
-                    <div class="folder-name">${folder.name}</div>
-                    ${this.options.showFolderCount ? `<div class="folder-count">${folder.imageCount} images</div>` : ''}
+                <div class="folder-option-content" style="padding-left: ${indentPadding}px;">
+                    ${hasSubfolders ? 
+                        `<button class="expand-btn" data-expanded="${isExpanded}">
+                            <span class="material-icons">${isExpanded ? 'keyboard_arrow_down' : 'keyboard_arrow_right'}</span>
+                        </button>` : 
+                        `<div class="folder-spacer"></div>`
+                    }
+                    <span class="material-icons folder-icon">folder</span>
+                    <div class="folder-details">
+                        <div class="folder-name">${folder.name}</div>
+                        ${this.options.showFolderCount ? `<div class="folder-count">${folder.imageCount} images</div>` : ''}
+                    </div>
                 </div>
             `;
 
-            list.appendChild(element);
+            container.appendChild(element);
+            
+            // Render subfolders if expanded
+            if (isExpanded && this.loadedSubfolders.has(folder.path)) {
+                const subfolders = this.loadedSubfolders.get(folder.path);
+                this.renderFolderLevel(subfolders, container, level + 1);
+            }
         });
     }
 
@@ -507,7 +621,38 @@ class FolderSelector {
         const selectedElement = this.container.querySelector(`[data-path="${selectedPath}"]`);
         if (selectedElement) {
             selectedElement.classList.add('selected');
+            
+            // Auto-expand parent folders if needed
+            this.expandParentFolders(selectedPath);
         }
+    }
+    
+    /**
+     * Expand parent folders to show selected nested folder
+     * @param {string} folderPath - Path of selected folder
+     */
+    async expandParentFolders(folderPath) {
+        if (!folderPath) return;
+        
+        const pathParts = folderPath.split('/');
+        let currentPath = '';
+        
+        // Expand each parent folder in the path
+        for (let i = 0; i < pathParts.length - 1; i++) {
+            currentPath = currentPath ? `${currentPath}/${pathParts[i]}` : pathParts[i];
+            
+            if (!this.expandedFolders.has(currentPath)) {
+                this.expandedFolders.add(currentPath);
+                
+                // Load subfolders if not already loaded
+                if (!this.loadedSubfolders.has(currentPath)) {
+                    await this.loadSubfolders(currentPath);
+                }
+            }
+        }
+        
+        // Re-render to show expanded folders
+        this.renderFolders();
     }
 
     /**
@@ -570,10 +715,52 @@ class FolderSelector {
     }
 
     /**
+     * Toggle folder expansion
+     * @param {string} folderPath - Path of folder to toggle
+     */
+    async toggleFolderExpansion(folderPath) {
+        const isExpanded = this.expandedFolders.has(folderPath);
+        
+        if (isExpanded) {
+            // Collapse folder
+            this.expandedFolders.delete(folderPath);
+            this.renderFolders();
+        } else {
+            // Expand folder
+            this.expandedFolders.add(folderPath);
+            
+            // Load subfolders if not already loaded
+            if (!this.loadedSubfolders.has(folderPath)) {
+                await this.loadSubfolders(folderPath);
+            }
+            
+            this.renderFolders();
+        }
+    }
+    
+    /**
+     * Load subfolders for a specific folder
+     * @param {string} folderPath - Path of folder to load subfolders for
+     */
+    async loadSubfolders(folderPath) {
+        try {
+            const data = await this.folderService.getFolderStructure(folderPath);
+            const subfolders = data.subfolders || [];
+            this.loadedSubfolders.set(folderPath, subfolders);
+        } catch (error) {
+            console.error('Error loading subfolders:', error);
+            // Remove from expanded set if loading failed
+            this.expandedFolders.delete(folderPath);
+        }
+    }
+    
+    /**
      * Refresh the folder list
      */
     refresh() {
         this.folders = [];
+        this.expandedFolders.clear();
+        this.loadedSubfolders.clear();
         this.loadFolders();
     }
 }
