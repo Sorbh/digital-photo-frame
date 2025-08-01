@@ -17,7 +17,9 @@ class FolderService {
                 ? `${this.baseUrl}/folders/${encodeURIComponent(folderPath)}`
                 : `${this.baseUrl}/folders`;
             
-            const response = await fetch(url);
+            const response = await fetch(url, {
+                credentials: 'include' // Ensure cookies are sent
+            });
             
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
@@ -47,7 +49,9 @@ class FolderService {
                 ? `${this.baseUrl}/images/random?folder=${encodeURIComponent(folderPath)}`
                 : `${this.baseUrl}/images/random`;
             
-            const response = await fetch(url);
+            const response = await fetch(url, {
+                credentials: 'include' // Ensure cookies are sent
+            });
             
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);

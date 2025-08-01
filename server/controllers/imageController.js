@@ -65,6 +65,33 @@ class ImageController {
       
       let availableImages = allImages;
       
+      // Apply access account folder restrictions if user is authenticated
+      if (req.session && req.session.accessAccount && req.session.accessAccount.assignedFolders) {
+        const assignedFolders = req.session.accessAccount.assignedFolders;
+        console.log('🔒 Access Control - User assigned folders:', assignedFolders);
+        console.log('📁 Access Control - Total images before access filter:', allImages.length);
+        
+        availableImages = allImages.filter(img => {
+          const imgFolder = path.dirname(img.relativePath);
+          const hasAccess = assignedFolders.includes(imgFolder);
+          if (hasAccess) {
+            console.log('✅ Access Control - Access granted to:', img.relativePath, 'in folder:', imgFolder);
+          }
+          return hasAccess;
+        });
+        
+        console.log('📁 Access Control - Images after access filter:', availableImages.length);
+        
+        if (availableImages.length === 0) {
+          console.log('❌ Access Control - No accessible images found for assigned folders:', assignedFolders);
+          return res.status(403).json({ 
+            success: false,
+            error: 'No images accessible with your account permissions',
+            code: 'ACCESS_RESTRICTED'
+          });
+        }
+      }
+      
       // Apply folder filter if specified
       if (folderFilter) {
         const decodedFolder = decodeURIComponent(folderFilter);

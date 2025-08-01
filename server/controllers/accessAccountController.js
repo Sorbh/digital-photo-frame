@@ -6,6 +6,12 @@ class AccessAccountController {
         this.dataPath = path.join(__dirname, '../data');
         this.accountsFile = path.join(this.dataPath, 'access-accounts.json');
         this.initializeDataDirectory();
+        
+        // Rate limiting for PIN attempts
+        this.rateLimiter = new Map(); // Map<IP, {attempts: number, lockoutUntil: number, firstAttempt: number}>
+        this.maxAttempts = 5; // Maximum failed attempts
+        this.lockoutDuration = 15 * 60 * 1000; // 15 minutes in milliseconds
+        this.attemptWindow = 5 * 60 * 1000; // 5 minutes window for attempts
     }
 
     async initializeDataDirectory() {
@@ -33,6 +39,74 @@ class AccessAccountController {
 
     async saveAccounts(accounts) {
         await fs.writeFile(this.accountsFile, JSON.stringify(accounts, null, 2));
+    }
+
+    // Rate limiting methods
+    checkRateLimit(ip) {
+        const now = Date.now();
+        const record = this.rateLimiter.get(ip);
+        
+        if (!record) {
+            return { allowed: true, attemptsRemaining: this.maxAttempts };
+        }
+        
+        // Check if lockout period has expired
+        if (record.lockoutUntil && now < record.lockoutUntil) {
+            const remainingTime = Math.ceil((record.lockoutUntil - now) / 1000 / 60); // minutes
+            return { 
+                allowed: false, 
+                locked: true, 
+                remainingTime,
+                message: `Too many failed attempts. Try again in ${remainingTime} minutes.`
+            };
+        }
+        
+        // Check if attempt window has expired (reset counter)
+        if (record.firstAttempt && (now - record.firstAttempt) > this.attemptWindow) {
+            this.rateLimiter.delete(ip);
+            return { allowed: true, attemptsRemaining: this.maxAttempts };
+        }
+        
+        // Check if max attempts reached
+        if (record.attempts >= this.maxAttempts) {
+            // Set lockout
+            record.lockoutUntil = now + this.lockoutDuration;
+            const remainingTime = Math.ceil(this.lockoutDuration / 1000 / 60);
+            return {
+                allowed: false,
+                locked: true,
+                remainingTime,
+                message: `Too many failed attempts. Account locked for ${remainingTime} minutes.`
+            };
+        }
+        
+        return { 
+            allowed: true, 
+            attemptsRemaining: this.maxAttempts - record.attempts 
+        };
+    }
+    
+    recordFailedAttempt(ip) {
+        const now = Date.now();
+        const record = this.rateLimiter.get(ip);
+        
+        if (!record) {
+            this.rateLimiter.set(ip, {
+                attempts: 1,
+                firstAttempt: now,
+                lockoutUntil: null
+            });
+        } else {
+            record.attempts += 1;
+            if (!record.firstAttempt) {
+                record.firstAttempt = now;
+            }
+        }
+    }
+    
+    recordSuccessfulAttempt(ip) {
+        // Clear rate limiting on successful authentication
+        this.rateLimiter.delete(ip);
     }
 
     generateAccountId() {
@@ -188,6 +262,19 @@ class AccessAccountController {
     async authenticateWithPin(req, res) {
         try {
             const { pin } = req.body;
+            const clientIP = req.ip || req.connection.remoteAddress || req.socket.remoteAddress;
+
+            // Check rate limiting
+            const rateLimitCheck = this.checkRateLimit(clientIP);
+            if (!rateLimitCheck.allowed) {
+                console.log(`🚫 Rate limit exceeded for IP: ${clientIP}`);
+                return res.status(429).json({
+                    success: false,
+                    error: rateLimitCheck.message,
+                    code: 'RATE_LIMITED',
+                    remainingTime: rateLimitCheck.remainingTime
+                });
+            }
 
             if (!pin) {
                 return res.status(400).json({
@@ -200,12 +287,23 @@ class AccessAccountController {
             const account = accounts.find(acc => acc.pin === pin);
 
             if (!account) {
+                // Record failed attempt
+                this.recordFailedAttempt(clientIP);
+                const newRateLimitCheck = this.checkRateLimit(clientIP);
+                
+                console.log(`❌ Failed PIN attempt from IP: ${clientIP}, attempts remaining: ${newRateLimitCheck.attemptsRemaining || 0}`);
+                
                 return res.status(401).json({
                     success: false,
                     error: 'Invalid PIN',
-                    code: 'INVALID_PIN'
+                    code: 'INVALID_PIN',
+                    attemptsRemaining: newRateLimitCheck.attemptsRemaining || 0
                 });
             }
+
+            // Record successful attempt (clears rate limiting)
+            this.recordSuccessfulAttempt(clientIP);
+            console.log(`✅ Successful PIN authentication from IP: ${clientIP} for account: ${account.name}`);
 
             // Update last accessed time
             account.lastAccessed = new Date().toISOString();

@@ -164,10 +164,7 @@
             backdrop-filter: blur(10px);
         }
 
-        /* Fullscreen mode */
-        .fullscreen {
-            /* Cursor is now handled dynamically by JavaScript */
-        }
+        /* Fullscreen mode - cursor handled dynamically by JavaScript */
 
         .fullscreen .controls {
             opacity: 0;
@@ -197,9 +194,238 @@
                 font-size: 16px;
             }
         }
+        /* PIN Authentication Styles */
+        .auth-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            opacity: 1;
+            transition: opacity 0.5s ease;
+        }
+
+        .auth-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .auth-container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .auth-title {
+            font-size: 28px;
+            font-weight: 300;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .auth-subtitle {
+            font-size: 16px;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+        }
+
+        .pin-form {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .pin-input {
+            font-size: 24px;
+            text-align: center;
+            padding: 15px;
+            border: 2px solid #ecf0f1;
+            border-radius: 12px;
+            background: #fff;
+            color: #2c3e50;
+            letter-spacing: 0.5em;
+            max-width: 200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 10;
+        }
+
+        .pin-input:focus {
+            outline: 3px solid rgba(52, 152, 219, 0.3);
+            outline-offset: 1px;
+            border-color: #3498db;
+        }
+
+        .pin-input.error {
+            border-color: #e74c3c;
+            outline: 3px solid rgba(231, 76, 60, 0.3);
+            outline-offset: 1px;
+        }
+
+        .pin-input:disabled {
+            background-color: #f8f9fa;
+            color: #6c757d;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .pin-input:disabled.error {
+            border-color: #dc3545;
+            background-color: #f8d7da;
+        }
+
+
+        .auth-button {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 5;
+        }
+
+        .auth-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(52, 152, 219, 0.3);
+        }
+
+        .auth-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .auth-error {
+            color: #e74c3c;
+            font-size: 14px;
+            margin-top: 10px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            position: relative;
+            z-index: 8;
+        }
+
+        .auth-loading {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            color: #7f8c8d;
+            margin-top: 10px;
+        }
+
+        .auth-loading.show {
+            display: flex;
+        }
+
+        .spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid #ecf0f1;
+            border-top: 2px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .logout-btn {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 10px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Mobile responsiveness for auth */
+        @media (max-width: 768px) {
+            .auth-container {
+                padding: 30px 20px;
+                margin: 20px;
+            }
+            
+            .auth-title {
+                font-size: 24px;
+            }
+            
+            .pin-input {
+                font-size: 20px;
+                padding: 12px;
+                max-width: 160px;
+            }
+        }
     </style>
 </head>
 <body>
+    <!-- PIN Authentication Overlay -->
+    <div class="auth-overlay" id="authOverlay">
+        <div class="auth-container">
+            <h1 class="auth-title">Welcome</h1>
+            <p class="auth-subtitle">Enter your PIN to access the photo slideshow</p>
+            
+            <form class="pin-form" id="pinForm">
+                <input 
+                    type="password" 
+                    id="pinInput" 
+                    class="pin-input" 
+                    placeholder="••••" 
+                    maxlength="6" 
+                    autocomplete="off"
+                    inputmode="numeric"
+                    pattern="[0-9]*"
+                >
+                
+                <button type="submit" class="auth-button" id="authButton">
+                    <span class="material-icons">lock_open</span>
+                    Access Slideshow
+                </button>
+                
+                <div class="auth-error" id="authError"></div>
+                <div class="auth-loading" id="authLoading">
+                    <div class="spinner"></div>
+                    <span>Authenticating...</span>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <div class="slideshow-container">
         <div class="loading" id="loading">Loading your photos...</div>
         <div class="error hidden" id="error">Unable to load images. Please check your connection.</div>
@@ -220,6 +446,9 @@
         <div class="progress-bar" id="progressBar"></div>
         
         <div class="controls">
+            <button class="control-btn" id="logoutBtn" title="Logout">
+                <span class="material-icons">logout</span>
+            </button>
             <div id="folderSelector" class="folder-selector-container">
                 <!-- Folder selector will be initialized here -->
             </div>
@@ -235,6 +464,199 @@
     <script src="/js/folderSelector.js"></script>
 
     <script>
+        class AuthenticationManager {
+            constructor() {
+                this.isAuthenticated = false;
+                this.authOverlay = document.getElementById('authOverlay');
+                this.pinForm = document.getElementById('pinForm');
+                this.pinInput = document.getElementById('pinInput');
+                this.authButton = document.getElementById('authButton');
+                this.authError = document.getElementById('authError');
+                this.authLoading = document.getElementById('authLoading');
+                
+                this.init();
+            }
+            
+            init() {
+                this.bindEvents();
+                this.checkExistingSession();
+            }
+            
+            bindEvents() {
+                this.pinForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.authenticate();
+                });
+                
+                this.pinInput.addEventListener('input', () => {
+                    this.clearError();
+                    this.clearErrorState();
+                });
+                
+                this.pinInput.addEventListener('keypress', (e) => {
+                    // Only allow numeric input
+                    if (!/[0-9]/.test(e.key) && e.key !== 'Backspace' && e.key !== 'Delete' && e.key !== 'Tab') {
+                        e.preventDefault();
+                    }
+                });
+            }
+            
+            async checkExistingSession() {
+                try {
+                    const response = await fetch('/api/auth/session');
+                    const data = await response.json();
+                    
+                    if (data.authenticated) {
+                        this.handleAuthSuccess(data.account);
+                    } else {
+                        this.showAuthOverlay();
+                    }
+                } catch (error) {
+                    console.error('Session check failed:', error);
+                    this.showAuthOverlay();
+                }
+            }
+            
+            async authenticate() {
+                const pin = this.pinInput.value.trim();
+                
+                if (!pin) {
+                    this.showError('Please enter your PIN');
+                    return;
+                }
+                
+                if (pin.length < 4) {
+                    this.showError('PIN must be at least 4 digits');
+                    return;
+                }
+                
+                this.setLoading(true);
+                
+                try {
+                    const response = await fetch('/api/auth/pin', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ pin })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        this.handleAuthSuccess(data.account);
+                    } else {
+                        this.handleAuthError(data.error, data.code);
+                    }
+                } catch (error) {
+                    console.error('Authentication error:', error);
+                    this.showError('Connection error. Please try again.');
+                } finally {
+                    this.setLoading(false);
+                }
+            }
+            
+            handleAuthSuccess(account) {
+                this.isAuthenticated = true;
+                this.userAccount = account;
+                console.log('Authentication successful for account:', account.name);
+                
+                // Store auth state for the session
+                sessionStorage.setItem('authenticated', 'true');
+                sessionStorage.setItem('accountName', account.name);
+                
+                // Hide auth overlay
+                this.hideAuthOverlay();
+                
+                // Always dispatch the authentication complete event for consistent handling
+                document.dispatchEvent(new CustomEvent('authenticationComplete', { 
+                    detail: { account } 
+                }));
+            }
+            
+            handleAuthError(error, errorCode) {
+                this.showError(error || 'Invalid PIN');
+                
+                if (errorCode === 'RATE_LIMITED') {
+                    // For rate limiting, disable the input and add different styling
+                    this.pinInput.disabled = true;
+                    this.pinInput.classList.add('error');
+                    this.authButton.disabled = true;
+                } else {
+                    // For invalid PIN, just add error styling and select input
+                    this.pinInput.classList.add('error');
+                    this.pinInput.select();
+                }
+            }
+            
+            async logout() {
+                try {
+                    await fetch('/api/auth/session', { method: 'DELETE' });
+                } catch (error) {
+                    console.error('Logout error:', error);
+                } finally {
+                    this.isAuthenticated = false;
+                    this.userAccount = null;
+                    sessionStorage.removeItem('authenticated');
+                    sessionStorage.removeItem('accountName');
+                    this.showAuthOverlay();
+                    this.clearForm();
+                    
+                    // Stop slideshow
+                    if (window.slideshow) {
+                        window.slideshow.cleanup();
+                    }
+                }
+            }
+            
+            showAuthOverlay() {
+                this.authOverlay.classList.remove('hidden');
+                setTimeout(() => {
+                    this.pinInput.focus();
+                }, 100);
+            }
+            
+            hideAuthOverlay() {
+                this.authOverlay.classList.add('hidden');
+            }
+            
+            setLoading(loading) {
+                this.authButton.disabled = loading;
+                this.pinInput.disabled = loading;
+                
+                if (loading) {
+                    this.authLoading.classList.add('show');
+                    this.clearError();
+                } else {
+                    this.authLoading.classList.remove('show');
+                }
+            }
+            
+            showError(message) {
+                this.authError.textContent = message;
+                this.authError.innerHTML = `<span class="material-icons">error</span> ${message}`;
+            }
+            
+            clearError() {
+                this.authError.textContent = '';
+            }
+            
+            clearErrorState() {
+                this.pinInput.classList.remove('error');
+                this.pinInput.disabled = false;
+                this.authButton.disabled = false;
+            }
+            
+            clearForm() {
+                this.pinInput.value = '';
+                this.clearError();
+                this.clearErrorState();
+                // Ensure form is fully re-enabled
+                this.pinInput.disabled = false;
+                this.authButton.disabled = false;
+            }
+        }
+
         class PhotoFrameSlideshow {
             constructor() {
                 this.currentSlide = 0;
@@ -256,7 +678,7 @@
                 this.initializeFolderSelector();
                 this.setupCursorAutoHide();
                 this.requestWakeLock();
-                this.startSlideshow();
+                // Don't start slideshow automatically - wait for authentication
             }
 
             initializeElements() {
@@ -275,10 +697,12 @@
                 this.folder = document.getElementById('folder');
                 this.progressBar = document.getElementById('progressBar');
                 this.fullscreenBtn = document.getElementById('fullscreenBtn');
+                this.logoutBtn = document.getElementById('logoutBtn');
             }
 
             setupEventListeners() {
                 this.fullscreenBtn.addEventListener('click', () => this.toggleFullscreen());
+                this.logoutBtn.addEventListener('click', () => this.logout());
                 
                 // Keyboard controls
                 document.addEventListener('keydown', (e) => {
@@ -466,6 +890,12 @@
                 this.info.classList.toggle('hidden');
             }
 
+            logout() {
+                if (window.authManager) {
+                    window.authManager.logout();
+                }
+            }
+
             showControlsTemporarily() {
                 if (document.fullscreenElement) {
                     const controls = document.querySelector('.controls');
@@ -635,6 +1065,11 @@
                         showFolderCount: true,
                         autoClose: true
                     });
+                    
+                    // Clear the initially loaded folders to prevent showing all folders
+                    // They will be reloaded properly after authentication check
+                    this.folderSelector.folders = [];
+                    this.folderSelector.renderFolders();
                 }
             }
 
@@ -700,13 +1135,33 @@
             }
         }
 
-        // Initialize slideshow when DOM is loaded
+        // Initialize authentication and slideshow when DOM is loaded
         document.addEventListener('DOMContentLoaded', () => {
-            const slideshow = new PhotoFrameSlideshow();
+            // Initialize authentication first
+            window.authManager = new AuthenticationManager();
             
-            // Clean up wake lock when page is unloaded
+            // Initialize slideshow (it will wait for authentication)
+            window.slideshow = new PhotoFrameSlideshow();
+            
+            // Listen for successful authentication
+            document.addEventListener('authenticationComplete', (e) => {
+                console.log('Authentication complete, starting slideshow for:', e.detail.account.name);
+                
+                // Add a small delay to ensure session is fully established before refreshing folders
+                setTimeout(() => {
+                    // Refresh folder list after authentication to get user-specific folders
+                    if (window.slideshow && window.slideshow.folderSelector) {
+                        console.log('Refreshing folder list for authenticated user');
+                        window.slideshow.folderSelector.refresh();
+                    }
+                }, 500); // 500ms delay to ensure session is fully established
+                
+                window.slideshow.startSlideshow();
+            });
+            
+            // Clean up when page is unloaded
             window.addEventListener('beforeunload', () => {
-                slideshow.cleanup();
+                window.slideshow.cleanup();
             });
         });
     </script>
