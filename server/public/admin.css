@@ -133,6 +133,9 @@ body {
     font-weight: 500;
     cursor: pointer;
     transition: background-color 0.2s var(--ease-standard);
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .btn-secondary:hover {

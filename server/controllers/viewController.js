@@ -6,6 +6,11 @@ class ViewController {
     res.sendFile(path.join(__dirname, '..', 'public', 'admin.html'));
   }
 
+  // Serve access accounts page
+  serveAccessAccounts(req, res) {
+    res.sendFile(path.join(__dirname, '..', 'public', 'access-accounts.html'));
+  }
+
   // Serve slideshow page
   serveSlideshow(req, res) {
     res.sendFile(path.join(__dirname, '..', 'public', 'slideshow.html'));

@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const imageController = require('../controllers/imageController');
 const folderController = require('../controllers/folderController');
+const accessAccountController = require('../controllers/accessAccountController');
 const upload = require('../middleware/upload');
 const { requireAuth } = require('../middleware/auth');
 
@@ -24,6 +25,17 @@ router.post('/images/rotate', requireAuth, imageController.rotateImage.bind(imag
 router.get('/admin/folders', requireAuth, folderController.getFolderContents.bind(folderController));
 router.post('/admin/folders', requireAuth, folderController.createFolder.bind(folderController));
 router.delete('/admin/folders', requireAuth, folderController.deleteFolder.bind(folderController));
+
+// Access account management routes (admin only)
+router.get('/access-accounts', requireAuth, accessAccountController.getAllAccounts.bind(accessAccountController));
+router.post('/access-accounts', requireAuth, accessAccountController.createAccount.bind(accessAccountController));
+router.put('/access-accounts/:id', requireAuth, accessAccountController.updateAccount.bind(accessAccountController));
+router.delete('/access-accounts/:id', requireAuth, accessAccountController.deleteAccount.bind(accessAccountController));
+
+// PIN authentication routes (public)
+router.post('/auth/pin', accessAccountController.authenticateWithPin.bind(accessAccountController));
+router.get('/auth/session', accessAccountController.getSession.bind(accessAccountController));
+router.delete('/auth/session', accessAccountController.clearSession.bind(accessAccountController));
 
 // Authentication routes
 const authRoutes = require('./auth');
