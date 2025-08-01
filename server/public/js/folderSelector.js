@@ -49,10 +49,13 @@ class FolderSelector {
                     
                     <div class="folder-options">
                         <div class="folder-option all-folders" data-path="">
-                            <span class="material-icons">photo_library</span>
-                            <div class="folder-details">
-                                <div class="folder-name">All Folders</div>
-                                <div class="folder-count">All images</div>
+                            <div class="folder-option-content">
+                                <div class="folder-spacer"></div>
+                                <span class="material-icons folder-icon">photo_library</span>
+                                <div class="folder-details">
+                                    <div class="folder-name">All Folders</div>
+                                    <div class="folder-count">All images</div>
+                                </div>
                             </div>
                         </div>
                         
@@ -312,12 +315,12 @@ class FolderSelector {
                 border-left: 3px solid #4CAF50;
             }
 
-            .folder-option.all-folders {
+            .folder-option.all-folders .folder-option-content {
                 border-bottom: 1px solid rgba(255, 255, 255, 0.1);
                 background: rgba(33, 150, 243, 0.1);
             }
 
-            .folder-option.all-folders:hover {
+            .folder-option.all-folders:hover .folder-option-content {
                 background: rgba(33, 150, 243, 0.2);
             }
 
@@ -327,7 +330,7 @@ class FolderSelector {
                 flex-shrink: 0;
             }
 
-            .folder-option.all-folders .material-icons {
+            .folder-option.all-folders .folder-icon {
                 color: #2196F3;
             }
 
