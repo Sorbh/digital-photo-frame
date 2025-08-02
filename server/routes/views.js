@@ -11,5 +11,6 @@ router.get('/login', requireGuest, viewController.serveLogin.bind(viewController
 
 // Protected routes
 router.get('/admin', requireAuth, viewController.serveAdmin.bind(viewController));
+router.get('/access-accounts', requireAuth, viewController.serveAccessAccounts.bind(viewController));
 
 module.exports = router;

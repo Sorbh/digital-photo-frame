@@ -46,6 +46,10 @@ app.use(logger);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/js', express.static(path.join(__dirname, 'public/js')));
 app.use('/admin', express.static(path.join(__dirname, 'public')));
+// Serve CSS and JS files from root for access-accounts page
+app.use(express.static(path.join(__dirname, 'public'), {
+  index: false // Prevent serving index.html from root
+}));
 
 // Routes
 app.use('/', routes);

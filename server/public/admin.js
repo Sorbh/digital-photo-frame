@@ -27,6 +27,11 @@ class PhotoFrameAdmin {
         // Navigation
         document.getElementById('backBtn').addEventListener('click', () => this.navigateBack());
         
+        // Access Accounts
+        document.getElementById('accessAccountsBtn').addEventListener('click', () => {
+            window.location.href = '/access-accounts';
+        });
+        
         // Breadcrumb navigation
         document.getElementById('breadcrumbContainer').addEventListener('click', (e) => {
             if (e.target.classList.contains('breadcrumb-item')) {

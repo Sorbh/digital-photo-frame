@@ -761,13 +761,53 @@ class FolderSelector {
     }
     
     /**
-     * Refresh the folder list
+     * Find if a folder path exists in the current folder list
+     * @param {string} folderPath - Path to search for
+     * @returns {boolean} True if folder exists
      */
-    refresh() {
+    findFolderInList(folderPath) {
+        if (!folderPath) return true; // "All Folders" always exists
+        
+        const searchInFolders = (folders) => {
+            for (const folder of folders) {
+                if (folder.path === folderPath) return true;
+                if (folder.subfolders && searchInFolders(folder.subfolders)) return true;
+            }
+            return false;
+        };
+        
+        return searchInFolders(this.folders);
+    }
+
+    /**
+     * Refresh the folder list while preserving current selection
+     */
+    async refresh() {
+        // Save current selection before refresh
+        const currentSelection = this.folderStorage.loadSelectedFolder();
+        
         this.folders = [];
         this.expandedFolders.clear();
         this.loadedSubfolders.clear();
-        this.loadFolders();
+        
+        try {
+            // Load folders (this already calls updateSelectedState)
+            await this.loadFolders();
+            
+            // After loading, verify the selection is still valid
+            if (currentSelection && currentSelection.path) {
+                const folderExists = this.findFolderInList(currentSelection.path);
+                if (!folderExists) {
+                    // Selected folder no longer exists, reset to "All Folders"
+                    console.log('Previously selected folder no longer available, resetting to All Folders');
+                    this.folderStorage.saveSelectedFolder('', 'All Folders');
+                    this.updateCurrentSelection();
+                    this.updateSelectedState();
+                }
+            }
+        } catch (error) {
+            console.error('Error refreshing folders:', error);
+        }
     }
 }
 

@@ -114,14 +114,44 @@ class FolderController {
       }
       
       const items = await fs.readdir(fullPath, { withFileTypes: true });
-      const folders = [];
-      const images = [];
+      let folders = [];
+      let images = [];
+      
+      // Check if user has access restrictions (not admin)
+      const hasAccessRestrictions = req.session && req.session.accessAccount && req.session.accessAccount.assignedFolders && !req.session.authenticated;
+      let allowedFolders = null;
+      
+      if (hasAccessRestrictions) {
+        allowedFolders = req.session.accessAccount.assignedFolders;
+        console.log('🔒 Folder Access Control - User assigned folders:', allowedFolders);
+      }
       
       // Process folders
       for (const item of items) {
         if (item.isDirectory()) {
           const itemPath = path.join(fullPath, item.name);
           const relativePath = folderPath ? path.join(folderPath, item.name) : item.name;
+          
+          // Apply access control filtering
+          if (hasAccessRestrictions) {
+            // Check if this folder or any parent folder is in allowed folders
+            const folderAllowed = allowedFolders.some(allowedFolder => {
+              // Check if current folder matches allowed folder exactly
+              if (relativePath === allowedFolder) return true;
+              // Check if current folder is a parent of an allowed folder
+              if (allowedFolder.startsWith(relativePath + path.sep)) return true;
+              // Check if current folder is a child of an allowed folder
+              if (relativePath.startsWith(allowedFolder + path.sep)) return true;
+              return false;
+            });
+            
+            if (!folderAllowed) {
+              console.log('❌ Folder Access Control - Access denied to folder:', relativePath);
+              continue; // Skip this folder
+            }
+            
+            console.log('✅ Folder Access Control - Access granted to folder:', relativePath);
+          }
           
           // Check if folder has subfolders
           const subItems = await fs.readdir(itemPath, { withFileTypes: true });
@@ -142,6 +172,17 @@ class FolderController {
           });
         } else if (item.isFile() && /\.(jpg|jpeg|png|gif|webp)$/i.test(item.name)) {
           const relativePath = folderPath ? path.join(folderPath, item.name) : item.name;
+          const imageFolder = path.dirname(relativePath);
+          
+          // Apply access control filtering for images
+          if (hasAccessRestrictions) {
+            const imageAllowed = allowedFolders.includes(imageFolder);
+            if (!imageAllowed) {
+              console.log('❌ Image Access Control - Access denied to image:', relativePath);
+              continue; // Skip this image
+            }
+          }
+          
           images.push({
             id: relativePath,
             filename: item.name,
