@@ -28,9 +28,12 @@ class GooglePhotosApiService {
       
       if (!response.ok) {
         const errorData = await response.text();
-        console.error(`API request failed: ${response.status} ${response.statusText}`, errorData);
+        console.error(`API request failed: ${response.status} ${response.statusText}`);
+        console.error(`Error details:`, errorData);
+        console.error(`Request URL:`, url);
+        console.error(`Request headers:`, JSON.stringify(requestOptions.headers, null, 2));
         
-        throw new Error(`Google Photos API error: ${response.status} ${response.statusText}`);
+        throw new Error(`Google Photos API error: ${response.status} ${response.statusText} - ${errorData}`);
       }
 
       const data = await response.json();

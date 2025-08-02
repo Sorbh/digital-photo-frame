@@ -1,4 +1,4 @@
-const googlePhotosService = require('../services/googlePhotosService');
+const oauthManager = require('../utils/oauthManager');
 
 // Simple async handler for error handling
 const asyncHandler = (fn) => (req, res, next) => {
@@ -9,14 +9,14 @@ const googlePhotosController = {
   // Get authentication status
   getAuthStatus: asyncHandler(async (req, res) => {
     try {
-      const isAuthenticated = await googlePhotosService.isAuthenticated(req.session);
-      const userInfo = isAuthenticated ? await googlePhotosService.getUserInfo(req.session) : null;
+      const tokens = oauthManager.getStoredTokens(req.session);
+      const isAuthenticated = tokens && tokens.access_token && !oauthManager.isTokenExpired(tokens);
 
       res.json({
         success: true,
         data: {
           authenticated: isAuthenticated,
-          userInfo
+          userInfo: isAuthenticated ? { email: tokens.userEmail || 'Unknown' } : null
         }
       });
     } catch (error) {
@@ -35,11 +35,14 @@ const googlePhotosController = {
   initiateAuth: asyncHandler(async (req, res) => {
     try {
       const { redirectUri } = req.body;
-      const authData = await googlePhotosService.getAuthUrl(redirectUri);
+      const authUrl = oauthManager.getAuthUrl(redirectUri);
 
       res.json({
         success: true,
-        data: authData
+        data: {
+          authUrl,
+          state: 'google-photos-auth'
+        }
       });
     } catch (error) {
       res.status(500).json({
@@ -74,7 +77,6 @@ const googlePhotosController = {
                   }, '*');
                   window.close();
                 } else {
-                  alert('Authentication failed: ${error}');
                   window.location.href = '/admin';
                 }
               </script>
@@ -97,7 +99,6 @@ const googlePhotosController = {
                   }, '*');
                   window.close();
                 } else {
-                  alert('Authentication failed: No authorization code received');
                   window.location.href = '/admin';
                 }
               </script>
@@ -106,7 +107,11 @@ const googlePhotosController = {
         `);
       }
 
-      const result = await googlePhotosService.handleAuthCallback(code, state, req.session);
+      // Exchange code for tokens
+      const tokens = await oauthManager.exchangeCodeForTokens(code);
+      
+      // Store tokens in session
+      await oauthManager.storeTokens(req.session, tokens);
 
       // Send success response to popup window
       res.send(`
@@ -118,11 +123,10 @@ const googlePhotosController = {
                 window.opener.postMessage({
                   type: 'google-photos-auth',
                   success: true,
-                  data: ${JSON.stringify(result)}
+                  data: { authenticated: true }
                 }, '*');
                 window.close();
               } else {
-                alert('Authentication successful! Redirecting...');
                 window.location.href = '/admin';
               }
             </script>
@@ -144,7 +148,6 @@ const googlePhotosController = {
                 }, '*');
                 window.close();
               } else {
-                alert('Authentication failed: ${error.message}');
                 window.location.href = '/admin';
               }
             </script>
@@ -154,10 +157,115 @@ const googlePhotosController = {
     }
   }),
 
+  // Create session for Google Picker
+  createPickerSession: asyncHandler(async (req, res) => {
+    try {
+      // Check authentication
+      const tokens = oauthManager.getStoredTokens(req.session);
+      const isAuthenticated = tokens && tokens.access_token && !oauthManager.isTokenExpired(tokens);
+      
+      if (!isAuthenticated) {
+        return res.status(401).json({
+          success: false,
+          error: {
+            code: 'NOT_AUTHENTICATED',
+            message: 'Google Photos authentication required'
+          }
+        });
+      }
+
+      // Generate unique request ID for Google Photos Picker API
+      const requestId = require('crypto').randomUUID();
+      
+      // Call Google Photos Picker API to create session
+      const fetch = require('node-fetch');
+      const pickerResponse = await fetch(`https://photospicker.googleapis.com/v1/sessions?requestId=${requestId}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${tokens.access_token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          pickingConfig: {
+            maxItemCount: "100"
+          }
+        })
+      });
+
+      if (!pickerResponse.ok) {
+        const errorData = await pickerResponse.json();
+        console.error('Google Photos Picker API error:', errorData);
+        
+        if (pickerResponse.status === 412) {
+          // FAILED_PRECONDITION - user doesn't have active Google Photos account
+          return res.status(400).json({
+            success: false,
+            error: {
+              code: 'NO_GOOGLE_PHOTOS_ACCOUNT',
+              message: 'User does not have an active Google Photos account'
+            }
+          });
+        }
+        
+        if (pickerResponse.status === 429) {
+          // RESOURCE_EXHAUSTED - too many sessions
+          return res.status(429).json({
+            success: false,
+            error: {
+              code: 'TOO_MANY_SESSIONS',
+              message: 'Too many picker sessions created. Please try again later.'
+            }
+          });
+        }
+
+        throw new Error(`Picker API error: ${pickerResponse.status} ${pickerResponse.statusText}`);
+      }
+
+      const pickerData = await pickerResponse.json();
+      
+      // Store picker session for cleanup later
+      req.session.googlePickerSession = {
+        id: pickerData.id,
+        created: new Date(),
+        accessToken: tokens.access_token,
+        requestId: requestId
+      };
+
+      res.json({
+        success: true,
+        data: {
+          sessionId: pickerData.id,
+          pickerUrl: pickerData.pickerUri,
+          requestId: requestId
+        }
+      });
+    } catch (error) {
+      console.error('Create picker session error:', error);
+      res.status(500).json({
+        success: false,
+        error: {
+          code: 'SESSION_CREATE_FAILED',
+          message: 'Failed to create picker session',
+          details: error.message
+        }
+      });
+    }
+  }),
+
   // Revoke access and logout
   revokeAccess: asyncHandler(async (req, res) => {
     try {
-      await googlePhotosService.revokeAccess(req.session);
+      const tokens = oauthManager.getStoredTokens(req.session);
+      
+      if (tokens && tokens.access_token) {
+        await oauthManager.revokeTokens(tokens.access_token);
+      }
+      
+      // Clear session data
+      oauthManager.clearStoredTokens(req.session);
+      if (req.session.googlePickerSession) {
+        delete req.session.googlePickerSession;
+      }
       
       res.json({
         success: true,
@@ -175,142 +283,6 @@ const googlePhotosController = {
         }
       });
     }
-  }),
-
-  // Get albums
-  getAlbums: asyncHandler(async (req, res) => {
-    try {
-      const { pageSize = 50, pageToken } = req.query;
-      
-      // Validate page size
-      const validPageSize = Math.min(Math.max(parseInt(pageSize) || 50, 1), 100);
-      
-      const result = await googlePhotosService.getAlbums(req.session, validPageSize, pageToken);
-      
-      res.json({
-        success: true,
-        data: result
-      });
-    } catch (error) {
-      console.error('Get albums error:', error);
-      res.status(500).json({
-        success: false,
-        error: {
-          code: 'ALBUMS_FETCH_FAILED',
-          message: 'Failed to retrieve albums',
-          details: error.message
-        }
-      });
-    }
-  }),
-
-  // Get photos in album
-  getAlbumPhotos: asyncHandler(async (req, res) => {
-    try {
-      const { albumId } = req.params;
-      const { pageSize = 50, pageToken } = req.query;
-      
-      if (!albumId) {
-        return res.status(400).json({
-          success: false,
-          error: {
-            code: 'ALBUM_ID_REQUIRED',
-            message: 'Album ID is required'
-          }
-        });
-      }
-      
-      // Validate page size
-      const validPageSize = Math.min(Math.max(parseInt(pageSize) || 50, 1), 100);
-      
-      const result = await googlePhotosService.getAlbumPhotos(req.session, albumId, validPageSize, pageToken);
-      
-      res.json({
-        success: true,
-        data: result
-      });
-    } catch (error) {
-      console.error('Get album photos error:', error);
-      res.status(500).json({
-        success: false,
-        error: {
-          code: 'ALBUM_PHOTOS_FETCH_FAILED',
-          message: 'Failed to retrieve album photos',
-          details: error.message
-        }
-      });
-    }
-  }),
-
-  // Get library photos
-  getPhotos: asyncHandler(async (req, res) => {
-    try {
-      const { pageSize = 50, pageToken } = req.query;
-      
-      // Validate page size
-      const validPageSize = Math.min(Math.max(parseInt(pageSize) || 50, 1), 100);
-      
-      const result = await googlePhotosService.getLibraryPhotos(req.session, validPageSize, pageToken);
-      
-      res.json({
-        success: true,
-        data: result
-      });
-    } catch (error) {
-      console.error('Get photos error:', error);
-      res.status(500).json({
-        success: false,
-        error: {
-          code: 'PHOTOS_FETCH_FAILED',
-          message: 'Failed to retrieve photos',
-          details: error.message
-        }
-      });
-    }
-  }),
-
-  // Get specific media item
-  getMediaItem: asyncHandler(async (req, res) => {
-    try {
-      const { mediaItemId } = req.params;
-      
-      if (!mediaItemId) {
-        return res.status(400).json({
-          success: false,
-          error: {
-            code: 'MEDIA_ITEM_ID_REQUIRED',
-            message: 'Media item ID is required'
-          }
-        });
-      }
-      
-      const result = await googlePhotosService.getMediaItem(req.session, mediaItemId);
-      
-      res.json({
-        success: true,
-        data: result
-      });
-    } catch (error) {
-      console.error('Get media item error:', error);
-      res.status(500).json({
-        success: false,
-        error: {
-          code: 'MEDIA_ITEM_FETCH_FAILED',
-          message: 'Failed to retrieve media item',
-          details: error.message
-        }
-      });
-    }
-  }),
-
-  startSync: asyncHandler(async (req, res) => {
-    res.json({
-      success: false,
-      error: {
-        code: 'NOT_IMPLEMENTED',
-        message: 'Sync endpoint not yet implemented'
-      }
-    });
   })
 };
 

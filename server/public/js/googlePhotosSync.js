@@ -2,11 +2,6 @@ class GooglePhotosSync {
   constructor() {
     this.isAuthenticated = false;
     this.userInfo = null;
-    this.dataService = new GooglePhotosDataService();
-    this.selectionManager = new SelectionManager();
-    this.albumBrowser = null;
-    this.photoBrowser = null;
-    this.currentView = 'albums'; // 'albums' or 'photos'
     this.init();
   }
 
@@ -19,7 +14,7 @@ class GooglePhotosSync {
   bindEvents() {
     const googlePhotosBtn = document.getElementById('googlePhotosBtn');
     if (googlePhotosBtn) {
-      googlePhotosBtn.addEventListener('click', () => this.openSyncInterface());
+      googlePhotosBtn.addEventListener('click', () => this.handleGooglePhotosAction());
     }
   }
 
@@ -52,19 +47,21 @@ class GooglePhotosSync {
     if (!googlePhotosBtn) return;
 
     if (this.isAuthenticated && this.userInfo) {
-      googlePhotosBtn.title = `Sync Google Photos (${this.userInfo.email})`;
+      googlePhotosBtn.title = `Open Google Photos (${this.userInfo.email})`;
       googlePhotosBtn.classList.add('authenticated');
+      googlePhotosBtn.innerHTML = '<span class="material-icons">photo_library</span> Open Google Photos';
     } else {
-      googlePhotosBtn.title = 'Sync Google Photos';
+      googlePhotosBtn.title = 'Connect to Google Photos';
       googlePhotosBtn.classList.remove('authenticated');
+      googlePhotosBtn.innerHTML = '<span class="material-icons">photo_library</span> Connect Google Photos';
     }
   }
 
-  openSyncInterface() {
+  handleGooglePhotosAction() {
     if (!this.isAuthenticated) {
       this.startAuthentication();
     } else {
-      this.showSyncInterface();
+      this.openGooglePhotos();
     }
   }
 
@@ -131,22 +128,138 @@ class GooglePhotosSync {
 
     if (data.success) {
       this.isAuthenticated = true;
-      this.userInfo = data.data.userInfo;
-      this.updateButtonState();
-      this.showMessage(`Successfully connected to Google Photos as ${this.userInfo.email}`);
+      this.checkAuthStatus(); // Refresh user info
+      this.showMessage('Successfully connected to Google Photos! You can now access your photos.');
+      
+      // Automatically open Google Photos after successful authentication
+      setTimeout(() => {
+        this.openGooglePhotos();
+      }, 1500);
     } else {
       this.isAuthenticated = false;
       this.userInfo = null;
       this.updateButtonState();
-      this.showError(data.error || 'Authentication failed');
+      if (data.error !== 'Authentication cancelled by user') {
+        this.showError(data.error || 'Authentication failed');
+      }
     }
+  }
+
+  async openGooglePhotos() {
+    try {
+      // Show loading state
+      const googlePhotosBtn = document.getElementById('googlePhotosBtn');
+      if (googlePhotosBtn) {
+        googlePhotosBtn.disabled = true;
+        googlePhotosBtn.innerHTML = '<span class="material-icons">hourglass_empty</span> Opening Picker...';
+      }
+
+      // Create Google Photos Picker session
+      const response = await fetch('/api/admin/google-photos/session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      const result = await response.json();
+      
+      if (result.success) {
+        // Open Google Photos Picker in new tab
+        const pickerTab = window.open(
+          result.data.pickerUrl,
+          'googlePhotosPicker',
+          'width=1024,height=768,scrollbars=yes,resizable=yes'
+        );
+
+        if (pickerTab) {
+          pickerTab.focus();
+          this.showMessage('Google Photos Picker opened. Select your photos and they will be available for download.');
+          
+          // Store session info for potential cleanup
+          this.currentPickerSession = {
+            sessionId: result.data.sessionId,
+            requestId: result.data.requestId
+          };
+        } else {
+          // Fallback - provide direct link
+          this.showGooglePhotosLinkModal(result.data.pickerUrl, true);
+        }
+      } else {
+        // Handle specific error cases
+        if (result.error.code === 'NO_GOOGLE_PHOTOS_ACCOUNT') {
+          this.showError('You need an active Google Photos account to use the picker. Please set up Google Photos first.');
+        } else if (result.error.code === 'TOO_MANY_SESSIONS') {
+          this.showError('Too many picker sessions are active. Please try again in a few minutes.');
+        } else {
+          this.showError('Failed to create Google Photos picker session: ' + result.error.message);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to open Google Photos Picker:', error);
+      this.showError('Failed to open Google Photos Picker');
+    } finally {
+      // Reset button state
+      this.resetButtonState();
+    }
+  }
+
+  showGooglePhotosLinkModal(url, isPicker = false) {
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.innerHTML = `
+      <div class="modal-content" style="max-width: 500px; text-align: center;">
+        <div class="modal-header">
+          <span class="material-icons">${isPicker ? 'photo_camera' : 'photo_library'}</span>
+          <h2>Open Google Photos ${isPicker ? 'Picker' : ''}</h2>
+          <button class="btn-icon close-modal" title="Close">
+            <span class="material-icons">close</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p>Click the button below to open ${isPicker ? 'Google Photos Picker' : 'Google Photos'} in a new tab:</p>
+          <div style="margin: 20px 0;">
+            <a href="${url}" target="_blank" class="btn-primary" style="display: inline-flex; align-items: center; gap: 8px; text-decoration: none;">
+              <span class="material-icons">open_in_new</span>
+              Open ${isPicker ? 'Photos Picker' : 'Google Photos'}
+            </a>
+          </div>
+          <p style="font-size: 14px; color: #666;">
+            ${isPicker 
+              ? 'Use the picker to select photos, then they will be available for download in your applications.'
+              : 'From Google Photos, you can view, organize, and download your photos.'
+            }
+          </p>
+        </div>
+        <div class="modal-actions">
+          <button class="btn-secondary close-modal">Close</button>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    // Bind close events
+    const closeButtons = modal.querySelectorAll('.close-modal');
+    closeButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.body.removeChild(modal);
+      });
+    });
+
+    // Close on outside click
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        document.body.removeChild(modal);
+      }
+    });
   }
 
   resetButtonState() {
     const googlePhotosBtn = document.getElementById('googlePhotosBtn');
     if (googlePhotosBtn) {
       googlePhotosBtn.disabled = false;
-      googlePhotosBtn.innerHTML = '<span class="material-icons">photo_library</span> Google Photos';
+      this.updateButtonState();
     }
   }
 
@@ -172,321 +285,21 @@ class GooglePhotosSync {
     }
   }
 
-  showSyncInterface() {
-    // Create and show the full sync interface with browsers
-    this.showFullSyncInterface();
-  }
-
-  showFullSyncInterface() {
-    // Create full sync interface modal
-    const modal = document.createElement('div');
-    modal.className = 'modal google-photos-modal';
-    modal.innerHTML = `
-      <div class="modal-content">
-        <div class="google-photos-header">
-          <span class="material-icons">photo_library</span>
-          <h2>Google Photos Sync</h2>
-          <button id="closeBtn" class="btn-icon" title="Close">
-            <span class="material-icons">close</span>
-          </button>
-        </div>
-        
-        <div class="user-info">
-          <span class="material-icons">account_circle</span>
-          <div class="user-info-text">
-            <div class="user-name">${this.userInfo.name}</div>
-            <div class="user-email">${this.userInfo.email}</div>
-          </div>
-          <button id="logoutBtn" class="btn-secondary">
-            <span class="material-icons">logout</span>
-            Disconnect
-          </button>
-        </div>
-
-        <div class="sync-interface">
-          <div class="view-tabs">
-            <button id="albumsTab" class="tab-button active">
-              <span class="material-icons">photo_album</span>
-              Albums
-            </button>
-            <button id="photosTab" class="tab-button">
-              <span class="material-icons">photo</span>
-              Photos
-            </button>
-          </div>
-
-          <div class="selection-summary" id="selectionSummary">
-            <div class="selection-summary-content">
-              <div class="selection-stats" id="selectionStats">
-                <!-- Selection stats will be populated here -->
-              </div>
-              <div class="selection-actions">
-                <button id="clearSelectionBtn" class="btn-secondary">
-                  <span class="material-icons">clear_all</span>
-                  Clear
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <div class="browser-container">
-            <div id="albumBrowserContainer" class="browser-view active">
-              <!-- Album browser will be rendered here -->
-            </div>
-            <div id="photoBrowserContainer" class="browser-view">
-              <!-- Photo browser will be rendered here -->
-            </div>
-          </div>
-        </div>
-
-        <div class="modal-actions">
-          <button id="cancelBtn" class="btn-secondary">Cancel</button>
-          <button id="syncBtn" class="btn-primary" disabled>
-            <span class="material-icons">sync</span>
-            Start Sync
-          </button>
-        </div>
-      </div>
-    `;
-
-    document.body.appendChild(modal);
-    modal.classList.remove('hidden');
-
-    // Initialize browsers
-    this.initializeBrowsers(modal);
-
-    // Bind events
-    this.bindSyncInterfaceEvents(modal);
-  }
-
-  initializeBrowsers(modal) {
-    // Initialize album browser
-    this.albumBrowser = new AlbumBrowser(this.dataService, this.selectionManager);
-    const albumContainer = modal.querySelector('#albumBrowserContainer');
-    this.albumBrowser.render(albumContainer);
-
-    // Initialize photo browser
-    this.photoBrowser = new PhotoBrowser(this.dataService, this.selectionManager);
-    const photoContainer = modal.querySelector('#photoBrowserContainer');
-    this.photoBrowser.render(photoContainer);
-
-    // Set up selection manager callbacks
-    this.selectionManager.addChangeCallback((summary) => {
-      this.updateSelectionSummary(summary);
-    });
-
-    // Set up browser communication
-    document.addEventListener('backToAlbums', () => {
-      this.switchToView('albums');
-    });
-  }
-
-  bindSyncInterfaceEvents(modal) {
-    // Tab switching
-    const albumsTab = modal.querySelector('#albumsTab');
-    const photosTab = modal.querySelector('#photosTab');
-
-    albumsTab.addEventListener('click', () => {
-      this.switchToView('albums');
-    });
-
-    photosTab.addEventListener('click', () => {
-      this.switchToView('photos');
-    });
-
-    // Action buttons
-    const logoutBtn = modal.querySelector('#logoutBtn');
-    const closeBtn = modal.querySelector('#closeBtn');
-    const cancelBtn = modal.querySelector('#cancelBtn');
-    const clearBtn = modal.querySelector('#clearSelectionBtn');
-    const syncBtn = modal.querySelector('#syncBtn');
-
-    logoutBtn.addEventListener('click', async () => {
-      await this.logout();
-      document.body.removeChild(modal);
-    });
-
-    closeBtn.addEventListener('click', () => {
-      document.body.removeChild(modal);
-    });
-
-    cancelBtn.addEventListener('click', () => {
-      document.body.removeChild(modal);
-    });
-
-    clearBtn.addEventListener('click', () => {
-      this.selectionManager.clearAll();
-    });
-
-    syncBtn.addEventListener('click', () => {
-      this.startSync(modal);
-    });
-
-    // Close on outside click
-    modal.addEventListener('click', (e) => {
-      if (e.target === modal) {
-        document.body.removeChild(modal);
-      }
-    });
-  }
-
-  switchToView(view) {
-    this.currentView = view;
-    
-    // Update tabs
-    const albumsTab = document.getElementById('albumsTab');
-    const photosTab = document.getElementById('photosTab');
-    const albumContainer = document.getElementById('albumBrowserContainer');
-    const photoContainer = document.getElementById('photoBrowserContainer');
-
-    if (view === 'albums') {
-      albumsTab.classList.add('active');
-      photosTab.classList.remove('active');
-      albumContainer.classList.add('active');
-      photoContainer.classList.remove('active');
-    } else {
-      albumsTab.classList.remove('active');
-      photosTab.classList.add('active');
-      albumContainer.classList.remove('active');
-      photoContainer.classList.add('active');
-    }
-  }
-
-  updateSelectionSummary(summary) {
-    const summaryEl = document.getElementById('selectionSummary');
-    const statsEl = document.getElementById('selectionStats');
-    const syncBtn = document.getElementById('syncBtn');
-
-    if (summary.hasSelection) {
-      summaryEl.classList.add('has-selection');
-      
-      statsEl.innerHTML = `
-        ${summary.albumCount > 0 ? `
-          <div class="selection-stat">
-            <span class="material-icons">photo_album</span>
-            <span>${summary.albumCount} album${summary.albumCount !== 1 ? 's' : ''}</span>
-          </div>
-        ` : ''}
-        ${summary.photoCount > 0 ? `
-          <div class="selection-stat">
-            <span class="material-icons">photo</span>
-            <span>${summary.photoCount} photo${summary.photoCount !== 1 ? 's' : ''}</span>
-          </div>
-        ` : ''}
-        <div class="selection-stat">
-          <span class="material-icons">check_circle</span>
-          <span>${summary.totalItems} total</span>
-        </div>
-      `;
-
-      if (syncBtn) syncBtn.disabled = false;
-    } else {
-      summaryEl.classList.remove('has-selection');
-      if (syncBtn) syncBtn.disabled = true;
-    }
-  }
-
-  async startSync(modal) {
-    const validation = this.selectionManager.validateSelection();
-    
-    if (!validation.isValid) {
-      this.showError(validation.errors.join(', '));
-      return;
-    }
-
-    // For now, show the sync payload (will be implemented in next task)
-    const payload = this.selectionManager.generateSyncPayload();
-    console.log('Sync payload:', payload);
-    
-    this.showMessage(`Sync will be implemented in the next task. Selected: ${payload.albums.length} albums, ${payload.individualPhotos.length} individual photos`);
-  }
-
-  async testAlbumsRetrieval(modal) {
-    const testResults = modal.querySelector('#testResults');
-    const testOutput = modal.querySelector('#testOutput');
-    const testAlbumsBtn = modal.querySelector('#testAlbumsBtn');
-    
-    try {
-      testAlbumsBtn.disabled = true;
-      testAlbumsBtn.innerHTML = '<span class="material-icons">hourglass_empty</span> Loading...';
-      
-      testResults.style.display = 'block';
-      testOutput.textContent = 'Fetching albums...';
-
-      const result = await this.dataService.getAlbums(10); // Get first 10 albums
-      
-      const output = {
-        albumCount: result.albums.length,
-        hasNextPage: !!result.nextPageToken,
-        albums: result.albums.map(album => ({
-          id: album.id,
-          title: album.title,
-          mediaItemsCount: album.mediaItemsCount
-        }))
-      };
-
-      testOutput.textContent = JSON.stringify(output, null, 2);
-      this.showMessage(`Successfully retrieved ${result.albums.length} albums`);
-    } catch (error) {
-      testOutput.textContent = `Error: ${error.message}`;
-      this.showError(`Failed to retrieve albums: ${error.message}`);
-    } finally {
-      testAlbumsBtn.disabled = false;
-      testAlbumsBtn.innerHTML = '<span class="material-icons">photo_album</span> Test Albums';
-    }
-  }
-
-  async testPhotosRetrieval(modal) {
-    const testResults = modal.querySelector('#testResults');
-    const testOutput = modal.querySelector('#testOutput');
-    const testPhotosBtn = modal.querySelector('#testPhotosBtn');
-    
-    try {
-      testPhotosBtn.disabled = true;
-      testPhotosBtn.innerHTML = '<span class="material-icons">hourglass_empty</span> Loading...';
-      
-      testResults.style.display = 'block';
-      testOutput.textContent = 'Fetching library photos...';
-
-      const result = await this.dataService.getLibraryPhotos(10); // Get first 10 photos
-      
-      const output = {
-        photoCount: result.mediaItems.length,
-        hasNextPage: !!result.nextPageToken,
-        photos: result.mediaItems.map(photo => ({
-          id: photo.id,
-          filename: photo.filename,
-          mimeType: photo.mimeType,
-          dimensions: `${photo.mediaMetadata.width}x${photo.mediaMetadata.height}`
-        }))
-      };
-
-      testOutput.textContent = JSON.stringify(output, null, 2);
-      this.showMessage(`Successfully retrieved ${result.mediaItems.length} photos`);
-    } catch (error) {
-      testOutput.textContent = `Error: ${error.message}`;
-      this.showError(`Failed to retrieve photos: ${error.message}`);
-    } finally {
-      testPhotosBtn.disabled = false;
-      testPhotosBtn.innerHTML = '<span class="material-icons">photo</span> Test Photos';
-    }
-  }
-
   showError(message) {
-    // Use existing toast system if available, otherwise alert
+    // Use existing toast system if available, otherwise console log
     if (window.showToast) {
       window.showToast(message, 'error');
     } else {
-      alert('Error: ' + message);
+      console.error('Google Photos Error:', message);
     }
   }
 
   showMessage(message) {
-    // Use existing toast system if available, otherwise alert
+    // Use existing toast system if available, otherwise console log
     if (window.showToast) {
       window.showToast(message, 'info');
     } else {
-      alert(message);
+      console.log('Google Photos Message:', message);
     }
   }
 }
