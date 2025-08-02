@@ -34,15 +34,30 @@ class GooglePhotosService {
       return false;
     }
 
-    // Set the credentials and check if they're valid
+    // Set the credentials
     this.oauth2Client.setCredentials(tokens);
     
     try {
-      // Try to refresh the token if it's expired
-      await this.oauth2Client.getAccessToken();
+      // Check if token is expired and refresh if needed
+      if (oauthManager.isTokenExpired(tokens)) {
+        console.log('Token expired, attempting refresh...');
+        const { credentials } = await this.oauth2Client.refreshAccessToken();
+        
+        // Store the refreshed tokens
+        await oauthManager.storeTokens(session, credentials);
+        this.oauth2Client.setCredentials(credentials);
+        console.log('Token refreshed successfully');
+      }
+      
+      // Verify access by making a simple API call
+      const oauth2 = google.oauth2({ version: 'v2', auth: this.oauth2Client });
+      await oauth2.userinfo.get();
+      
       return true;
     } catch (error) {
-      console.log('Token validation failed:', error.message);
+      console.log('Token validation/refresh failed:', error.message);
+      // Clear invalid tokens
+      oauthManager.clearTokens(session);
       return false;
     }
   }

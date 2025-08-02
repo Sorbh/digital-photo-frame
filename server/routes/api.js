@@ -42,6 +42,7 @@ router.delete('/auth/session', accessAccountController.clearSession.bind(accessA
 router.get('/admin/google-photos/status', requireAuth, googlePhotosController.getAuthStatus);
 router.post('/admin/google-photos/auth', requireAuth, googlePhotosController.initiateAuth);
 router.get('/admin/google-photos/callback', googlePhotosController.handleCallback);
+router.delete('/admin/google-photos/auth', requireAuth, googlePhotosController.revokeAccess);
 router.get('/admin/google-photos/albums', requireAuth, googlePhotosController.getAlbums);
 router.get('/admin/google-photos/photos', requireAuth, googlePhotosController.getPhotos);
 router.post('/admin/google-photos/sync', requireAuth, googlePhotosController.startSync);
