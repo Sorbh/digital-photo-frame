@@ -3,6 +3,7 @@ const router = express.Router();
 const imageController = require('../controllers/imageController');
 const folderController = require('../controllers/folderController');
 const accessAccountController = require('../controllers/accessAccountController');
+const googlePhotosController = require('../controllers/googlePhotosController');
 const upload = require('../middleware/upload');
 const { requireAuth } = require('../middleware/auth');
 
@@ -36,6 +37,14 @@ router.delete('/access-accounts/:id', requireAuth, accessAccountController.delet
 router.post('/auth/pin', accessAccountController.authenticateWithPin.bind(accessAccountController));
 router.get('/auth/session', accessAccountController.getSession.bind(accessAccountController));
 router.delete('/auth/session', accessAccountController.clearSession.bind(accessAccountController));
+
+// Google Photos routes (admin only)
+router.get('/admin/google-photos/status', requireAuth, googlePhotosController.getAuthStatus);
+router.post('/admin/google-photos/auth', requireAuth, googlePhotosController.initiateAuth);
+router.get('/admin/google-photos/callback', googlePhotosController.handleCallback);
+router.get('/admin/google-photos/albums', requireAuth, googlePhotosController.getAlbums);
+router.get('/admin/google-photos/photos', requireAuth, googlePhotosController.getPhotos);
+router.post('/admin/google-photos/sync', requireAuth, googlePhotosController.startSync);
 
 // Authentication routes
 const authRoutes = require('./auth');
