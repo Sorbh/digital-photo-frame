@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -82,8 +83,13 @@
         }
 
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
 
         .info {
@@ -164,6 +170,10 @@
             backdrop-filter: blur(10px);
         }
 
+        .hidden {
+            display: none !important;
+        }
+
         /* Fullscreen mode - cursor handled dynamically by JavaScript */
 
         .fullscreen .controls {
@@ -194,7 +204,18 @@
                 font-size: 16px;
             }
         }
+
         /* PIN Authentication Styles */
+
+        /* Remove only problematic transitions, preserve necessary layout */
+        .auth-button {
+            transition: none !important;
+        }
+
+        .auth-button:hover {
+            transform: none !important;
+        }
+
         .auth-overlay {
             position: fixed;
             top: 0;
@@ -207,7 +228,6 @@
             justify-content: center;
             z-index: 9999;
             opacity: 1;
-            transition: opacity 0.5s ease;
         }
 
         .auth-overlay.hidden {
@@ -243,6 +263,7 @@
             display: flex;
             flex-direction: column;
             gap: 25px;
+            margin-top: 20px;
         }
 
         .pin-input {
@@ -294,7 +315,6 @@
             font-size: 16px;
             font-weight: 500;
             cursor: pointer;
-            transition: all 0.3s ease;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -305,7 +325,6 @@
         }
 
         .auth-button:hover {
-            transform: translateY(-2px);
             box-shadow: 0 10px 20px rgba(52, 152, 219, 0.3);
         }
 
@@ -336,6 +355,7 @@
             gap: 10px;
             color: #7f8c8d;
             margin-top: 10px;
+            height: 40px;
         }
 
         .auth-loading.show {
@@ -380,11 +400,11 @@
                 padding: 30px 20px;
                 margin: 20px;
             }
-            
+
             .auth-title {
                 font-size: 24px;
             }
-            
+
             .pin-input {
                 font-size: 20px;
                 padding: 12px;
@@ -393,30 +413,23 @@
         }
     </style>
 </head>
+
 <body>
     <!-- PIN Authentication Overlay -->
     <div class="auth-overlay" id="authOverlay">
         <div class="auth-container">
             <h1 class="auth-title">Welcome</h1>
             <p class="auth-subtitle">Enter your PIN to access the photo slideshow</p>
-            
+
             <form class="pin-form" id="pinForm">
-                <input 
-                    type="password" 
-                    id="pinInput" 
-                    class="pin-input" 
-                    placeholder="••••" 
-                    maxlength="6" 
-                    autocomplete="off"
-                    inputmode="numeric"
-                    pattern="[0-9]*"
-                >
-                
+                <input type="password" id="pinInput" class="pin-input" placeholder="••••" maxlength="6"
+                    autocomplete="off" inputmode="numeric" pattern="[0-9]*">
+
                 <button type="submit" class="auth-button" id="authButton">
                     <span class="material-icons">lock_open</span>
                     Access Slideshow
                 </button>
-                
+
                 <div class="auth-error" id="authError"></div>
                 <div class="auth-loading" id="authLoading">
                     <div class="spinner"></div>
@@ -429,31 +442,31 @@
     <div class="slideshow-container">
         <div class="loading" id="loading">Loading your photos...</div>
         <div class="error hidden" id="error">Unable to load images. Please check your connection.</div>
-        
+
         <div class="slide" id="slide1">
             <img id="image1" alt="Photo">
         </div>
-        
+
         <div class="slide" id="slide2">
             <img id="image2" alt="Photo">
         </div>
-        
+
         <div class="info hidden" id="info">
             <div id="filename"></div>
             <div id="folder"></div>
         </div>
-        
+
         <div class="progress-bar" id="progressBar"></div>
-        
+
         <div class="controls">
-            <button class="control-btn" id="logoutBtn" title="Logout">
-                <span class="material-icons">logout</span>
-            </button>
             <div id="folderSelector" class="folder-selector-container">
                 <!-- Folder selector will be initialized here -->
             </div>
             <button class="control-btn" id="fullscreenBtn" title="Fullscreen">
                 <span class="material-icons">fullscreen</span>
+            </button>
+            <button class="control-btn" id="logoutBtn" title="Logout">
+                <span class="material-icons">logout</span>
             </button>
         </div>
     </div>
@@ -473,26 +486,26 @@
                 this.authButton = document.getElementById('authButton');
                 this.authError = document.getElementById('authError');
                 this.authLoading = document.getElementById('authLoading');
-                
+
                 this.init();
             }
-            
+
             init() {
                 this.bindEvents();
                 this.checkExistingSession();
             }
-            
+
             bindEvents() {
                 this.pinForm.addEventListener('submit', (e) => {
                     e.preventDefault();
                     this.authenticate();
                 });
-                
+
                 this.pinInput.addEventListener('input', () => {
                     this.clearError();
                     this.clearErrorState();
                 });
-                
+
                 this.pinInput.addEventListener('keypress', (e) => {
                     // Only allow numeric input
                     if (!/[0-9]/.test(e.key) && e.key !== 'Backspace' && e.key !== 'Delete' && e.key !== 'Tab') {
@@ -500,12 +513,12 @@
                     }
                 });
             }
-            
+
             async checkExistingSession() {
                 try {
                     const response = await fetch('/api/auth/session');
                     const data = await response.json();
-                    
+
                     if (data.authenticated) {
                         this.handleAuthSuccess(data.account);
                     } else {
@@ -516,22 +529,22 @@
                     this.showAuthOverlay();
                 }
             }
-            
+
             async authenticate() {
                 const pin = this.pinInput.value.trim();
-                
+
                 if (!pin) {
                     this.showError('Please enter your PIN');
                     return;
                 }
-                
+
                 if (pin.length < 4) {
                     this.showError('PIN must be at least 4 digits');
                     return;
                 }
-                
+
                 this.setLoading(true);
-                
+
                 try {
                     const response = await fetch('/api/auth/pin', {
                         method: 'POST',
@@ -540,9 +553,9 @@
                         },
                         body: JSON.stringify({ pin })
                     });
-                    
+
                     const data = await response.json();
-                    
+
                     if (data.success) {
                         this.handleAuthSuccess(data.account);
                     } else {
@@ -555,40 +568,40 @@
                     this.setLoading(false);
                 }
             }
-            
+
             handleAuthSuccess(account) {
                 this.isAuthenticated = true;
                 this.userAccount = account;
                 console.log('Authentication successful for account:', account.name);
-                
+
                 // Store auth state for the session
                 sessionStorage.setItem('authenticated', 'true');
                 sessionStorage.setItem('accountName', account.name);
-                
+
                 // Hide auth overlay
                 this.hideAuthOverlay();
-                
+
                 // Always dispatch the authentication complete event for consistent handling
-                document.dispatchEvent(new CustomEvent('authenticationComplete', { 
-                    detail: { account } 
+                document.dispatchEvent(new CustomEvent('authenticationComplete', {
+                    detail: { account }
                 }));
             }
-            
+
             handleAuthError(error, errorCode) {
                 this.showError(error || 'Invalid PIN');
-                
+
                 if (errorCode === 'RATE_LIMITED') {
                     // For rate limiting, disable the input and add different styling
                     this.pinInput.disabled = true;
                     this.pinInput.classList.add('error');
                     this.authButton.disabled = true;
                 } else {
-                    // For invalid PIN, just add error styling and select input
+                    // For invalid PIN, just add error styling and focus input
                     this.pinInput.classList.add('error');
-                    this.pinInput.select();
+                    this.pinInput.focus();
                 }
             }
-            
+
             async logout() {
                 try {
                     await fetch('/api/auth/session', { method: 'DELETE' });
@@ -601,29 +614,29 @@
                     sessionStorage.removeItem('accountName');
                     this.showAuthOverlay();
                     this.clearForm();
-                    
+
                     // Stop slideshow
                     if (window.slideshow) {
                         window.slideshow.cleanup();
                     }
                 }
             }
-            
+
             showAuthOverlay() {
                 this.authOverlay.classList.remove('hidden');
                 setTimeout(() => {
                     this.pinInput.focus();
                 }, 100);
             }
-            
+
             hideAuthOverlay() {
                 this.authOverlay.classList.add('hidden');
             }
-            
+
             setLoading(loading) {
                 this.authButton.disabled = loading;
                 this.pinInput.disabled = loading;
-                
+
                 if (loading) {
                     this.authLoading.classList.add('show');
                     this.clearError();
@@ -631,22 +644,22 @@
                     this.authLoading.classList.remove('show');
                 }
             }
-            
+
             showError(message) {
                 this.authError.textContent = message;
                 this.authError.innerHTML = `<span class="material-icons">error</span> ${message}`;
             }
-            
+
             clearError() {
                 this.authError.textContent = '';
             }
-            
+
             clearErrorState() {
                 this.pinInput.classList.remove('error');
                 this.pinInput.disabled = false;
                 this.authButton.disabled = false;
             }
-            
+
             clearForm() {
                 this.pinInput.value = '';
                 this.clearError();
@@ -672,10 +685,10 @@
                 this.folderSelector = null;
                 this.folderStorage = new FolderStorage();
                 this.cursorHideTimer = null;
-                
+
                 this.initializeElements();
                 this.setupEventListeners();
-                this.initializeFolderSelector();
+                // Delay folder selector initialization until after authentication
                 this.setupCursorAutoHide();
                 this.requestWakeLock();
                 // Don't start slideshow automatically - wait for authentication
@@ -698,15 +711,23 @@
                 this.progressBar = document.getElementById('progressBar');
                 this.fullscreenBtn = document.getElementById('fullscreenBtn');
                 this.logoutBtn = document.getElementById('logoutBtn');
+                
+                // Ensure error div is hidden initially and images don't have invalid src
+                console.log('🔧 Initializing: Hiding error div');
+                this.error.classList.add('hidden');
+                this.images.forEach(img => {
+                    // Remove any src to prevent error events from empty/invalid src
+                    img.removeAttribute('src');
+                });
             }
 
             setupEventListeners() {
                 this.fullscreenBtn.addEventListener('click', () => this.toggleFullscreen());
                 this.logoutBtn.addEventListener('click', () => this.logout());
-                
+
                 // Keyboard controls
                 document.addEventListener('keydown', (e) => {
-                    switch(e.key) {
+                    switch (e.key) {
                         case 'f':
                             e.preventDefault();
                             this.toggleFullscreen();
@@ -723,10 +744,14 @@
                     this.showControlsTemporarily();
                 });
 
-                // Image load error handling
+                // Image load error handling - only show error if we're not already showing one
                 this.images.forEach(img => {
                     img.addEventListener('error', () => {
-                        this.showError('Failed to load image');
+                        // Only show error if error div is currently hidden (not already showing an error)
+                        if (this.error.classList.contains('hidden')) {
+                            console.log('Image load error for:', img.src);
+                            this.showError('Failed to load image');
+                        }
                     });
                 });
             }
@@ -734,21 +759,21 @@
             async fetchRandomImage() {
                 try {
                     const selectedFolderPath = this.folderStorage.getCurrentFolderPath();
-                    const url = selectedFolderPath 
+                    const url = selectedFolderPath
                         ? `/api/images/random?folder=${encodeURIComponent(selectedFolderPath)}`
                         : '/api/images/random';
-                    
+
                     console.log('🔍 Fetching image from URL:', url);
                     console.log('📁 Selected folder path:', selectedFolderPath);
-                    
+
                     const response = await fetch(url);
                     if (!response.ok) throw new Error('Failed to fetch image');
                     const data = await response.json();
-                    
+
                     if (!data.success) {
                         throw new Error(data.error || 'Failed to fetch image');
                     }
-                    
+
                     console.log('✅ Fetched image from', selectedFolderPath || 'all folders', ':', data.image.folder, '/', data.image.filename);
                     return data.image;
                 } catch (error) {
@@ -760,26 +785,32 @@
 
             async loadImage(imageData) {
                 if (!imageData) return false;
-                
+
                 return new Promise((resolve) => {
                     const nextSlide = (this.currentSlide + 1) % 2;
                     const img = this.images[nextSlide];
-                    
+
                     const onLoad = () => {
                         img.removeEventListener('load', onLoad);
                         img.removeEventListener('error', onError);
-                        
+
+                        // Hide any existing error messages on successful load
+                        this.hideError();
                         this.currentImageData = imageData;
                         resolve(true);
                     };
-                    
-                    const onError = () => {
+
+                    const onError = (event) => {
                         img.removeEventListener('load', onLoad);
                         img.removeEventListener('error', onError);
-                        console.error('Failed to load image:', imageData.url);
+                        console.error('Failed to load image:', imageData.url, 'Error:', event);
+                        // Only show error message if this is the current image being loaded
+                        if (this.error.classList.contains('hidden')) {
+                            this.showError(`Failed to load image: ${imageData.filename}`);
+                        }
                         resolve(false);
                     };
-                    
+
                     img.addEventListener('load', onLoad);
                     img.addEventListener('error', onError);
                     img.src = imageData.url;
@@ -789,20 +820,20 @@
             showImage() {
                 const currentSlideEl = this.slides[this.currentSlide];
                 const nextSlideEl = this.slides[(this.currentSlide + 1) % 2];
-                
+
                 // Switch active slide
                 currentSlideEl.classList.remove('active');
                 nextSlideEl.classList.add('active');
-                
+
                 // Update current slide index
                 this.currentSlide = (this.currentSlide + 1) % 2;
-                
+
                 // Update info
                 this.updateInfo();
-                
+
                 // Hide loading and error
                 this.loading.classList.add('hidden');
-                this.error.classList.add('hidden');
+                this.hideError();
             }
 
             updateInfo() {
@@ -810,7 +841,7 @@
                     this.filename.textContent = this.currentImageData.filename;
                     this.folder.textContent = `📁 ${this.currentImageData.folder}`;
                     this.info.classList.remove('hidden');
-                    
+
                     // Auto-hide info after 3 seconds
                     setTimeout(() => {
                         this.info.classList.add('hidden');
@@ -827,7 +858,7 @@
                         this.showImage();
                     }
                 }
-                
+
                 if (this.isPlaying) {
                     this.scheduleNext();
                 }
@@ -843,7 +874,7 @@
                 this.progressBar.style.width = '0%';
                 let progress = 0;
                 const increment = 100 / (this.interval / 100);
-                
+
                 this.progressTimer = setInterval(() => {
                     progress += increment;
                     if (progress >= 100) {
@@ -907,9 +938,15 @@
             }
 
             showError(message) {
+                console.log('Showing error:', message);
                 this.error.textContent = message;
                 this.error.classList.remove('hidden');
                 this.loading.classList.add('hidden');
+            }
+
+            hideError() {
+                console.log('Hiding error message');
+                this.error.classList.add('hidden');
             }
 
             async requestWakeLock() {
@@ -917,7 +954,7 @@
                     if ('wakeLock' in navigator) {
                         this.wakeLock = await navigator.wakeLock.request('screen');
                         console.log('Screen wake lock activated');
-                        
+
                         // Re-request wake lock when page becomes visible
                         document.addEventListener('visibilitychange', async () => {
                             if (this.wakeLock !== null && document.visibilityState === 'visible') {
@@ -943,10 +980,10 @@
             initScreenSaverPrevention() {
                 // Method 1: Invisible video playing to prevent screen saver
                 this.createKeepAliveVideo();
-                
+
                 // Method 2: Periodic user activity simulation
                 this.startActivitySimulation();
-                
+
                 // Method 3: Fullscreen API to prevent system sleep
                 this.maintainFullscreen();
             }
@@ -965,17 +1002,17 @@
                 video.loop = true;
                 video.autoplay = true;
                 video.playsInline = true;
-                
+
                 // Create a minimal video data URL (1-second transparent video)
                 video.src = 'data:video/mp4;base64,AAAAIGZ0eXBpc29tAAACAGlzb21pc28yYXZjMW1wNDEAAAAIZnJlZQAAAr1tZGF0AAACrgYF//+q3EXpvebZSLeWLNgg2SPu73gyNjQgLSBjb3JlIDE0OCByMjc1NSBkZDBhNjEwIC0gSC4yNjQvTVBFRy00IEFWQyBjb2RlYyAtIENvcHlsZWZ0IDIwMDMtMjAxNSAtIGh0dHA6Ly93d3cudmlkZW9sYW4ub3JnL3gyNjQuaHRtbCAtIG9wdGlvbnM6IGNhYmFjPTEgcmVmPTMgZGVibG9jaz0xOjA6MCBhbmFseXNlPTB4MzoweDExMyBtZT1oZXggc3VibWU9NyBwc3k9MSBwc3lfcmQ9MS4wMDowLjAwIG1peGVkX3JlZj0xIG1lX3JhbmdlPTE2IGNocm9tYV9tZT0xIHRyZWxsaXM9MSA4eDhkY3Q9MSBjcWZtPTAgZGVhZHpvbmU9MjEsMTEgZmFzdF9wc2tpcD0xIGNocm9tYV9xcF9vZmZzZXQ9LTIgdGhyZWFkcz02IGxvb2thaGVhZF90aHJlYWRzPTEgc2xpY2VkX3RocmVhZHM9MCBucj0wIGRlY2ltYXRlPTEgaW50ZXJsYWNlZD0wIGJsdXJheV9jb21wYXQ9MCBjb25zdHJhaW5lZF9pbnRyYT0wIGJmcmFtZXM9MyBiX3B5cmFtaWQ9MiBiX2FkYXB0PTEgYl9iaWFzPTAgZGlyZWN0PTEgd2VpZ2h0Yj0xIG9wZW5fZ29wPTAgd2VpZ2h0cD0yIGtleWludD0yNTAga2V5aW50X21pbj0yNSBzY2VuZWN1dD00MCBpbnRyYV9yZWZyZXNoPTAgcmNfbG9va2FoZWFkPTQwIHJjPWNyZiBtYnRyZWU9MSBjcmY9MjMuMCBxY29tcD0wLjYwIHFwbWluPTAgcXBtYXg9NjkgcXBzdGVwPTQgaXBfcmF0aW89MS4yNSBhcT0xOjEuMDAAgAAAAAxliIQAL//+9Qom+JAQAW5vbG6';
-                
+
                 document.body.appendChild(video);
-                
+
                 // Ensure video starts playing
                 video.play().catch(err => {
                     console.log('Keep-alive video autoplay failed:', err);
                 });
-                
+
                 console.log('Keep-alive video created for screen saver prevention');
             }
 
@@ -990,11 +1027,11 @@
                         clientY: 1
                     });
                     document.dispatchEvent(event);
-                    
+
                     // Also try to re-request wake lock if it was lost
                     this.checkAndRenewWakeLock();
                 }, 30000);
-                
+
                 console.log('Activity simulation started for screen saver prevention');
             }
 
@@ -1019,7 +1056,7 @@
                         });
                     }
                 }, 60000); // Check every minute
-                
+
                 console.log('Fullscreen maintenance started for screen saver prevention');
             }
 
@@ -1034,12 +1071,12 @@
             cleanup() {
                 // Clean up all timers and resources
                 this.clearTimers();
-                
+
                 if (this.activityTimer) {
                     clearInterval(this.activityTimer);
                     this.activityTimer = null;
                 }
-                
+
                 if (this.fullscreenTimer) {
                     clearInterval(this.fullscreenTimer);
                     this.fullscreenTimer = null;
@@ -1049,7 +1086,7 @@
                     clearTimeout(this.cursorHideTimer);
                     this.cursorHideTimer = null;
                 }
-                
+
                 this.releaseWakeLock();
                 console.log('Slideshow cleanup completed');
             }
@@ -1065,7 +1102,7 @@
                         showFolderCount: true,
                         autoClose: true
                     });
-                    
+
                     // Clear the initially loaded folders to prevent showing all folders
                     // They will be reloaded properly after authentication check
                     this.folderSelector.folders = [];
@@ -1076,12 +1113,12 @@
             async onFolderChanged(folderPath, folderName) {
                 // Stop current slideshow
                 this.clearTimers();
-                
+
                 // Reset progress
                 this.resetProgress();
-                
+
                 console.log(`Slideshow switching to folder: ${folderName || 'All Folders'}`);
-                
+
                 // Immediately load and show image from selected folder
                 const imageData = await this.fetchRandomImage();
                 if (imageData) {
@@ -1119,6 +1156,9 @@
             }
 
             async startSlideshow() {
+                console.log('🎬 Starting slideshow - ensuring error is hidden');
+                this.hideError(); // Ensure no error is showing when we start
+                
                 // Load first image
                 const imageData = await this.fetchRandomImage();
                 if (imageData) {
@@ -1139,14 +1179,20 @@
         document.addEventListener('DOMContentLoaded', () => {
             // Initialize authentication first
             window.authManager = new AuthenticationManager();
-            
+
             // Initialize slideshow (it will wait for authentication)
             window.slideshow = new PhotoFrameSlideshow();
-            
+
             // Listen for successful authentication
             document.addEventListener('authenticationComplete', (e) => {
                 console.log('Authentication complete, starting slideshow for:', e.detail.account.name);
+
+                // Hide any existing error messages after successful authentication
+                window.slideshow.hideError();
                 
+                // Initialize folder selector after authentication
+                window.slideshow.initializeFolderSelector();
+
                 // Add a small delay to ensure session is fully established before refreshing folders
                 setTimeout(() => {
                     // Refresh folder list after authentication to get user-specific folders
@@ -1155,10 +1201,10 @@
                         window.slideshow.folderSelector.refresh();
                     }
                 }, 500); // 500ms delay to ensure session is fully established
-                
+
                 window.slideshow.startSlideshow();
             });
-            
+
             // Clean up when page is unloaded
             window.addEventListener('beforeunload', () => {
                 window.slideshow.cleanup();
@@ -1166,4 +1212,5 @@
         });
     </script>
 </body>
+
 </html>
