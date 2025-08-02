@@ -177,25 +177,130 @@ const googlePhotosController = {
     }
   }),
 
-  // Placeholder for future endpoints
+  // Get albums
   getAlbums: asyncHandler(async (req, res) => {
-    res.json({
-      success: false,
-      error: {
-        code: 'NOT_IMPLEMENTED',
-        message: 'Albums endpoint not yet implemented'
-      }
-    });
+    try {
+      const { pageSize = 50, pageToken } = req.query;
+      
+      // Validate page size
+      const validPageSize = Math.min(Math.max(parseInt(pageSize) || 50, 1), 100);
+      
+      const result = await googlePhotosService.getAlbums(req.session, validPageSize, pageToken);
+      
+      res.json({
+        success: true,
+        data: result
+      });
+    } catch (error) {
+      console.error('Get albums error:', error);
+      res.status(500).json({
+        success: false,
+        error: {
+          code: 'ALBUMS_FETCH_FAILED',
+          message: 'Failed to retrieve albums',
+          details: error.message
+        }
+      });
+    }
   }),
 
-  getPhotos: asyncHandler(async (req, res) => {
-    res.json({
-      success: false,
-      error: {
-        code: 'NOT_IMPLEMENTED',
-        message: 'Photos endpoint not yet implemented'
+  // Get photos in album
+  getAlbumPhotos: asyncHandler(async (req, res) => {
+    try {
+      const { albumId } = req.params;
+      const { pageSize = 50, pageToken } = req.query;
+      
+      if (!albumId) {
+        return res.status(400).json({
+          success: false,
+          error: {
+            code: 'ALBUM_ID_REQUIRED',
+            message: 'Album ID is required'
+          }
+        });
       }
-    });
+      
+      // Validate page size
+      const validPageSize = Math.min(Math.max(parseInt(pageSize) || 50, 1), 100);
+      
+      const result = await googlePhotosService.getAlbumPhotos(req.session, albumId, validPageSize, pageToken);
+      
+      res.json({
+        success: true,
+        data: result
+      });
+    } catch (error) {
+      console.error('Get album photos error:', error);
+      res.status(500).json({
+        success: false,
+        error: {
+          code: 'ALBUM_PHOTOS_FETCH_FAILED',
+          message: 'Failed to retrieve album photos',
+          details: error.message
+        }
+      });
+    }
+  }),
+
+  // Get library photos
+  getPhotos: asyncHandler(async (req, res) => {
+    try {
+      const { pageSize = 50, pageToken } = req.query;
+      
+      // Validate page size
+      const validPageSize = Math.min(Math.max(parseInt(pageSize) || 50, 1), 100);
+      
+      const result = await googlePhotosService.getLibraryPhotos(req.session, validPageSize, pageToken);
+      
+      res.json({
+        success: true,
+        data: result
+      });
+    } catch (error) {
+      console.error('Get photos error:', error);
+      res.status(500).json({
+        success: false,
+        error: {
+          code: 'PHOTOS_FETCH_FAILED',
+          message: 'Failed to retrieve photos',
+          details: error.message
+        }
+      });
+    }
+  }),
+
+  // Get specific media item
+  getMediaItem: asyncHandler(async (req, res) => {
+    try {
+      const { mediaItemId } = req.params;
+      
+      if (!mediaItemId) {
+        return res.status(400).json({
+          success: false,
+          error: {
+            code: 'MEDIA_ITEM_ID_REQUIRED',
+            message: 'Media item ID is required'
+          }
+        });
+      }
+      
+      const result = await googlePhotosService.getMediaItem(req.session, mediaItemId);
+      
+      res.json({
+        success: true,
+        data: result
+      });
+    } catch (error) {
+      console.error('Get media item error:', error);
+      res.status(500).json({
+        success: false,
+        error: {
+          code: 'MEDIA_ITEM_FETCH_FAILED',
+          message: 'Failed to retrieve media item',
+          details: error.message
+        }
+      });
+    }
   }),
 
   startSync: asyncHandler(async (req, res) => {

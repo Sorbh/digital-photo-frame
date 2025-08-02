@@ -2,6 +2,7 @@ class GooglePhotosSync {
   constructor() {
     this.isAuthenticated = false;
     this.userInfo = null;
+    this.dataService = new GooglePhotosDataService();
     this.init();
   }
 
@@ -198,7 +199,23 @@ class GooglePhotosSync {
         <div class="auth-section">
           <span class="material-icons">check_circle</span>
           <h3>Connected Successfully!</h3>
-          <p>Album and photo browsing will be available in the next update.</p>
+          <p>You can now browse your Google Photos albums and library.</p>
+          
+          <div class="test-actions" style="margin-top: 20px;">
+            <button id="testAlbumsBtn" class="btn-secondary">
+              <span class="material-icons">photo_album</span>
+              Test Albums
+            </button>
+            <button id="testPhotosBtn" class="btn-secondary">
+              <span class="material-icons">photo</span>
+              Test Photos
+            </button>
+          </div>
+          
+          <div id="testResults" style="margin-top: 20px; max-height: 200px; overflow-y: auto; display: none;">
+            <h4>Test Results:</h4>
+            <pre id="testOutput" style="background: #f5f5f5; padding: 10px; border-radius: 4px; font-size: 12px;"></pre>
+          </div>
         </div>
 
         <div class="modal-actions">
@@ -213,6 +230,8 @@ class GooglePhotosSync {
     // Bind events
     const logoutBtn = modal.querySelector('#logoutBtn');
     const closeModalBtn = modal.querySelector('#closeModalBtn');
+    const testAlbumsBtn = modal.querySelector('#testAlbumsBtn');
+    const testPhotosBtn = modal.querySelector('#testPhotosBtn');
 
     logoutBtn.addEventListener('click', async () => {
       await this.logout();
@@ -223,12 +242,91 @@ class GooglePhotosSync {
       document.body.removeChild(modal);
     });
 
+    testAlbumsBtn.addEventListener('click', () => {
+      this.testAlbumsRetrieval(modal);
+    });
+
+    testPhotosBtn.addEventListener('click', () => {
+      this.testPhotosRetrieval(modal);
+    });
+
     // Close on outside click
     modal.addEventListener('click', (e) => {
       if (e.target === modal) {
         document.body.removeChild(modal);
       }
     });
+  }
+
+  async testAlbumsRetrieval(modal) {
+    const testResults = modal.querySelector('#testResults');
+    const testOutput = modal.querySelector('#testOutput');
+    const testAlbumsBtn = modal.querySelector('#testAlbumsBtn');
+    
+    try {
+      testAlbumsBtn.disabled = true;
+      testAlbumsBtn.innerHTML = '<span class="material-icons">hourglass_empty</span> Loading...';
+      
+      testResults.style.display = 'block';
+      testOutput.textContent = 'Fetching albums...';
+
+      const result = await this.dataService.getAlbums(10); // Get first 10 albums
+      
+      const output = {
+        albumCount: result.albums.length,
+        hasNextPage: !!result.nextPageToken,
+        albums: result.albums.map(album => ({
+          id: album.id,
+          title: album.title,
+          mediaItemsCount: album.mediaItemsCount
+        }))
+      };
+
+      testOutput.textContent = JSON.stringify(output, null, 2);
+      this.showMessage(`Successfully retrieved ${result.albums.length} albums`);
+    } catch (error) {
+      testOutput.textContent = `Error: ${error.message}`;
+      this.showError(`Failed to retrieve albums: ${error.message}`);
+    } finally {
+      testAlbumsBtn.disabled = false;
+      testAlbumsBtn.innerHTML = '<span class="material-icons">photo_album</span> Test Albums';
+    }
+  }
+
+  async testPhotosRetrieval(modal) {
+    const testResults = modal.querySelector('#testResults');
+    const testOutput = modal.querySelector('#testOutput');
+    const testPhotosBtn = modal.querySelector('#testPhotosBtn');
+    
+    try {
+      testPhotosBtn.disabled = true;
+      testPhotosBtn.innerHTML = '<span class="material-icons">hourglass_empty</span> Loading...';
+      
+      testResults.style.display = 'block';
+      testOutput.textContent = 'Fetching library photos...';
+
+      const result = await this.dataService.getLibraryPhotos(10); // Get first 10 photos
+      
+      const output = {
+        photoCount: result.mediaItems.length,
+        hasNextPage: !!result.nextPageToken,
+        photos: result.mediaItems.map(photo => ({
+          id: photo.id,
+          filename: photo.filename,
+          mimeType: photo.mimeType,
+          dimensions: `${photo.mediaMetadata.width}x${photo.mediaMetadata.height}`
+        }))
+      };
+
+      testOutput.textContent = JSON.stringify(output, null, 2);
+      this.showMessage(`Successfully retrieved ${result.mediaItems.length} photos`);
+    } catch (error) {
+      testOutput.textContent = `Error: ${error.message}`;
+      this.showError(`Failed to retrieve photos: ${error.message}`);
+    } finally {
+      testPhotosBtn.disabled = false;
+      testPhotosBtn.innerHTML = '<span class="material-icons">photo</span> Test Photos';
+    }
   }
 
   showError(message) {

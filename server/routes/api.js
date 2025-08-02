@@ -44,7 +44,9 @@ router.post('/admin/google-photos/auth', requireAuth, googlePhotosController.ini
 router.get('/admin/google-photos/callback', googlePhotosController.handleCallback);
 router.delete('/admin/google-photos/auth', requireAuth, googlePhotosController.revokeAccess);
 router.get('/admin/google-photos/albums', requireAuth, googlePhotosController.getAlbums);
+router.get('/admin/google-photos/albums/:albumId/photos', requireAuth, googlePhotosController.getAlbumPhotos);
 router.get('/admin/google-photos/photos', requireAuth, googlePhotosController.getPhotos);
+router.get('/admin/google-photos/media/:mediaItemId', requireAuth, googlePhotosController.getMediaItem);
 router.post('/admin/google-photos/sync', requireAuth, googlePhotosController.startSync);
 
 // Authentication routes
