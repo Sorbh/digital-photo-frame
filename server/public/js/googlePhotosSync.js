@@ -3,6 +3,10 @@ class GooglePhotosSync {
     this.isAuthenticated = false;
     this.userInfo = null;
     this.dataService = new GooglePhotosDataService();
+    this.selectionManager = new SelectionManager();
+    this.albumBrowser = null;
+    this.photoBrowser = null;
+    this.currentView = 'albums'; // 'albums' or 'photos'
     this.init();
   }
 
@@ -169,12 +173,12 @@ class GooglePhotosSync {
   }
 
   showSyncInterface() {
-    // Create and show a basic authenticated interface
-    this.showAuthenticatedInterface();
+    // Create and show the full sync interface with browsers
+    this.showFullSyncInterface();
   }
 
-  showAuthenticatedInterface() {
-    // Create modal for authenticated interface
+  showFullSyncInterface() {
+    // Create full sync interface modal
     const modal = document.createElement('div');
     modal.className = 'modal google-photos-modal';
     modal.innerHTML = `
@@ -182,6 +186,9 @@ class GooglePhotosSync {
         <div class="google-photos-header">
           <span class="material-icons">photo_library</span>
           <h2>Google Photos Sync</h2>
+          <button id="closeBtn" class="btn-icon" title="Close">
+            <span class="material-icons">close</span>
+          </button>
         </div>
         
         <div class="user-info">
@@ -196,30 +203,48 @@ class GooglePhotosSync {
           </button>
         </div>
 
-        <div class="auth-section">
-          <span class="material-icons">check_circle</span>
-          <h3>Connected Successfully!</h3>
-          <p>You can now browse your Google Photos albums and library.</p>
-          
-          <div class="test-actions" style="margin-top: 20px;">
-            <button id="testAlbumsBtn" class="btn-secondary">
+        <div class="sync-interface">
+          <div class="view-tabs">
+            <button id="albumsTab" class="tab-button active">
               <span class="material-icons">photo_album</span>
-              Test Albums
+              Albums
             </button>
-            <button id="testPhotosBtn" class="btn-secondary">
+            <button id="photosTab" class="tab-button">
               <span class="material-icons">photo</span>
-              Test Photos
+              Photos
             </button>
           </div>
-          
-          <div id="testResults" style="margin-top: 20px; max-height: 200px; overflow-y: auto; display: none;">
-            <h4>Test Results:</h4>
-            <pre id="testOutput" style="background: #f5f5f5; padding: 10px; border-radius: 4px; font-size: 12px;"></pre>
+
+          <div class="selection-summary" id="selectionSummary">
+            <div class="selection-summary-content">
+              <div class="selection-stats" id="selectionStats">
+                <!-- Selection stats will be populated here -->
+              </div>
+              <div class="selection-actions">
+                <button id="clearSelectionBtn" class="btn-secondary">
+                  <span class="material-icons">clear_all</span>
+                  Clear
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="browser-container">
+            <div id="albumBrowserContainer" class="browser-view active">
+              <!-- Album browser will be rendered here -->
+            </div>
+            <div id="photoBrowserContainer" class="browser-view">
+              <!-- Photo browser will be rendered here -->
+            </div>
           </div>
         </div>
 
         <div class="modal-actions">
-          <button id="closeModalBtn" class="btn-primary">Close</button>
+          <button id="cancelBtn" class="btn-secondary">Cancel</button>
+          <button id="syncBtn" class="btn-primary" disabled>
+            <span class="material-icons">sync</span>
+            Start Sync
+          </button>
         </div>
       </div>
     `;
@@ -227,27 +252,74 @@ class GooglePhotosSync {
     document.body.appendChild(modal);
     modal.classList.remove('hidden');
 
+    // Initialize browsers
+    this.initializeBrowsers(modal);
+
     // Bind events
+    this.bindSyncInterfaceEvents(modal);
+  }
+
+  initializeBrowsers(modal) {
+    // Initialize album browser
+    this.albumBrowser = new AlbumBrowser(this.dataService, this.selectionManager);
+    const albumContainer = modal.querySelector('#albumBrowserContainer');
+    this.albumBrowser.render(albumContainer);
+
+    // Initialize photo browser
+    this.photoBrowser = new PhotoBrowser(this.dataService, this.selectionManager);
+    const photoContainer = modal.querySelector('#photoBrowserContainer');
+    this.photoBrowser.render(photoContainer);
+
+    // Set up selection manager callbacks
+    this.selectionManager.addChangeCallback((summary) => {
+      this.updateSelectionSummary(summary);
+    });
+
+    // Set up browser communication
+    document.addEventListener('backToAlbums', () => {
+      this.switchToView('albums');
+    });
+  }
+
+  bindSyncInterfaceEvents(modal) {
+    // Tab switching
+    const albumsTab = modal.querySelector('#albumsTab');
+    const photosTab = modal.querySelector('#photosTab');
+
+    albumsTab.addEventListener('click', () => {
+      this.switchToView('albums');
+    });
+
+    photosTab.addEventListener('click', () => {
+      this.switchToView('photos');
+    });
+
+    // Action buttons
     const logoutBtn = modal.querySelector('#logoutBtn');
-    const closeModalBtn = modal.querySelector('#closeModalBtn');
-    const testAlbumsBtn = modal.querySelector('#testAlbumsBtn');
-    const testPhotosBtn = modal.querySelector('#testPhotosBtn');
+    const closeBtn = modal.querySelector('#closeBtn');
+    const cancelBtn = modal.querySelector('#cancelBtn');
+    const clearBtn = modal.querySelector('#clearSelectionBtn');
+    const syncBtn = modal.querySelector('#syncBtn');
 
     logoutBtn.addEventListener('click', async () => {
       await this.logout();
       document.body.removeChild(modal);
     });
 
-    closeModalBtn.addEventListener('click', () => {
+    closeBtn.addEventListener('click', () => {
       document.body.removeChild(modal);
     });
 
-    testAlbumsBtn.addEventListener('click', () => {
-      this.testAlbumsRetrieval(modal);
+    cancelBtn.addEventListener('click', () => {
+      document.body.removeChild(modal);
     });
 
-    testPhotosBtn.addEventListener('click', () => {
-      this.testPhotosRetrieval(modal);
+    clearBtn.addEventListener('click', () => {
+      this.selectionManager.clearAll();
+    });
+
+    syncBtn.addEventListener('click', () => {
+      this.startSync(modal);
     });
 
     // Close on outside click
@@ -256,6 +328,77 @@ class GooglePhotosSync {
         document.body.removeChild(modal);
       }
     });
+  }
+
+  switchToView(view) {
+    this.currentView = view;
+    
+    // Update tabs
+    const albumsTab = document.getElementById('albumsTab');
+    const photosTab = document.getElementById('photosTab');
+    const albumContainer = document.getElementById('albumBrowserContainer');
+    const photoContainer = document.getElementById('photoBrowserContainer');
+
+    if (view === 'albums') {
+      albumsTab.classList.add('active');
+      photosTab.classList.remove('active');
+      albumContainer.classList.add('active');
+      photoContainer.classList.remove('active');
+    } else {
+      albumsTab.classList.remove('active');
+      photosTab.classList.add('active');
+      albumContainer.classList.remove('active');
+      photoContainer.classList.add('active');
+    }
+  }
+
+  updateSelectionSummary(summary) {
+    const summaryEl = document.getElementById('selectionSummary');
+    const statsEl = document.getElementById('selectionStats');
+    const syncBtn = document.getElementById('syncBtn');
+
+    if (summary.hasSelection) {
+      summaryEl.classList.add('has-selection');
+      
+      statsEl.innerHTML = `
+        ${summary.albumCount > 0 ? `
+          <div class="selection-stat">
+            <span class="material-icons">photo_album</span>
+            <span>${summary.albumCount} album${summary.albumCount !== 1 ? 's' : ''}</span>
+          </div>
+        ` : ''}
+        ${summary.photoCount > 0 ? `
+          <div class="selection-stat">
+            <span class="material-icons">photo</span>
+            <span>${summary.photoCount} photo${summary.photoCount !== 1 ? 's' : ''}</span>
+          </div>
+        ` : ''}
+        <div class="selection-stat">
+          <span class="material-icons">check_circle</span>
+          <span>${summary.totalItems} total</span>
+        </div>
+      `;
+
+      if (syncBtn) syncBtn.disabled = false;
+    } else {
+      summaryEl.classList.remove('has-selection');
+      if (syncBtn) syncBtn.disabled = true;
+    }
+  }
+
+  async startSync(modal) {
+    const validation = this.selectionManager.validateSelection();
+    
+    if (!validation.isValid) {
+      this.showError(validation.errors.join(', '));
+      return;
+    }
+
+    // For now, show the sync payload (will be implemented in next task)
+    const payload = this.selectionManager.generateSyncPayload();
+    console.log('Sync payload:', payload);
+    
+    this.showMessage(`Sync will be implemented in the next task. Selected: ${payload.albums.length} albums, ${payload.individualPhotos.length} individual photos`);
   }
 
   async testAlbumsRetrieval(modal) {
