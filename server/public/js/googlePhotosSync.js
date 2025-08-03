@@ -1,40 +1,64 @@
+console.log('🔧 [DEBUG] GooglePhotosSync.js file loaded successfully');
+
 class GooglePhotosSync {
   constructor() {
+    console.log('🔧 [DEBUG] GooglePhotosSync constructor called');
     this.isAuthenticated = false;
     this.userInfo = null;
+    this.authenticationInProgress = false;
+    this.justAuthenticated = false;
+    this.callbackReceived = false; // Flag to prevent race condition with popup close detection
     this.init();
   }
 
   init() {
-    this.checkAuthStatus();
+    this.checkAuthStatus('init');
     this.bindEvents();
     this.setupMessageListener();
   }
 
   bindEvents() {
+    console.log('🔧 [DEBUG] bindEvents() called');
     const googlePhotosBtn = document.getElementById('googlePhotosBtn');
     if (googlePhotosBtn) {
-      googlePhotosBtn.addEventListener('click', () => this.handleGooglePhotosAction());
+      console.log('🔧 [DEBUG] Google Photos button found, adding click listener');
+      googlePhotosBtn.addEventListener('click', () => {
+        console.log('🔧 [DEBUG] Google Photos button clicked!');
+        this.handleGooglePhotosAction();
+      });
+    } else {
+      console.error('❌ [DEBUG] Google Photos button not found!');
     }
   }
 
   setupMessageListener() {
     // Listen for messages from OAuth popup
-    window.addEventListener('message', (event) => {
+    window.addEventListener('message', async (event) => {
       if (event.data.type === 'google-photos-auth') {
-        this.handleAuthCallback(event.data);
+        await this.handleAuthCallback(event.data);
       }
     });
   }
 
-  async checkAuthStatus() {
+  async checkAuthStatus(caller = 'unknown') {
     try {
+      console.log('checkAuthStatus called by:', caller, 'justAuthenticated:', this.justAuthenticated); // Debug log
+      
+      // If we just authenticated successfully, don't override the state for 5 seconds
+      if (this.justAuthenticated && caller !== 'handleAuthCallback') {
+        console.log('Skipping auth check - just authenticated successfully');
+        return;
+      }
+      
       const response = await fetch('/api/admin/google-photos/status');
       const result = await response.json();
+      
+      console.log('Auth status check result:', result); // Debug log
       
       if (result.success) {
         this.isAuthenticated = result.data.authenticated;
         this.userInfo = result.data.userInfo;
+        console.log('Updated auth state:', { authenticated: this.isAuthenticated, userInfo: this.userInfo }); // Debug log
         this.updateButtonState();
       }
     } catch (error) {
@@ -46,14 +70,21 @@ class GooglePhotosSync {
     const googlePhotosBtn = document.getElementById('googlePhotosBtn');
     if (!googlePhotosBtn) return;
 
+    console.log('Updating button state:', { authenticated: this.isAuthenticated, userInfo: this.userInfo, justAuthenticated: this.justAuthenticated }); // Debug log
+
     if (this.isAuthenticated && this.userInfo) {
-      googlePhotosBtn.title = `Open Google Photos (${this.userInfo.email})`;
+      console.log('Setting authenticated state'); // Debug log
+      googlePhotosBtn.title = `Connected to Google Photos (${this.userInfo.email})`;
       googlePhotosBtn.classList.add('authenticated');
-      googlePhotosBtn.innerHTML = '<span class="material-icons">photo_library</span> Open Google Photos';
-    } else {
+      googlePhotosBtn.innerHTML = '<span class="material-icons">check_circle</span> Connected to Google Photos';
+    } else if (!this.justAuthenticated) {
+      // Only set to unauthenticated if we haven't just authenticated
+      console.log('Setting unauthenticated state'); // Debug log
       googlePhotosBtn.title = 'Connect to Google Photos';
       googlePhotosBtn.classList.remove('authenticated');
       googlePhotosBtn.innerHTML = '<span class="material-icons">photo_library</span> Connect Google Photos';
+    } else {
+      console.log('Preserving button state - just authenticated'); // Debug log
     }
   }
 
@@ -61,32 +92,44 @@ class GooglePhotosSync {
     if (!this.isAuthenticated) {
       this.startAuthentication();
     } else {
-      this.openGooglePhotos();
+      this.showMessage('Successfully connected to Google Photos!');
     }
   }
 
   async startAuthentication() {
     try {
+      console.log('🔧 [DEBUG] startAuthentication() called');
+      this.authenticationInProgress = true; // Set flag to prevent race conditions
+      this.callbackReceived = false; // Reset callback flag for new authentication attempt
+      
       // Show loading state
       const googlePhotosBtn = document.getElementById('googlePhotosBtn');
       if (googlePhotosBtn) {
         googlePhotosBtn.disabled = true;
         googlePhotosBtn.innerHTML = '<span class="material-icons">hourglass_empty</span> Connecting...';
+        console.log('🔧 [DEBUG] Button set to loading state');
       }
 
+      const redirectUri = window.location.origin + '/api/admin/google-photos/callback';
+      console.log('🔧 [DEBUG] Making auth request with redirectUri:', redirectUri);
+      
       const response = await fetch('/api/admin/google-photos/auth', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          redirectUri: window.location.origin + '/api/admin/google-photos/callback'
+          redirectUri: redirectUri
         })
       });
 
+      console.log('🔧 [DEBUG] Auth response status:', response.status);
       const result = await response.json();
+      console.log('🔧 [DEBUG] Auth response result:', result);
       
       if (result.success) {
+        console.log('🔧 [DEBUG] Opening OAuth popup with URL:', result.data.authUrl);
+        
         // Open OAuth popup
         this.authPopup = window.open(
           result.data.authUrl,
@@ -97,163 +140,77 @@ class GooglePhotosSync {
         // Focus the popup
         if (this.authPopup) {
           this.authPopup.focus();
+          console.log('🔧 [DEBUG] Popup opened and focused successfully');
+        } else {
+          console.error('❌ [DEBUG] Failed to open popup - popup blocker?');
         }
 
         // Listen for popup close without success message
-        const checkClosed = setInterval(() => {
+        const checkClosed = setInterval(async () => {
           if (this.authPopup && this.authPopup.closed) {
             clearInterval(checkClosed);
-            // If popup closed without success, assume user cancelled
-            this.handleAuthCallback({ success: false, error: 'Authentication cancelled by user' });
+            // Only trigger cancellation if no callback was received
+            if (!this.callbackReceived) {
+              console.log('🔧 [DEBUG] Popup closed without callback - assuming user cancelled');
+              await this.handleAuthCallback({ success: false, error: 'Authentication cancelled by user' });
+            } else {
+              console.log('🔧 [DEBUG] Popup closed after successful callback');
+            }
           }
         }, 1000);
       } else {
+        console.error('❌ [DEBUG] Auth request failed:', result.error);
         this.showError('Failed to start authentication: ' + result.error.message);
         this.resetButtonState();
+        this.authenticationInProgress = false;
       }
     } catch (error) {
-      console.error('Authentication error:', error);
+      console.error('❌ [DEBUG] Authentication error:', error);
       this.showError('Failed to start Google Photos authentication');
       this.resetButtonState();
+      this.authenticationInProgress = false;
     }
   }
 
-  handleAuthCallback(data) {
-    // Reset button state
-    this.resetButtonState();
+  async handleAuthCallback(data) {
+    console.log('🔧 [DEBUG] handleAuthCallback called with data:', data);
+    
+    // Set flag to prevent race condition
+    this.callbackReceived = true;
     
     if (this.authPopup && !this.authPopup.closed) {
       this.authPopup.close();
+      console.log('🔧 [DEBUG] Popup closed');
     }
 
     if (data.success) {
+      console.log('🔧 [DEBUG] Authentication successful');
       this.isAuthenticated = true;
-      this.checkAuthStatus(); // Refresh user info
-      this.showMessage('Successfully connected to Google Photos! You can now access your photos.');
+      this.justAuthenticated = true;
       
-      // Automatically open Google Photos after successful authentication
+      // Set a timer to clear the justAuthenticated flag after 5 seconds
       setTimeout(() => {
-        this.openGooglePhotos();
-      }, 1500);
+        this.justAuthenticated = false;
+        console.log('Cleared justAuthenticated flag');
+      }, 5000);
+      
+      // Fetch fresh user info before updating button state
+      await this.checkAuthStatus('handleAuthCallback');
+      this.showMessage('Successfully connected to Google Photos!');
     } else {
       this.isAuthenticated = false;
       this.userInfo = null;
-      this.updateButtonState();
+      this.justAuthenticated = false;
+      this.resetButtonState();
       if (data.error !== 'Authentication cancelled by user') {
         this.showError(data.error || 'Authentication failed');
       }
     }
+    
+    // Clear authentication in progress flag
+    this.authenticationInProgress = false;
   }
 
-  async openGooglePhotos() {
-    try {
-      // Show loading state
-      const googlePhotosBtn = document.getElementById('googlePhotosBtn');
-      if (googlePhotosBtn) {
-        googlePhotosBtn.disabled = true;
-        googlePhotosBtn.innerHTML = '<span class="material-icons">hourglass_empty</span> Opening Picker...';
-      }
-
-      // Create Google Photos Picker session
-      const response = await fetch('/api/admin/google-photos/session', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
-
-      const result = await response.json();
-      
-      if (result.success) {
-        // Open Google Photos Picker in new tab
-        const pickerTab = window.open(
-          result.data.pickerUrl,
-          'googlePhotosPicker',
-          'width=1024,height=768,scrollbars=yes,resizable=yes'
-        );
-
-        if (pickerTab) {
-          pickerTab.focus();
-          this.showMessage('Google Photos Picker opened. Select your photos and they will be available for download.');
-          
-          // Store session info for potential cleanup
-          this.currentPickerSession = {
-            sessionId: result.data.sessionId,
-            requestId: result.data.requestId
-          };
-        } else {
-          // Fallback - provide direct link
-          this.showGooglePhotosLinkModal(result.data.pickerUrl, true);
-        }
-      } else {
-        // Handle specific error cases
-        if (result.error.code === 'NO_GOOGLE_PHOTOS_ACCOUNT') {
-          this.showError('You need an active Google Photos account to use the picker. Please set up Google Photos first.');
-        } else if (result.error.code === 'TOO_MANY_SESSIONS') {
-          this.showError('Too many picker sessions are active. Please try again in a few minutes.');
-        } else {
-          this.showError('Failed to create Google Photos picker session: ' + result.error.message);
-        }
-      }
-    } catch (error) {
-      console.error('Failed to open Google Photos Picker:', error);
-      this.showError('Failed to open Google Photos Picker');
-    } finally {
-      // Reset button state
-      this.resetButtonState();
-    }
-  }
-
-  showGooglePhotosLinkModal(url, isPicker = false) {
-    const modal = document.createElement('div');
-    modal.className = 'modal';
-    modal.innerHTML = `
-      <div class="modal-content" style="max-width: 500px; text-align: center;">
-        <div class="modal-header">
-          <span class="material-icons">${isPicker ? 'photo_camera' : 'photo_library'}</span>
-          <h2>Open Google Photos ${isPicker ? 'Picker' : ''}</h2>
-          <button class="btn-icon close-modal" title="Close">
-            <span class="material-icons">close</span>
-          </button>
-        </div>
-        <div class="modal-body">
-          <p>Click the button below to open ${isPicker ? 'Google Photos Picker' : 'Google Photos'} in a new tab:</p>
-          <div style="margin: 20px 0;">
-            <a href="${url}" target="_blank" class="btn-primary" style="display: inline-flex; align-items: center; gap: 8px; text-decoration: none;">
-              <span class="material-icons">open_in_new</span>
-              Open ${isPicker ? 'Photos Picker' : 'Google Photos'}
-            </a>
-          </div>
-          <p style="font-size: 14px; color: #666;">
-            ${isPicker 
-              ? 'Use the picker to select photos, then they will be available for download in your applications.'
-              : 'From Google Photos, you can view, organize, and download your photos.'
-            }
-          </p>
-        </div>
-        <div class="modal-actions">
-          <button class="btn-secondary close-modal">Close</button>
-        </div>
-      </div>
-    `;
-
-    document.body.appendChild(modal);
-
-    // Bind close events
-    const closeButtons = modal.querySelectorAll('.close-modal');
-    closeButtons.forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.body.removeChild(modal);
-      });
-    });
-
-    // Close on outside click
-    modal.addEventListener('click', (e) => {
-      if (e.target === modal) {
-        document.body.removeChild(modal);
-      }
-    });
-  }
 
   resetButtonState() {
     const googlePhotosBtn = document.getElementById('googlePhotosBtn');
