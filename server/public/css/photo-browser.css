@@ -1,0 +1,265 @@
+/* Photo Browser Styles */
+
+.photo-item {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: var(--md-sys-color-surface);
+  aspect-ratio: 1;
+}
+
+.photo-item:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.photo-item.selected {
+  box-shadow: 0 0 0 3px var(--md-sys-color-primary);
+}
+
+.photo-thumbnail-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.photo-thumbnail {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: var(--md-sys-color-surface-variant);
+}
+
+.photo-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+  color: white;
+  padding: 12px 8px 8px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.photo-item:hover .photo-overlay {
+  opacity: 1;
+}
+
+.photo-info {
+  font-size: 12px;
+}
+
+.photo-filename {
+  font-weight: 500;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.photo-dimensions {
+  opacity: 0.8;
+  font-size: 11px;
+}
+
+/* Selection checkbox for photos */
+.photo-item .selection-checkbox {
+  top: 6px;
+  right: 6px;
+  width: 20px;
+  height: 20px;
+}
+
+.photo-item .selection-checkbox .material-icons {
+  font-size: 14px;
+}
+
+/* Photo grid specific layout */
+.browser-grid.photo-grid {
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+}
+
+/* Responsive adjustments for photos */
+@media (max-width: 768px) {
+  .browser-grid.photo-grid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 8px;
+  }
+  
+  .photo-overlay {
+    padding: 8px 6px 6px;
+  }
+  
+  .photo-info {
+    font-size: 11px;
+  }
+  
+  .photo-filename {
+    font-size: 11px;
+  }
+  
+  .photo-dimensions {
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .browser-grid.photo-grid {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 6px;
+  }
+  
+  .photo-item .selection-checkbox {
+    width: 18px;
+    height: 18px;
+    top: 4px;
+    right: 4px;
+  }
+  
+  .photo-item .selection-checkbox .material-icons {
+    font-size: 12px;
+  }
+}
+
+/* Selection summary styles */
+.selection-summary {
+  background: var(--md-sys-color-surface-variant);
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin: 16px 0;
+  display: none;
+}
+
+.selection-summary.has-selection {
+  display: block;
+}
+
+.selection-summary-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.selection-stats {
+  display: flex;
+  gap: 16px;
+  font-size: 14px;
+  color: var(--md-sys-color-on-surface);
+}
+
+.selection-stat {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.selection-stat .material-icons {
+  font-size: 16px;
+  color: var(--md-sys-color-primary);
+}
+
+.selection-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.selection-actions button {
+  font-size: 14px;
+  padding: 8px 16px;
+}
+
+/* Empty state variations */
+.browser-empty.no-albums .material-icons:before {
+  content: 'photo_album';
+}
+
+.browser-empty.no-photos .material-icons:before {
+  content: 'photo';
+}
+
+.browser-empty.no-search-results .material-icons:before {
+  content: 'search_off';
+}
+
+/* Loading animation */
+@keyframes pulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+.browser-loading .material-icons {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* Scroll indicators */
+.browser-grid::-webkit-scrollbar {
+  width: 8px;
+}
+
+.browser-grid::-webkit-scrollbar-track {
+  background: var(--md-sys-color-surface-variant);
+  border-radius: 4px;
+}
+
+.browser-grid::-webkit-scrollbar-thumb {
+  background: var(--md-sys-color-outline);
+  border-radius: 4px;
+}
+
+.browser-grid::-webkit-scrollbar-thumb:hover {
+  background: var(--md-sys-color-outline-variant);
+}
+
+/* Focus states for accessibility */
+.album-item:focus,
+.photo-item:focus {
+  outline: 2px solid var(--md-sys-color-primary);
+  outline-offset: 2px;
+}
+
+.selection-checkbox:focus {
+  outline: 2px solid var(--md-sys-color-primary);
+  outline-offset: 2px;
+}
+
+/* High contrast mode adjustments */
+@media (prefers-contrast: high) {
+  .album-item,
+  .photo-item {
+    border: 1px solid var(--md-sys-color-outline);
+  }
+  
+  .selection-checkbox {
+    border-width: 3px;
+  }
+  
+  .browser-grid {
+    border-width: 2px;
+  }
+}
+
+/* Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .album-item,
+  .photo-item,
+  .selection-checkbox,
+  .photo-overlay {
+    transition: none;
+  }
+  
+  .album-item:hover,
+  .photo-item:hover {
+    transform: none;
+  }
+  
+  .browser-loading .material-icons {
+    animation: none;
+  }
+}

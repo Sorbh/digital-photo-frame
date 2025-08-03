@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Digital Photo Frame Admin</title>
     <link rel="stylesheet" href="admin.css">
+    <link rel="stylesheet" href="css/google-photos-sync.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
@@ -21,6 +22,10 @@
                 <button id="accessAccountsBtn" class="btn-secondary" title="Manage Access Accounts">
                     <span class="material-icons">admin_panel_settings</span>
                     Access Accounts
+                </button>
+                <button id="googlePhotosBtn" class="btn-secondary" title="Sync Google Photos">
+                    <span class="material-icons">photo_library</span>
+                    Google Photos
                 </button>
                 <button id="createFolderBtn" class="btn-primary" title="Create Folder">
                     <span class="material-icons">create_new_folder</span>
@@ -115,5 +120,6 @@
     </div>
 
     <script src="admin.js"></script>
+    <script src="js/googlePhotosSync.js"></script>
 </body>
 </html>
