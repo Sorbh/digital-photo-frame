@@ -259,6 +259,311 @@ class GooglePhotosSync {
       console.log('Google Photos Message:', message);
     }
   }
+
+  openGooglePhotosModal(currentPath) {
+    console.log('🔧 [DEBUG] openGooglePhotosModal called with path:', currentPath);
+    
+    if (!this.isAuthenticated) {
+      this.showError('Please connect to Google Photos first');
+      return;
+    }
+
+    this.currentImportPath = currentPath;
+    this.showGooglePhotosModal();
+    this.createPickerSession();
+  }
+
+  showGooglePhotosModal() {
+    const modal = document.getElementById('googlePhotosModal');
+    if (modal) {
+      modal.classList.remove('hidden');
+      this.resetModalStates();
+      document.getElementById('sessionLoadingState').classList.remove('hidden');
+    }
+  }
+
+  hideGooglePhotosModal() {
+    const modal = document.getElementById('googlePhotosModal');
+    if (modal) {
+      modal.classList.add('hidden');
+      this.currentSessionUrl = null;
+    }
+  }
+
+  resetModalStates() {
+    document.getElementById('sessionLoadingState').classList.add('hidden');
+    document.getElementById('sessionReadyState').classList.add('hidden');
+    document.getElementById('sessionErrorState').classList.add('hidden');
+  }
+
+  async createPickerSession() {
+    try {
+      console.log('🔧 [DEBUG] Creating Google Photos picker session...');
+      
+      const response = await fetch('/api/admin/google-photos/picker-session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          destinationPath: this.currentImportPath
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        console.log('🔧 [DEBUG] Session created successfully:', data);
+        console.log('🔧 [DEBUG] Session ID from response:', data.sessionId);
+        console.log('🔧 [DEBUG] Session URL from response:', data.sessionUrl);
+        console.log('🔧 [DEBUG] Polling config from response:', data.pollingConfig);
+        
+        // Store session data with parsed polling config
+        this.currentSessionData = {
+          id: data.sessionId,
+          url: data.sessionUrl,
+          pollingConfig: this.parsePollingConfig(data.pollingConfig)
+        };
+        
+        console.log('🔧 [DEBUG] Stored session data:', this.currentSessionData);
+        
+        this.currentSessionUrl = data.sessionUrl;
+        this.showSessionReady();
+      } else {
+        console.error('❌ [DEBUG] Failed to create session:', data.error);
+        this.showSessionError(data.error || 'Failed to create picker session');
+      }
+    } catch (error) {
+      console.error('❌ [DEBUG] Error creating picker session:', error);
+      this.showSessionError('Failed to create picker session');
+    }
+  }
+
+  showSessionReady() {
+    this.resetModalStates();
+    document.getElementById('sessionReadyState').classList.remove('hidden');
+  }
+
+  showSessionError(errorMessage) {
+    this.resetModalStates();
+    document.getElementById('sessionErrorState').classList.remove('hidden');
+    document.getElementById('sessionErrorMessage').textContent = errorMessage;
+  }
+
+  openPickerSession() {
+    if (this.currentSessionUrl && this.currentSessionData) {
+      // Open the picker in a new tab
+      window.open(this.currentSessionUrl, '_blank');
+      
+      // Start polling and timer
+      this.startSessionPolling();
+      this.showPollingState();
+    }
+  }
+
+  showPollingState() {
+    this.resetModalStates();
+    
+    // Show polling state with timer
+    const pollingState = document.createElement('div');
+    pollingState.id = 'sessionPollingState';
+    pollingState.className = 'session-state';
+    pollingState.innerHTML = `
+      <div class="session-icon">
+        <span class="material-icons">access_time</span>
+      </div>
+      <p>Waiting for photo selection...</p>
+      <div class="session-timer">
+        <span id="sessionTimer">--:--</span>
+      </div>
+      <small>Select photos in the Google Photos tab and confirm your selection.</small>
+    `;
+    
+    // Replace the ready state with polling state
+    const readyState = document.getElementById('sessionReadyState');
+    readyState.parentNode.insertBefore(pollingState, readyState);
+    readyState.remove();
+  }
+
+  startSessionPolling() {
+    const { pollInterval, timeoutIn } = this.currentSessionData.pollingConfig;
+    
+    console.log('🔧 [DEBUG] Starting session polling:', { pollInterval, timeoutIn });
+    
+    // Start timeout timer
+    this.sessionStartTime = Date.now();
+    this.sessionTimeoutMs = timeoutIn;
+    this.startSessionTimer();
+    
+    // Start polling
+    this.pollingInterval = setInterval(() => {
+      this.pollSession();
+    }, pollInterval);
+    
+    // Set overall timeout
+    this.sessionTimeout = setTimeout(() => {
+      this.handleSessionTimeout();
+    }, timeoutIn);
+  }
+
+  startSessionTimer() {
+    this.timerInterval = setInterval(() => {
+      const elapsed = Date.now() - this.sessionStartTime;
+      const remaining = Math.max(0, this.sessionTimeoutMs - elapsed);
+      
+      if (remaining === 0) {
+        clearInterval(this.timerInterval);
+        return;
+      }
+      
+      const minutes = Math.floor(remaining / 60000);
+      const seconds = Math.floor((remaining % 60000) / 1000);
+      const timeString = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+      
+      const timerElement = document.getElementById('sessionTimer');
+      if (timerElement) {
+        timerElement.textContent = timeString;
+      }
+    }, 1000);
+  }
+
+  async pollSession() {
+    try {
+      console.log('🔧 [DEBUG] Polling session:', this.currentSessionData.id);
+      
+      const response = await fetch(`/api/admin/google-photos/session/${this.currentSessionData.id}`);
+      const data = await response.json();
+      
+      if (response.ok && data.success) {
+        console.log('🔧 [DEBUG] Session poll result:', data);
+        
+        if (data.mediaItemsSet && data.mediaItems && data.mediaItems.length > 0) {
+          // User has selected photos
+          this.handleSessionComplete(data.mediaItems);
+        }
+      } else {
+        console.warn('⚠️ [DEBUG] Session poll failed:', data.error);
+      }
+    } catch (error) {
+      console.error('❌ [DEBUG] Error polling session:', error);
+    }
+  }
+
+  handleSessionComplete(mediaItems) {
+    console.log('🔧 [DEBUG] Session completed with media items:', mediaItems);
+    
+    // Clear timers and intervals
+    this.clearSessionTimers();
+    
+    // Show completion state
+    this.showSessionComplete(mediaItems);
+  }
+
+  handleSessionTimeout() {
+    console.log('🔧 [DEBUG] Session timed out');
+    
+    // Clear timers and intervals
+    this.clearSessionTimers();
+    
+    // Close modal and show timeout message
+    this.hideGooglePhotosModal();
+    this.showMessage('Google Photos session timed out. Please try again.');
+  }
+
+  clearSessionTimers() {
+    if (this.pollingInterval) {
+      clearInterval(this.pollingInterval);
+      this.pollingInterval = null;
+    }
+    
+    if (this.sessionTimeout) {
+      clearTimeout(this.sessionTimeout);
+      this.sessionTimeout = null;
+    }
+    
+    if (this.timerInterval) {
+      clearInterval(this.timerInterval);
+      this.timerInterval = null;
+    }
+  }
+
+  showSessionComplete(mediaItems) {
+    this.resetModalStates();
+    
+    const completeState = document.createElement('div');
+    completeState.id = 'sessionCompleteState';
+    completeState.className = 'session-state';
+    completeState.innerHTML = `
+      <div class="session-icon">
+        <span class="material-icons">check_circle</span>
+      </div>
+      <p>Photos selected successfully!</p>
+      <small>${mediaItems.length} photo(s) ready to import</small>
+      <button id="importSelectedBtn" class="btn-primary">
+        <span class="material-icons">file_download</span>
+        Import Selected Photos
+      </button>
+    `;
+    
+    // Add to modal content
+    const modalContent = document.querySelector('.google-photos-content');
+    modalContent.appendChild(completeState);
+  }
+
+  // Parse Google's duration strings (e.g., "5s", "300.5s") to milliseconds
+  parsePollingConfig(pollingConfig) {
+    console.log('🔧 [DEBUG] Frontend parsing polling config:', pollingConfig);
+    
+    if (!pollingConfig) {
+      return {
+        pollInterval: 5000,   // Default 5 seconds
+        timeoutIn: 300000     // Default 5 minutes
+      };
+    }
+    
+    const parseDuration = (durationStr) => {
+      // If already a number, return as is (backend already parsed)
+      if (typeof durationStr === 'number') {
+        return durationStr;
+      }
+      
+      // If string, parse it
+      if (typeof durationStr === 'string') {
+        const match = durationStr.match(/^(\d+(?:\.\d+)?)s$/);
+        if (match) {
+          return Math.round(parseFloat(match[1]) * 1000); // Convert to milliseconds
+        }
+      }
+      
+      return null;
+    };
+    
+    const pollInterval = parseDuration(pollingConfig.pollInterval) || 5000;   // Default 5 seconds
+    const timeoutIn = parseDuration(pollingConfig.timeoutIn) || 300000;       // Default 5 minutes
+    
+    const result = { pollInterval, timeoutIn };
+    console.log('🔧 [DEBUG] Frontend parsed polling config result:', result);
+    
+    return result;
+  }
+
+  hideGooglePhotosModal() {
+    // Clear any timers when modal is closed
+    this.clearSessionTimers();
+    
+    const modal = document.getElementById('googlePhotosModal');
+    if (modal) {
+      modal.classList.add('hidden');
+      this.currentSessionUrl = null;
+      this.currentSessionData = null;
+      
+      // Clean up any dynamically created states
+      const pollingState = document.getElementById('sessionPollingState');
+      const completeState = document.getElementById('sessionCompleteState');
+      if (pollingState) pollingState.remove();
+      if (completeState) completeState.remove();
+    }
+  }
 }
 
 // Initialize when DOM is loaded

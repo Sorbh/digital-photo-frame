@@ -43,6 +43,8 @@ router.get('/admin/google-photos/status', requireAuth, googlePhotosController.ge
 router.post('/admin/google-photos/auth', requireAuth, googlePhotosController.initiateAuth);
 router.get('/admin/google-photos/callback', googlePhotosController.handleCallback);
 router.delete('/admin/google-photos/auth', requireAuth, googlePhotosController.revokeAccess);
+router.post('/admin/google-photos/picker-session', requireAuth, googlePhotosController.createPickerSession);
+router.get('/admin/google-photos/session/:sessionId', requireAuth, googlePhotosController.getPickerSession);
 
 // Authentication routes
 const authRoutes = require('./auth');

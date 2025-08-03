@@ -94,6 +94,31 @@ class PhotoFrameAdmin {
                 this.hideUploadModal();
             }
         });
+
+        // Google Photos modal
+        document.getElementById('cancelGooglePhotosBtn').addEventListener('click', () => {
+            if (window.googlePhotosSync) {
+                window.googlePhotosSync.hideGooglePhotosModal();
+            }
+        });
+
+        document.getElementById('googlePhotosModal').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) {
+                if (window.googlePhotosSync) {
+                    window.googlePhotosSync.hideGooglePhotosModal();
+                }
+            }
+        });
+
+        // Session buttons (will be available after Google Photos sync loads)
+        document.addEventListener('click', (e) => {
+            if (e.target.id === 'openSessionBtn' && window.googlePhotosSync) {
+                window.googlePhotosSync.openPickerSession();
+            }
+            if (e.target.id === 'retrySessionBtn' && window.googlePhotosSync) {
+                window.googlePhotosSync.createPickerSession();
+            }
+        });
     }
 
     setupUploadDragAndDrop() {
@@ -183,6 +208,12 @@ class PhotoFrameAdmin {
         
         emptyState.classList.add('hidden');
         
+        // Add Google Photos import cell if user is authenticated
+        if (window.googlePhotosSync && window.googlePhotosSync.isAuthenticated) {
+            const importElement = this.createGooglePhotosImportElement();
+            fileGrid.appendChild(importElement);
+        }
+        
         // Render folders
         data.folders.forEach(folder => {
             const folderElement = this.createFolderElement(folder);
@@ -225,6 +256,28 @@ class PhotoFrameAdmin {
         div.addEventListener('contextmenu', (e) => this.showContextMenu(e, {...file, type: 'image'}));
         
         return div;
+    }
+
+    createGooglePhotosImportElement() {
+        const div = document.createElement('div');
+        div.className = 'file-item google-photos-import';
+        div.dataset.type = 'google-photos-import';
+        div.innerHTML = `
+            <span class="material-icons">add</span>
+            <span class="import-text">Import from Google Photos</span>
+        `;
+        
+        div.addEventListener('click', () => this.openGooglePhotosImport());
+        
+        return div;
+    }
+
+    openGooglePhotosImport() {
+        if (window.googlePhotosSync) {
+            window.googlePhotosSync.openGooglePhotosModal(this.currentPath);
+        } else {
+            this.showToast('Google Photos integration not available', 'error');
+        }
     }
 
     navigateTo(path) {

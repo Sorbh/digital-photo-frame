@@ -115,6 +115,40 @@
             </div>
         </div>
 
+        <div id="googlePhotosModal" class="modal hidden">
+            <div class="modal-content">
+                <h2>Import from Google Photos</h2>
+                <div class="google-photos-content">
+                    <div id="sessionLoadingState" class="session-state">
+                        <div class="session-loader">
+                            <div class="spinner"></div>
+                        </div>
+                        <p>Creating Google Photos session...</p>
+                    </div>
+                    <div id="sessionReadyState" class="session-state hidden">
+                        <div class="session-icon">
+                            <span class="material-icons">photo_library</span>
+                        </div>
+                        <p>Google Photos session is ready!</p>
+                        <button id="openSessionBtn" class="btn-primary">
+                            <span class="material-icons">open_in_new</span>
+                            Open Google Photos Picker
+                        </button>
+                    </div>
+                    <div id="sessionErrorState" class="session-state hidden">
+                        <div class="session-icon error">
+                            <span class="material-icons">error</span>
+                        </div>
+                        <p id="sessionErrorMessage">Failed to create session</p>
+                        <button id="retrySessionBtn" class="btn-secondary">Try Again</button>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button id="cancelGooglePhotosBtn" class="btn-secondary">Cancel</button>
+                </div>
+            </div>
+        </div>
+
         <!-- Toast notifications -->
         <div id="toastContainer" class="toast-container"></div>
     </div>

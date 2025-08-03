@@ -186,6 +186,105 @@ const googlePhotosController = {
         }
       });
     }
+  }),
+
+  // Create Google Photos Picker session
+  createPickerSession: asyncHandler(async (req, res) => {
+    try {
+      const tokens = oauthManager.getStoredTokens(req.session);
+      
+      if (!tokens || !tokens.access_token || oauthManager.isTokenExpired(tokens)) {
+        return res.status(401).json({
+          success: false,
+          error: {
+            code: 'NOT_AUTHENTICATED',
+            message: 'User not authenticated with Google Photos'
+          }
+        });
+      }
+
+      const { destinationPath } = req.body;
+      
+      if (!destinationPath) {
+        return res.status(400).json({
+          success: false,
+          error: {
+            code: 'MISSING_DESTINATION',
+            message: 'Destination path is required'
+          }
+        });
+      }
+
+      // Create picker session using Google Photos Picker API
+      const sessionData = await oauthManager.createPickerSession(tokens.access_token, destinationPath);
+
+      res.json({
+        success: true,
+        sessionId: sessionData.sessionId,
+        sessionUrl: sessionData.pickerUri,
+        pollingConfig: sessionData.pollingConfig
+      });
+    } catch (error) {
+      console.error('Picker session creation error:', error);
+      res.status(500).json({
+        success: false,
+        error: {
+          code: 'SESSION_CREATION_FAILED',
+          message: 'Failed to create Google Photos picker session',
+          details: error.message
+        }
+      });
+    }
+  }),
+
+  // Get Google Photos Picker session status
+  getPickerSession: asyncHandler(async (req, res) => {
+    try {
+      const tokens = oauthManager.getStoredTokens(req.session);
+      
+      if (!tokens || !tokens.access_token || oauthManager.isTokenExpired(tokens)) {
+        return res.status(401).json({
+          success: false,
+          error: {
+            code: 'NOT_AUTHENTICATED',
+            message: 'User not authenticated with Google Photos'
+          }
+        });
+      }
+
+      const { sessionId } = req.params;
+      
+      if (!sessionId) {
+        return res.status(400).json({
+          success: false,
+          error: {
+            code: 'MISSING_SESSION_ID',
+            message: 'Session ID is required'
+          }
+        });
+      }
+
+      // Get session status using Google Photos Picker API
+      const sessionData = await oauthManager.getPickerSession(tokens.access_token, sessionId);
+
+      res.json({
+        success: true,
+        sessionId: sessionData.id,
+        mediaItemsSet: sessionData.mediaItemsSet,
+        mediaItems: sessionData.mediaItems || [],
+        pollingConfig: sessionData.pollingConfig
+      });
+    } catch (error) {
+      console.error('Get picker session error:', error);
+      res.status(500).json({
+        success: false,
+        error: {
+          code: 'SESSION_GET_FAILED',
+          message: 'Failed to get Google Photos picker session',
+          details: error.message
+        }
+      });
+    }
   })
 };
 
