@@ -366,7 +366,7 @@ class AccessAccountController {
                     });
                 }
                 
-                res.clearCookie('connect.sid'); // Default session cookie name
+                res.clearCookie('photoframe.sid'); // Custom session cookie name
                 res.json({
                     success: true,
                     message: 'Session cleared'
