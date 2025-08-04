@@ -291,9 +291,29 @@ class GooglePhotosSync {
   }
 
   resetModalStates() {
-    document.getElementById('sessionLoadingState').classList.add('hidden');
-    document.getElementById('sessionReadyState').classList.add('hidden');
-    document.getElementById('sessionErrorState').classList.add('hidden');
+    // Hide standard modal states if they exist
+    const loadingState = document.getElementById('sessionLoadingState');
+    const readyState = document.getElementById('sessionReadyState');
+    const errorState = document.getElementById('sessionErrorState');
+    
+    if (loadingState) loadingState.classList.add('hidden');
+    if (readyState) readyState.classList.add('hidden');
+    if (errorState) errorState.classList.add('hidden');
+    
+    // Remove any dynamically created states
+    const dynamicStates = [
+      'sessionPollingState',
+      'sessionCompleteState', 
+      'mediaItemsLoadingState',
+      'importingState'
+    ];
+    
+    dynamicStates.forEach(stateId => {
+      const element = document.getElementById(stateId);
+      if (element) {
+        element.remove();
+      }
+    });
   }
 
   async createPickerSession() {
@@ -437,9 +457,11 @@ class GooglePhotosSync {
       if (response.ok && data.success) {
         console.log('🔧 [DEBUG] Session poll result:', data);
         
-        if (data.mediaItemsSet && data.mediaItems && data.mediaItems.length > 0) {
-          // User has selected photos
-          this.handleSessionComplete(data.mediaItems);
+        if (data.mediaItemsSet) {
+          // User has selected photos, stop polling and fetch media items
+          console.log('🔧 [DEBUG] Media items set detected, fetching selected photos...');
+          this.clearSessionTimers();
+          this.fetchSessionMediaItems();
         }
       } else {
         console.warn('⚠️ [DEBUG] Session poll failed:', data.error);
@@ -449,13 +471,64 @@ class GooglePhotosSync {
     }
   }
 
+  async fetchSessionMediaItems() {
+    try {
+      console.log('🔧 [DEBUG] Fetching media items for session:', this.currentSessionData.id);
+      
+      // Show loading state for media items
+      this.showMediaItemsLoading();
+      
+      const response = await fetch(`/api/admin/google-photos/session/${this.currentSessionData.id}/media-items`);
+      const data = await response.json();
+      
+      if (response.ok && data.success) {
+        console.log('🔧 [DEBUG] Media items fetched successfully:', data.mediaItems);
+        console.log('🔧 [DEBUG] Number of media items:', data.mediaItems?.length || 0);
+        
+        if (data.mediaItems && data.mediaItems.length > 0) {
+          console.log('🔧 [DEBUG] First media item:', data.mediaItems[0]);
+          console.log('🔧 [DEBUG] First media item keys:', Object.keys(data.mediaItems[0]));
+        }
+        
+        this.handleSessionComplete(data.mediaItems);
+      } else {
+        console.error('❌ [DEBUG] Failed to fetch media items:', data.error);
+        this.showSessionError('Failed to fetch selected photos');
+      }
+    } catch (error) {
+      console.error('❌ [DEBUG] Error fetching media items:', error);
+      this.showSessionError('Failed to fetch selected photos');
+    }
+  }
+
+  showMediaItemsLoading() {
+    this.resetModalStates();
+    
+    const loadingState = document.createElement('div');
+    loadingState.id = 'mediaItemsLoadingState';
+    loadingState.className = 'session-state';
+    loadingState.innerHTML = `
+      <div class="session-loader">
+        <div class="spinner"></div>
+      </div>
+      <p>Loading selected photos...</p>
+    `;
+    
+    const modalContent = document.querySelector('.google-photos-content');
+    if (modalContent) {
+      modalContent.appendChild(loadingState);
+    } else {
+      console.error('❌ [DEBUG] Modal content not found for media items loading state');
+    }
+  }
+
   handleSessionComplete(mediaItems) {
     console.log('🔧 [DEBUG] Session completed with media items:', mediaItems);
     
     // Clear timers and intervals
     this.clearSessionTimers();
     
-    // Show completion state
+    // Show completion state with thumbnails
     this.showSessionComplete(mediaItems);
   }
 
@@ -493,21 +566,112 @@ class GooglePhotosSync {
     const completeState = document.createElement('div');
     completeState.id = 'sessionCompleteState';
     completeState.className = 'session-state';
+    
+    // Create thumbnails HTML with horizontal limit and count indicator
+    // Calculate how many thumbnails can fit in horizontal space
+    // Assuming modal width ~500px, padding 16px, thumbnail 80px + gap 8px = 88px per thumbnail
+    const modalWidth = 500 - 32; // Account for modal padding
+    const thumbnailWidth = 80 + 8; // thumbnail + gap
+    const maxThumbnails = Math.floor(modalWidth / thumbnailWidth);
+    
+    const displayItems = mediaItems.slice(0, maxThumbnails);
+    const remainingCount = Math.max(0, mediaItems.length - maxThumbnails);
+    
+    const thumbnailsHtml = displayItems.map((item, index) => {
+      console.log('🔧 [DEBUG] Processing media item for thumbnail:', item);
+      
+      if (item.mediaFile) {
+        console.log('🔧 [DEBUG] Media file structure:', item.mediaFile);
+        console.log('🔧 [DEBUG] Media file keys:', Object.keys(item.mediaFile));
+      }
+      
+      // Get thumbnail URL - handle Google Photos Picker API structure
+      let originalUrl = '';
+      
+      if (item.baseUrl) {
+        // Standard Google Photos Library API format
+        originalUrl = `${item.baseUrl}=w150-h150-c`;
+      } else if (item.mediaFile && item.mediaFile.baseUrl) {
+        // Google Photos Picker API format
+        originalUrl = `${item.mediaFile.baseUrl}=w150-h150-c`;
+      } else if (item.mediaFile && item.mediaFile.url) {
+        // Alternative URL property
+        originalUrl = item.mediaFile.url;
+      } else if (item.productUrl) {
+        originalUrl = item.productUrl;
+      } else {
+        console.warn('⚠️ [DEBUG] No thumbnail URL found for item:', item);
+      }
+      
+      // Use proxy endpoint for authenticated access
+      let thumbnailUrl;
+      if (originalUrl) {
+        thumbnailUrl = `/api/admin/google-photos/thumbnail?url=${encodeURIComponent(originalUrl)}`;
+      } else {
+        thumbnailUrl = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTUwIiBoZWlnaHQ9IjE1MCIgdmlld0JveD0iMCAwIDE1MCAxNTAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi0vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxNTAiIGhlaWdodD0iMTUwIiBmaWxsPSIjZjVmNWY1Ii8+CjxwYXRoIGQ9Ik03NSA0MEM2OC4zNzUgNDAgNjMgNDUuMzc1IDYzIDUyVjk4QzYzIDEwNC42MjUgNjguMzc1IDExMCA3NSAxMTBIMTIxQzEyNy42MjUgMTEwIDEzMyAxMDQuNjI1IDEzMyA5OFY1MkMxMzMgNDUuMzc1IDEyNy42MjUgNDAgMTIxIDQwSDc1WiIgZmlsbD0iIzlFOUU5RSIvPgo8L3N2Zz4K';
+      }
+      
+      // Check if this is the last thumbnail and we have remaining items
+      const isLastThumbnail = index === displayItems.length - 1 && remainingCount > 0;
+      
+      return `
+        <div class="photo-thumbnail" data-media-id="${item.id || index}">
+          <img src="${thumbnailUrl}" alt="Selected photo ${index + 1}" loading="lazy" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTUwIiBoZWlnaHQ9IjE1MCIgdmlld0JveD0iMCAwIDE1MCAxNTAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi0vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxNTAiIGhlaWdodD0iMTUwIiBmaWxsPSIjZjVmNWY1Ii8+CjxwYXRoIGQ9Ik03NSA0MEM2OC4zNzUgNDAgNjMgNDUuMzc1IDYzIDUyVjk4QzYzIDEwNC42MjUgNjguMzc1IDExMCA3NSAxMTBIMTIxQzEyNy42MjUgMTEwIDEzMyAxMDQuNjI1IDEzMyA5OFY1MkMxMzMgNDUuMzc1IDEyNy42MjUgNDAgMTIxIDQwSDc1WiIgZmlsbD0iIzlFOUU5RSIvPgo8L3N2Zz4K'">
+          ${isLastThumbnail ? `
+            <div class="thumbnail-count-overlay">
+              <div class="count-text">+${remainingCount}<br>more</div>
+            </div>
+          ` : `
+            <div class="thumbnail-overlay">
+              <div class="thumbnail-info">
+                <span class="material-icons">image</span>
+              </div>
+            </div>
+          `}
+        </div>
+      `;
+    }).join('');
+    
     completeState.innerHTML = `
       <div class="session-icon">
         <span class="material-icons">check_circle</span>
       </div>
       <p>Photos selected successfully!</p>
       <small>${mediaItems.length} photo(s) ready to import</small>
-      <button id="importSelectedBtn" class="btn-primary">
-        <span class="material-icons">file_download</span>
-        Import Selected Photos
-      </button>
+      
+      <div class="selected-photos-container">
+        <div class="photos-thumbnails">
+          ${thumbnailsHtml}
+        </div>
+      </div>
+      
+      <div class="import-actions">
+        <button id="importToFolderBtn" class="btn-primary">
+          <span class="material-icons">folder</span>
+          Import to ${this.currentImportPath.split('/').pop()}
+        </button>
+      </div>
     `;
+    
+    // Store media items for download
+    this.selectedMediaItems = mediaItems;
     
     // Add to modal content
     const modalContent = document.querySelector('.google-photos-content');
-    modalContent.appendChild(completeState);
+    if (modalContent) {
+      modalContent.appendChild(completeState);
+      
+      // Add event listener for import button
+      const importBtn = document.getElementById('importToFolderBtn');
+      
+      if (importBtn) {
+        importBtn.addEventListener('click', () => {
+          this.importPhotosToFolder();
+        });
+      }
+    } else {
+      console.error('❌ [DEBUG] Modal content not found for session complete state');
+    }
   }
 
   // Parse Google's duration strings (e.g., "5s", "300.5s") to milliseconds
@@ -547,6 +711,154 @@ class GooglePhotosSync {
     return result;
   }
 
+
+  async importPhotosToFolder() {
+    if (!this.selectedMediaItems || this.selectedMediaItems.length === 0) {
+      this.showError('No photos selected for import');
+      return;
+    }
+
+    console.log('🔧 [DEBUG] Starting background import of', this.selectedMediaItems.length, 'photos to', this.currentImportPath);
+
+    try {
+      // Show importing state briefly
+      this.showImportingState();
+
+      const response = await fetch('/api/admin/google-photos/import', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          mediaItems: this.selectedMediaItems,
+          destinationPath: this.currentImportPath
+        })
+      });
+
+      console.log('🔧 [DEBUG] Import response status:', response.status);
+      console.log('🔧 [DEBUG] Import response headers:', response.headers.get('content-type'));
+      
+      const responseText = await response.text();
+      console.log('🔧 [DEBUG] Raw response text:', responseText);
+      
+      let data;
+      try {
+        data = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error('❌ [DEBUG] Failed to parse response as JSON:', parseError);
+        this.showSessionError('Server returned invalid response');
+        return;
+      }
+
+      if (response.ok && data.success) {
+        console.log('🔧 [DEBUG] Background import job started:', data.data);
+        console.log('🔧 [DEBUG] Response data keys:', Object.keys(data.data || {}));
+        console.log('🔧 [DEBUG] destinationPath:', data.data?.destinationPath);
+        console.log('🔧 [DEBUG] mediaCount:', data.data?.mediaCount);
+        console.log('🔧 [DEBUG] jobId:', data.data?.jobId);
+        console.log('🔧 [DEBUG] currentImportPath:', this.currentImportPath);
+        
+        // Close modal immediately
+        this.hideGooglePhotosModal();
+        
+        // Show background job message
+        const mediaCount = data.data?.mediaCount || this.selectedMediaItems?.length || 0;
+        const destinationPath = data.data?.destinationPath || this.currentImportPath || 'folder';
+        const jobId = data.data?.jobId;
+        
+        const folderName = destinationPath.split('/').pop();
+        this.showMessage(`Started importing ${mediaCount} photo${mediaCount !== 1 ? 's' : ''} to ${folderName} in the background. You can continue working while we sync your photos.`);
+        
+        // Start monitoring job progress only if we have a valid jobId
+        if (jobId) {
+          this.checkJobProgress(jobId);
+        } else {
+          console.warn('⚠️ [DEBUG] No jobId returned, cannot monitor progress');
+        }
+        
+      } else {
+        console.error('❌ [DEBUG] Import job failed to start:', data.error);
+        this.showSessionError(data.error?.message || 'Failed to start import job');
+      }
+    } catch (error) {
+      console.error('❌ [DEBUG] Error starting import job:', error);
+      this.showSessionError('Failed to start import job');
+    }
+  }
+
+  // Optional: Check job progress periodically
+  async checkJobProgress(jobId) {
+    if (!jobId || jobId === 'undefined') {
+      console.error('❌ [DEBUG] Invalid jobId for progress checking:', jobId);
+      return;
+    }
+    
+    console.log('🔧 [DEBUG] Starting job progress monitoring for:', jobId);
+    
+    const checkInterval = setInterval(async () => {
+      try {
+        const response = await fetch(`/api/admin/google-photos/job/${jobId}`);
+        const data = await response.json();
+        
+        if (response.ok && data.success) {
+          const job = data.data;
+          console.log('🔧 [DEBUG] Job progress:', job.progress);
+          
+          if (job.status === 'completed') {
+            clearInterval(checkInterval);
+            const { successCount, failCount } = job.result;
+            let message = `Import completed! ${successCount} photo${successCount !== 1 ? 's' : ''} imported successfully`;
+            if (failCount > 0) {
+              message += ` (${failCount} failed)`;
+            }
+            this.showMessage(message);
+            
+            // Refresh page to show new photos
+            setTimeout(() => {
+              if (window.location.reload) {
+                window.location.reload();
+              }
+            }, 2000);
+            
+          } else if (job.status === 'failed') {
+            clearInterval(checkInterval);
+            this.showError(`Import failed: ${job.error || 'Unknown error'}`);
+          }
+        }
+      } catch (error) {
+        console.warn('⚠️ [DEBUG] Failed to check job progress:', error);
+        // Don't clear interval on temporary errors
+      }
+    }, 3000); // Check every 3 seconds
+    
+    // Stop checking after 10 minutes
+    setTimeout(() => {
+      clearInterval(checkInterval);
+    }, 600000);
+  }
+
+  showImportingState() {
+    this.resetModalStates();
+    
+    const importingState = document.createElement('div');
+    importingState.id = 'importingState';
+    importingState.className = 'session-state';
+    importingState.innerHTML = `
+      <div class="session-loader">
+        <div class="spinner"></div>
+      </div>
+      <p>Importing photos to your folder...</p>
+      <small>This may take a few moments</small>
+    `;
+    
+    const modalContent = document.querySelector('.google-photos-content');
+    if (modalContent) {
+      modalContent.appendChild(importingState);
+    } else {
+      console.error('❌ [DEBUG] Modal content not found for importing state');
+    }
+  }
+
   hideGooglePhotosModal() {
     // Clear any timers when modal is closed
     this.clearSessionTimers();
@@ -556,12 +868,17 @@ class GooglePhotosSync {
       modal.classList.add('hidden');
       this.currentSessionUrl = null;
       this.currentSessionData = null;
+      this.selectedMediaItems = null;
       
       // Clean up any dynamically created states
       const pollingState = document.getElementById('sessionPollingState');
       const completeState = document.getElementById('sessionCompleteState');
+      const loadingState = document.getElementById('mediaItemsLoadingState');
+      const importingState = document.getElementById('importingState');
       if (pollingState) pollingState.remove();
       if (completeState) completeState.remove();
+      if (loadingState) loadingState.remove();
+      if (importingState) importingState.remove();
     }
   }
 }

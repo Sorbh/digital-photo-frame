@@ -367,6 +367,55 @@ class OAuthManager {
     }
   }
 
+  // Get media items from Google Photos Picker session
+  async getSessionMediaItems(accessToken, sessionId) {
+    try {
+      console.log('🔧 [DEBUG] Getting media items for session:', sessionId);
+      
+      const response = await fetch(`https://photospicker.googleapis.com/v1/mediaItems?sessionId=${sessionId}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        const errorData = await response.text();
+        console.error('❌ [DEBUG] Media items get failed:', response.status, response.statusText);
+        console.error('❌ [DEBUG] Error response body:', errorData);
+        
+        let errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+        
+        try {
+          const parsedError = JSON.parse(errorData);
+          if (parsedError.error && parsedError.error.message) {
+            errorMessage = parsedError.error.message;
+          }
+        } catch (parseError) {
+          errorMessage = errorData || errorMessage;
+        }
+        
+        throw new Error(`Failed to get media items: ${errorMessage}`);
+      }
+
+      const mediaData = await response.json();
+      console.log('🔧 [DEBUG] Media items retrieved successfully:', mediaData);
+      console.log('🔧 [DEBUG] Media data keys:', Object.keys(mediaData));
+      console.log('🔧 [DEBUG] Media items array:', mediaData.mediaItems);
+      
+      if (mediaData.mediaItems && mediaData.mediaItems.length > 0) {
+        console.log('🔧 [DEBUG] First media item structure:', mediaData.mediaItems[0]);
+        console.log('🔧 [DEBUG] First media item keys:', Object.keys(mediaData.mediaItems[0]));
+      }
+      
+      return mediaData.mediaItems || [];
+    } catch (error) {
+      console.error('❌ [DEBUG] Error getting media items:', error);
+      throw error;
+    }
+  }
+
   // Alias methods for controller compatibility
   getStoredTokens(session) {
     return this.getTokens(session);

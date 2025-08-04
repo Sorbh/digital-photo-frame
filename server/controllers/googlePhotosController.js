@@ -1,4 +1,5 @@
 const oauthManager = require('../utils/oauthManager');
+const jobManager = require('../utils/jobManager');
 
 // Simple async handler for error handling
 const asyncHandler = (fn) => (req, res, next) => {
@@ -281,6 +282,239 @@ const googlePhotosController = {
         error: {
           code: 'SESSION_GET_FAILED',
           message: 'Failed to get Google Photos picker session',
+          details: error.message
+        }
+      });
+    }
+  }),
+
+  // Get media items from Google Photos Picker session
+  getSessionMediaItems: asyncHandler(async (req, res) => {
+    try {
+      const tokens = oauthManager.getStoredTokens(req.session);
+      
+      if (!tokens || !tokens.access_token || oauthManager.isTokenExpired(tokens)) {
+        return res.status(401).json({
+          success: false,
+          error: {
+            code: 'NOT_AUTHENTICATED',
+            message: 'User not authenticated with Google Photos'
+          }
+        });
+      }
+
+      const { sessionId } = req.params;
+      
+      if (!sessionId) {
+        return res.status(400).json({
+          success: false,
+          error: {
+            code: 'MISSING_SESSION_ID',
+            message: 'Session ID is required'
+          }
+        });
+      }
+
+      // Get media items from the session using Google Photos Picker API
+      const mediaItems = await oauthManager.getSessionMediaItems(tokens.access_token, sessionId);
+
+      res.json({
+        success: true,
+        sessionId: sessionId,
+        mediaItems: mediaItems
+      });
+    } catch (error) {
+      console.error('Get session media items error:', error);
+      res.status(500).json({
+        success: false,
+        error: {
+          code: 'MEDIA_ITEMS_GET_FAILED',
+          message: 'Failed to get session media items',
+          details: error.message
+        }
+      });
+    }
+  }),
+
+  // Proxy endpoint for Google Photos thumbnails
+  proxyThumbnail: asyncHandler(async (req, res) => {
+    try {
+      const tokens = oauthManager.getStoredTokens(req.session);
+      
+      if (!tokens || !tokens.access_token || oauthManager.isTokenExpired(tokens)) {
+        return res.status(401).json({
+          success: false,
+          error: {
+            code: 'NOT_AUTHENTICATED',
+            message: 'User not authenticated with Google Photos'
+          }
+        });
+      }
+
+      const { url } = req.query;
+      
+      if (!url) {
+        return res.status(400).json({
+          success: false,
+          error: {
+            code: 'MISSING_URL',
+            message: 'Image URL is required'
+          }
+        });
+      }
+
+      // Fetch image with authentication
+      const response = await fetch(url, {
+        headers: {
+          'Authorization': `Bearer ${tokens.access_token}`
+        }
+      });
+
+      if (!response.ok) {
+        console.error('Failed to fetch thumbnail:', response.status, response.statusText);
+        return res.status(response.status).json({
+          success: false,
+          error: {
+            code: 'THUMBNAIL_FETCH_FAILED',
+            message: 'Failed to fetch thumbnail from Google Photos'
+          }
+        });
+      }
+
+      // Get content type and image data
+      const contentType = response.headers.get('content-type') || 'image/jpeg';
+      const imageBuffer = await response.arrayBuffer();
+
+      // Set appropriate headers and send image
+      res.set({
+        'Content-Type': contentType,
+        'Cache-Control': 'public, max-age=3600', // Cache for 1 hour
+        'Content-Length': imageBuffer.byteLength
+      });
+
+      res.send(Buffer.from(imageBuffer));
+    } catch (error) {
+      console.error('Thumbnail proxy error:', error);
+      res.status(500).json({
+        success: false,
+        error: {
+          code: 'PROXY_ERROR',
+          message: 'Failed to proxy thumbnail request',
+          details: error.message
+        }
+      });
+    }
+  }),
+
+  // Start background import job
+  importPhotos: asyncHandler(async (req, res) => {
+    try {
+      const tokens = oauthManager.getStoredTokens(req.session);
+      
+      if (!tokens || !tokens.access_token || oauthManager.isTokenExpired(tokens)) {
+        return res.status(401).json({
+          success: false,
+          error: {
+            code: 'NOT_AUTHENTICATED',
+            message: 'User not authenticated with Google Photos'
+          }
+        });
+      }
+
+      const { mediaItems, destinationPath } = req.body;
+      
+      if (!mediaItems || !Array.isArray(mediaItems) || mediaItems.length === 0) {
+        return res.status(400).json({
+          success: false,
+          error: {
+            code: 'MISSING_MEDIA_ITEMS',
+            message: 'Media items are required'
+          }
+        });
+      }
+
+      if (!destinationPath) {
+        return res.status(400).json({
+          success: false,
+          error: {
+            code: 'MISSING_DESTINATION',
+            message: 'Destination path is required'
+          }
+        });
+      }
+
+      console.log('🔧 [DEBUG] Starting background import job for', mediaItems.length, 'photos to', destinationPath);
+
+      // Create background job
+      const jobId = jobManager.createJob('google-photos-import', {
+        mediaItems,
+        destinationPath,
+        accessToken: tokens.access_token
+      }, req.session.id || 'anonymous');
+
+      // Return immediately with job ID
+      res.json({
+        success: true,
+        data: {
+          jobId,
+          message: `Started importing ${mediaItems.length} photos to ${destinationPath.split('/').pop()} in the background`,
+          mediaCount: mediaItems.length,
+          destinationPath
+        }
+      });
+
+    } catch (error) {
+      console.error('❌ [DEBUG] Import photos error:', error);
+      res.status(500).json({
+        success: false,
+        error: {
+          code: 'IMPORT_FAILED',
+          message: 'Failed to start import job',
+          details: error.message
+        }
+      });
+    }
+  }),
+
+  // Get job status
+  getJobStatus: asyncHandler(async (req, res) => {
+    try {
+      const { jobId } = req.params;
+      
+      if (!jobId) {
+        return res.status(400).json({
+          success: false,
+          error: {
+            code: 'MISSING_JOB_ID',
+            message: 'Job ID is required'
+          }
+        });
+      }
+
+      const jobStatus = jobManager.getJobStatus(jobId);
+      
+      if (!jobStatus) {
+        return res.status(404).json({
+          success: false,
+          error: {
+            code: 'JOB_NOT_FOUND',
+            message: 'Job not found'
+          }
+        });
+      }
+
+      res.json({
+        success: true,
+        data: jobStatus
+      });
+
+    } catch (error) {
+      console.error('❌ [DEBUG] Get job status error:', error);
+      res.status(500).json({
+        success: false,
+        error: {
+          code: 'JOB_STATUS_ERROR',
+          message: 'Failed to get job status',
           details: error.message
         }
       });
