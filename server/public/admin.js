@@ -636,5 +636,5 @@ class PhotoFrameAdmin {
 
 // Initialize the admin panel when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    new PhotoFrameAdmin();
+    window.photoFrameAdmin = new PhotoFrameAdmin();
 });

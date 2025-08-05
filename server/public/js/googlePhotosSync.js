@@ -197,6 +197,12 @@ class GooglePhotosSync {
       // Fetch fresh user info before updating button state
       await this.checkAuthStatus('handleAuthCallback');
       this.showMessage('Successfully connected to Google Photos!');
+      
+      // Refresh the admin page to show the "Import from Google Photos" button
+      if (window.photoFrameAdmin && window.photoFrameAdmin.loadFolderContents) {
+        console.log('🔧 [DEBUG] Refreshing folder contents after authentication');
+        window.photoFrameAdmin.loadFolderContents();
+      }
     } else {
       this.isAuthenticated = false;
       this.userInfo = null;
