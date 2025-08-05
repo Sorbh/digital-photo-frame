@@ -51,6 +51,21 @@ class GooglePhotosSync {
       }
       
       const response = await fetch('/api/admin/google-photos/status');
+      
+      // Check for session expiration
+      if (response.status === 401) {
+        try {
+          const errorData = await response.json();
+          if (errorData.code === 'SESSION_EXPIRED' || errorData.code === 'AUTH_REQUIRED') {
+            this.handleSessionExpired();
+            return;
+          }
+        } catch (e) {
+          this.handleSessionExpired();
+          return;
+        }
+      }
+      
       const result = await response.json();
       
       console.log('Auth status check result:', result); // Debug log
@@ -64,6 +79,14 @@ class GooglePhotosSync {
     } catch (error) {
       console.error('Failed to check Google Photos auth status:', error);
     }
+  }
+
+  // Handle session expiration for Google Photos
+  handleSessionExpired() {
+    this.showError('Session expired. Redirecting to login...');
+    setTimeout(() => {
+      window.location.href = '/login?expired=true';
+    }, 2000);
   }
 
   updateButtonState() {

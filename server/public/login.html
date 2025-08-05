@@ -240,9 +240,12 @@
             checkUrlParams() {
                 const urlParams = new URLSearchParams(window.location.search);
                 const error = urlParams.get('error');
+                const expired = urlParams.get('expired');
                 
                 if (error === 'invalid') {
                     this.showError('Invalid password. Please try again.');
+                } else if (expired === 'true') {
+                    this.showError('Your session has expired. Please login again.');
                 }
             }
 

@@ -3,12 +3,39 @@ const bcrypt = require('bcryptjs');
 // Check if user is authenticated
 const requireAuth = (req, res, next) => {
   if (req.session && req.session.authenticated) {
+    // Check if session has expired based on login time and maxAge
+    const sessionMaxAge = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+    const loginTime = req.session.loginTime ? new Date(req.session.loginTime) : null;
+    
+    if (loginTime && (Date.now() - loginTime.getTime()) > sessionMaxAge) {
+      // Session expired, destroy it
+      req.session.destroy((err) => {
+        if (err) console.error('Error destroying expired session:', err);
+      });
+      
+      // If it's an API request, return JSON error with session expired flag
+      if (req.path.startsWith('/api/')) {
+        return res.status(401).json({ 
+          message: 'Session expired', 
+          code: 'SESSION_EXPIRED',
+          redirect: '/login' 
+        });
+      }
+      
+      // For HTML requests, redirect to login
+      return res.redirect('/login?expired=true');
+    }
+    
     return next();
   }
   
   // If it's an API request, return JSON error
   if (req.path.startsWith('/api/')) {
-    return res.status(401).json({ message: 'Authentication required' });
+    return res.status(401).json({ 
+      message: 'Authentication required', 
+      code: 'AUTH_REQUIRED',
+      redirect: '/login' 
+    });
   }
   
   // For HTML requests, redirect to login
