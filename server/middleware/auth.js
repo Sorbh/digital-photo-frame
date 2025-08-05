@@ -9,19 +9,45 @@ const requireAuth = (req, res, next) => {
     path: req.path,
     cookies: req.headers.cookie ? 'present' : 'missing'
   });
-  
+
   if (req.session && req.session.authenticated) {
-    console.log('✅ Authentication successful for:', req.path);
+    // Check if session has expired based on login time and maxAge
+    const sessionMaxAge = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+    const loginTime = req.session.loginTime ? new Date(req.session.loginTime) : null;
+
+    if (loginTime && (Date.now() - loginTime.getTime()) > sessionMaxAge) {
+      // Session expired, destroy it
+      req.session.destroy((err) => {
+        if (err) console.error('Error destroying expired session:', err);
+      });
+
+      // If it's an API request, return JSON error with session expired flag
+      if (req.path.startsWith('/api/')) {
+        return res.status(401).json({
+          message: 'Session expired',
+          code: 'SESSION_EXPIRED',
+          redirect: '/login'
+        });
+      }
+
+      // For HTML requests, redirect to login
+      return res.redirect('/login?expired=true');
+    }
+
     return next();
   }
-  
+
   console.log('❌ Authentication failed for:', req.path);
-  
+
   // If it's an API request, return JSON error
   if (req.path.startsWith('/api/')) {
-    return res.status(401).json({ message: 'Authentication required' });
+    return res.status(401).json({
+      message: 'Authentication required',
+      code: 'AUTH_REQUIRED',
+      redirect: '/login'
+    });
   }
-  
+
   // For HTML requests, redirect to login
   return res.redirect('/login');
 };
@@ -37,49 +63,49 @@ const requireGuest = (req, res, next) => {
 // Login handler
 const login = async (req, res) => {
   const { password } = req.body;
-  
+
   if (!password) {
     return res.status(400).json({ message: 'Password is required' });
   }
-  
+
   // Secure password comparison using bcrypt
   const adminPassword = process.env.ADMIN_PASSWORD;
-  
+
   if (!adminPassword) {
     console.error('ADMIN_PASSWORD environment variable not set');
     return res.status(500).json({ message: 'Server configuration error' });
   }
-  
+
   // For bcrypt hashed passwords, use bcrypt.compare()
   // For plain text passwords (development only), use direct comparison
-  const isValidPassword = adminPassword.startsWith('$2') 
+  const isValidPassword = adminPassword.startsWith('$2')
     ? await bcrypt.compare(password, adminPassword)
     : password === adminPassword;
-  
+
   if (isValidPassword) {
     req.session.authenticated = true;
     req.session.loginTime = new Date();
-    
+
     console.log('🔓 Login successful:', {
       sessionId: req.sessionID,
       sessionData: req.session,
       cookies: req.headers.cookie ? 'present' : 'missing'
     });
-    
+
     // If it's an API request, return JSON success
     if (req.headers['content-type'] === 'application/json') {
       return res.json({ message: 'Login successful', redirect: '/admin' });
     }
-    
+
     // For form submissions, redirect to admin
     return res.redirect('/admin');
   }
-  
+
   // Invalid password
   if (req.headers['content-type'] === 'application/json') {
     return res.status(401).json({ message: 'Invalid password' });
   }
-  
+
   return res.redirect('/login?error=invalid');
 };
 

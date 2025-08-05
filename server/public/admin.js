@@ -7,6 +7,44 @@ class PhotoFrameAdmin {
         this.loadFolderContents();
     }
 
+    // Handle API responses and check for session expiration
+    async handleApiResponse(response) {
+        if (response.status === 401) {
+            try {
+                const data = await response.json();
+                if (data.code === 'SESSION_EXPIRED' || data.code === 'AUTH_REQUIRED') {
+                    this.handleSessionExpired();
+                    return null;
+                }
+            } catch (e) {
+                // If we can't parse JSON, still handle as session expired
+                this.handleSessionExpired();
+                return null;
+            }
+        }
+        return response;
+    }
+
+    // Handle session expiration
+    handleSessionExpired() {
+        this.showToast('Session expired. Redirecting to login...', 'error');
+        setTimeout(() => {
+            window.location.href = '/login?expired=true';
+        }, 2000);
+    }
+
+    // Wrapper for fetch with session handling
+    async authenticatedFetch(url, options = {}) {
+        try {
+            const response = await fetch(url, options);
+            const handledResponse = await this.handleApiResponse(response);
+            return handledResponse;
+        } catch (error) {
+            console.error('Network error:', error);
+            throw error;
+        }
+    }
+
     getInitialPath() {
         const urlParams = new URLSearchParams(window.location.search);
         const pathParam = urlParams.get('path');
@@ -94,6 +132,31 @@ class PhotoFrameAdmin {
                 this.hideUploadModal();
             }
         });
+
+        // Google Photos modal
+        document.getElementById('cancelGooglePhotosBtn').addEventListener('click', () => {
+            if (window.googlePhotosSync) {
+                window.googlePhotosSync.hideGooglePhotosModal();
+            }
+        });
+
+        document.getElementById('googlePhotosModal').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) {
+                if (window.googlePhotosSync) {
+                    window.googlePhotosSync.hideGooglePhotosModal();
+                }
+            }
+        });
+
+        // Session buttons (will be available after Google Photos sync loads)
+        document.addEventListener('click', (e) => {
+            if (e.target.id === 'openSessionBtn' && window.googlePhotosSync) {
+                window.googlePhotosSync.openPickerSession();
+            }
+            if (e.target.id === 'retrySessionBtn' && window.googlePhotosSync) {
+                window.googlePhotosSync.createPickerSession();
+            }
+        });
     }
 
     setupUploadDragAndDrop() {
@@ -154,7 +217,9 @@ class PhotoFrameAdmin {
 
     async loadFolderContents() {
         try {
-            const response = await fetch(`/api/admin/folders?path=${encodeURIComponent(this.currentPath)}`);
+            const response = await this.authenticatedFetch(`/api/admin/folders?path=${encodeURIComponent(this.currentPath)}`);
+            if (!response) return; // Session expired, handled by authenticatedFetch
+            
             const data = await response.json();
             
             if (response.ok) {
@@ -182,6 +247,12 @@ class PhotoFrameAdmin {
         }
         
         emptyState.classList.add('hidden');
+        
+        // Add Google Photos import cell if user is authenticated
+        if (window.googlePhotosSync && window.googlePhotosSync.isAuthenticated) {
+            const importElement = this.createGooglePhotosImportElement();
+            fileGrid.appendChild(importElement);
+        }
         
         // Render folders
         data.folders.forEach(folder => {
@@ -225,6 +296,28 @@ class PhotoFrameAdmin {
         div.addEventListener('contextmenu', (e) => this.showContextMenu(e, {...file, type: 'image'}));
         
         return div;
+    }
+
+    createGooglePhotosImportElement() {
+        const div = document.createElement('div');
+        div.className = 'file-item google-photos-import';
+        div.dataset.type = 'google-photos-import';
+        div.innerHTML = `
+            <span class="material-icons">add</span>
+            <span class="import-text">Import from Google Photos</span>
+        `;
+        
+        div.addEventListener('click', () => this.openGooglePhotosImport());
+        
+        return div;
+    }
+
+    openGooglePhotosImport() {
+        if (window.googlePhotosSync) {
+            window.googlePhotosSync.openGooglePhotosModal(this.currentPath);
+        } else {
+            this.showToast('Google Photos integration not available', 'error');
+        }
     }
 
     navigateTo(path) {
@@ -287,7 +380,7 @@ class PhotoFrameAdmin {
         }
         
         try {
-            const response = await fetch('/api/admin/folders', {
+            const response = await this.authenticatedFetch('/api/admin/folders', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -297,6 +390,7 @@ class PhotoFrameAdmin {
                     path: this.currentPath
                 })
             });
+            if (!response) return; // Session expired
             
             const data = await response.json();
             
@@ -346,10 +440,14 @@ class PhotoFrameAdmin {
         this.showUploadProgress();
         
         try {
-            const response = await fetch('/api/upload', {
+            const response = await this.authenticatedFetch('/api/upload', {
                 method: 'POST',
                 body: formData
             });
+            if (!response) {
+                this.hideUploadProgress();
+                return; // Session expired
+            }
             
             const data = await response.json();
             
@@ -490,9 +588,10 @@ class PhotoFrameAdmin {
         try {
             const endpoint = item.type === 'folder' ? '/api/admin/folders' : '/api/images';
             console.log('Delete endpoint:', endpoint, 'Path:', item.path);
-            const response = await fetch(`${endpoint}?path=${encodeURIComponent(item.path)}`, {
+            const response = await this.authenticatedFetch(`${endpoint}?path=${encodeURIComponent(item.path)}`, {
                 method: 'DELETE'
             });
+            if (!response) return; // Session expired
             
             const data = await response.json();
             console.log('Delete response:', data);
@@ -521,7 +620,7 @@ class PhotoFrameAdmin {
         try {
             const direction = angle > 0 ? 'right' : 'left';
             this.showToast(`Rotating image ${direction}...`, 'info');
-            const response = await fetch('/api/images/rotate', {
+            const response = await this.authenticatedFetch('/api/images/rotate', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -531,6 +630,7 @@ class PhotoFrameAdmin {
                     angle: angle
                 })
             });
+            if (!response) return; // Session expired
             
             const data = await response.json();
             console.log('Rotate response:', data);
@@ -583,5 +683,5 @@ class PhotoFrameAdmin {
 
 // Initialize the admin panel when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    new PhotoFrameAdmin();
+    window.photoFrameAdmin = new PhotoFrameAdmin();
 });

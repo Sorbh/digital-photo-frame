@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Digital Photo Frame Admin</title>
     <link rel="stylesheet" href="admin.css">
+    <link rel="stylesheet" href="css/google-photos-sync.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
@@ -21,6 +22,10 @@
                 <button id="accessAccountsBtn" class="btn-secondary" title="Manage Access Accounts">
                     <span class="material-icons">admin_panel_settings</span>
                     Access Accounts
+                </button>
+                <button id="googlePhotosBtn" class="btn-secondary" title="Sync Google Photos">
+                    <span class="material-icons">photo_library</span>
+                    Google Photos
                 </button>
                 <button id="createFolderBtn" class="btn-primary" title="Create Folder">
                     <span class="material-icons">create_new_folder</span>
@@ -110,10 +115,45 @@
             </div>
         </div>
 
+        <div id="googlePhotosModal" class="modal hidden">
+            <div class="modal-content">
+                <h2>Import from Google Photos</h2>
+                <div class="google-photos-content">
+                    <div id="sessionLoadingState" class="session-state">
+                        <div class="session-loader">
+                            <div class="spinner"></div>
+                        </div>
+                        <p>Creating Google Photos session...</p>
+                    </div>
+                    <div id="sessionReadyState" class="session-state hidden">
+                        <div class="session-icon">
+                            <span class="material-icons">photo_library</span>
+                        </div>
+                        <p>Google Photos session is ready!</p>
+                        <button id="openSessionBtn" class="btn-primary">
+                            <span class="material-icons">open_in_new</span>
+                            Open Google Photos Picker
+                        </button>
+                    </div>
+                    <div id="sessionErrorState" class="session-state hidden">
+                        <div class="session-icon error">
+                            <span class="material-icons">error</span>
+                        </div>
+                        <p id="sessionErrorMessage">Failed to create session</p>
+                        <button id="retrySessionBtn" class="btn-secondary">Try Again</button>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button id="cancelGooglePhotosBtn" class="btn-secondary">Cancel</button>
+                </div>
+            </div>
+        </div>
+
         <!-- Toast notifications -->
         <div id="toastContainer" class="toast-container"></div>
     </div>
 
     <script src="admin.js"></script>
+    <script src="js/googlePhotosSync.js"></script>
 </body>
 </html>

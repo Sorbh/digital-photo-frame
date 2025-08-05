@@ -346,6 +346,12 @@
             gap: 5px;
             position: relative;
             z-index: 8;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .auth-error:not(:empty) {
+            opacity: 1;
         }
 
         .auth-loading {
@@ -421,9 +427,9 @@
             <h1 class="auth-title">Welcome</h1>
             <p class="auth-subtitle">Enter your PIN to access the photo slideshow</p>
 
-            <form class="pin-form" id="pinForm">
+            <form class="pin-form" id="pinForm" novalidate>
                 <input type="password" id="pinInput" class="pin-input" placeholder="••••" maxlength="6"
-                    autocomplete="off" inputmode="numeric" pattern="[0-9]*">
+                    autocomplete="off" inputmode="numeric">
 
                 <button type="submit" class="auth-button" id="authButton">
                     <span class="material-icons">lock_open</span>
