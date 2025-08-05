@@ -17,6 +17,9 @@ const routes = require('./routes');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Trust proxy if running behind reverse proxy
+app.set('trust proxy', 1);
+
 // Middleware
 app.use(cors());
 app.use(express.json());
@@ -33,10 +36,12 @@ app.use(session({
   secret: sessionSecret,
   resave: false,
   saveUninitialized: false,
+  name: 'photoframe.sid', // Custom session cookie name
   cookie: {
-    secure: process.env.NODE_ENV === 'production',
+    secure: false, // Set to false for development, even in production for HTTP
     httpOnly: true,
-    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    sameSite: 'lax' // Add SameSite attribute for better compatibility
   }
 }));
 
