@@ -304,3 +304,9 @@ This project is licensed under the ISC License - see the [LICENSE](LICENSE) file
 ---
 
 **Transform any device into a beautiful digital photo frame! 📸✨**
+
+---
+
+<p align="center">
+Built with ❤️ by Claude Code - Monitored & Prompted by Saurabh K. Sharma
+</p>

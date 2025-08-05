@@ -1,0 +1,36 @@
+services:
+  photo-frame:
+    build: .
+    container_name: digital-photo-frame
+    ports:
+      - "${HOST_PORT:-3000}:${CONTAINER_PORT:-3000}"
+    environment:
+      - NODE_ENV=production
+      - PORT=${CONTAINER_PORT:-3000}
+      - SESSION_SECRET=${SESSION_SECRET:-your-secret-key-change-this}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin123}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - GOOGLE_REDIRECT_URI=${GOOGLE_REDIRECT_URI}
+    volumes:
+      # Persist uploaded photos
+      - photo-uploads:/app/uploads
+      # Persist access accounts data
+      - photo-data:/app/data
+      # Optional: Mount logs directory
+      - photo-logs:/app/logs
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').request({port:3000,path:'/'}, (res) => process.exit(res.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1)).end()"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  photo-uploads:
+    driver: local
+  photo-data:
+    driver: local
+  photo-logs:
+    driver: local

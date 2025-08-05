@@ -69,11 +69,10 @@ const login = async (req, res) => {
   }
 
   // Secure password comparison using bcrypt
-  const adminPassword = process.env.ADMIN_PASSWORD;
+  const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
 
-  if (!adminPassword) {
-    console.error('ADMIN_PASSWORD environment variable not set');
-    return res.status(500).json({ message: 'Server configuration error' });
+  if (!process.env.ADMIN_PASSWORD) {
+    console.warn('⚠️  ADMIN_PASSWORD environment variable not set. Using default password "admin123". Please set ADMIN_PASSWORD environment variable for security!');
   }
 
   // For bcrypt hashed passwords, use bcrypt.compare()
