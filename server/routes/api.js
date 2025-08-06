@@ -7,6 +7,11 @@ const googlePhotosController = require('../controllers/googlePhotosController');
 const upload = require('../middleware/upload');
 const { requireAuth } = require('../middleware/auth');
 
+// Health check endpoint
+router.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
 // Public routes (no authentication required)
 router.get('/random-image', imageController.getRandomImage.bind(imageController));
 router.get('/images/random', imageController.getRandomImage.bind(imageController)); // New endpoint for consistency
