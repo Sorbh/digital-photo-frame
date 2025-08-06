@@ -5,6 +5,7 @@ class PhotoFrameAdmin {
         this.contextMenuTarget = null;
         this.initializeEventListeners();
         this.loadFolderContents();
+        this.checkFeatureFlags();
     }
 
     // Handle API responses and check for session expiration
@@ -667,6 +668,29 @@ class PhotoFrameAdmin {
         } else {
             // Fallback: reload entire folder contents
             this.loadFolderContents();
+        }
+    }
+
+    async checkFeatureFlags() {
+        try {
+            const response = await this.authenticatedFetch('/api/features');
+            
+            if (response && response.ok) {
+                const features = await response.json();
+                
+                // Hide Google Photos button if disabled
+                const googlePhotosBtn = document.getElementById('googlePhotosBtn');
+                if (googlePhotosBtn && !features.googlePhotosEnabled) {
+                    googlePhotosBtn.style.display = 'none';
+                }
+            }
+        } catch (error) {
+            console.error('Error checking feature flags:', error);
+            // Hide Google Photos button on error to be safe
+            const googlePhotosBtn = document.getElementById('googlePhotosBtn');
+            if (googlePhotosBtn) {
+                googlePhotosBtn.style.display = 'none';
+            }
         }
     }
 

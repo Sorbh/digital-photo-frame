@@ -33,22 +33,36 @@ router.post('/access-accounts', requireAuth, accessAccountController.createAccou
 router.put('/access-accounts/:id', requireAuth, accessAccountController.updateAccount.bind(accessAccountController));
 router.delete('/access-accounts/:id', requireAuth, accessAccountController.deleteAccount.bind(accessAccountController));
 
+// Feature flags
+router.get('/features', requireAuth, (req, res) => {
+    res.json({
+        googlePhotosEnabled: process.env.ENABLE_GOOGLE_PHOTOS === 'true'
+    });
+});
+
 // PIN authentication routes (public)
 router.post('/auth/pin', accessAccountController.authenticateWithPin.bind(accessAccountController));
 router.get('/auth/session', accessAccountController.getSession.bind(accessAccountController));
 router.delete('/auth/session', accessAccountController.clearSession.bind(accessAccountController));
 
-// Google Photos routes (admin only)
-router.get('/admin/google-photos/status', requireAuth, googlePhotosController.getAuthStatus);
-router.post('/admin/google-photos/auth', requireAuth, googlePhotosController.initiateAuth);
-router.get('/admin/google-photos/callback', googlePhotosController.handleCallback);
-router.delete('/admin/google-photos/auth', requireAuth, googlePhotosController.revokeAccess);
-router.post('/admin/google-photos/picker-session', requireAuth, googlePhotosController.createPickerSession);
-router.get('/admin/google-photos/session/:sessionId', requireAuth, googlePhotosController.getPickerSession);
-router.get('/admin/google-photos/session/:sessionId/media-items', requireAuth, googlePhotosController.getSessionMediaItems);
-router.get('/admin/google-photos/thumbnail', requireAuth, googlePhotosController.proxyThumbnail);
-router.post('/admin/google-photos/import', requireAuth, googlePhotosController.importPhotos);
-router.get('/admin/google-photos/job/:jobId', requireAuth, googlePhotosController.getJobStatus);
+// Google Photos routes (admin only) - conditionally enabled
+if (process.env.ENABLE_GOOGLE_PHOTOS === 'true') {
+    router.get('/admin/google-photos/status', requireAuth, googlePhotosController.getAuthStatus);
+    router.post('/admin/google-photos/auth', requireAuth, googlePhotosController.initiateAuth);
+    router.get('/admin/google-photos/callback', googlePhotosController.handleCallback);
+    router.delete('/admin/google-photos/auth', requireAuth, googlePhotosController.revokeAccess);
+    router.post('/admin/google-photos/picker-session', requireAuth, googlePhotosController.createPickerSession);
+    router.get('/admin/google-photos/session/:sessionId', requireAuth, googlePhotosController.getPickerSession);
+    router.get('/admin/google-photos/session/:sessionId/media-items', requireAuth, googlePhotosController.getSessionMediaItems);
+    router.get('/admin/google-photos/thumbnail', requireAuth, googlePhotosController.proxyThumbnail);
+    router.post('/admin/google-photos/import', requireAuth, googlePhotosController.importPhotos);
+    router.get('/admin/google-photos/job/:jobId', requireAuth, googlePhotosController.getJobStatus);
+} else {
+    // Return 404 for all Google Photos routes when disabled
+    router.use('/admin/google-photos/*', (req, res) => {
+        res.status(404).json({ message: 'Google Photos integration is disabled' });
+    });
+}
 
 // Authentication routes
 const authRoutes = require('./auth');
