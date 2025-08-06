@@ -21,7 +21,7 @@ services:
       - photo-logs:/app/logs
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "node", "-e", "require('http').request({port:3000,path:'/'}, (res) => process.exit(res.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1)).end()"]
+      test: ["CMD", "node", "-e", "require('http').request({port:process.env.PORT||3000,path:'/api/health'}, (res) => process.exit(res.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1)).end()"]
       interval: 30s
       timeout: 10s
       retries: 3

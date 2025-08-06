@@ -49,6 +49,7 @@ docs/
 README.md
 CHANGELOG.md
 CLAUDE.md
+DOCKER.md
 
 # Test files
 **/*.test.js
