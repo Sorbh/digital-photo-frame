@@ -84,6 +84,9 @@ class PhotoFrameAdmin {
 
         // Upload
         document.getElementById('uploadBtn').addEventListener('click', () => this.showUploadModal());
+        
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', () => this.logout());
         document.getElementById('confirmUploadBtn').addEventListener('click', () => this.uploadFiles());
         document.getElementById('cancelUploadBtn').addEventListener('click', () => this.hideUploadModal());
         document.getElementById('uploadDropZone').addEventListener('click', () => document.getElementById('fileInput').click());
@@ -664,6 +667,26 @@ class PhotoFrameAdmin {
         } else {
             // Fallback: reload entire folder contents
             this.loadFolderContents();
+        }
+    }
+
+    async logout() {
+        try {
+            const response = await this.authenticatedFetch('/api/auth/logout', {
+                method: 'POST'
+            });
+            
+            if (response && response.ok) {
+                this.showToast('Logging out...', 'info');
+                setTimeout(() => {
+                    window.location.href = '/login';
+                }, 1000);
+            } else {
+                this.showToast('Logout failed', 'error');
+            }
+        } catch (error) {
+            console.error('Error during logout:', error);
+            this.showToast('Logout failed', 'error');
         }
     }
 

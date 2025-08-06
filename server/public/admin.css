@@ -79,22 +79,23 @@ body {
 .btn-icon {
     width: 48px;
     height: 48px;
-    border: none;
+    border: 1px solid var(--primary);
     background: none;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
+    color: var(--primary);
     transition: background-color 0.2s var(--ease-standard);
 }
 
 .btn-icon:hover {
-    background-color: rgba(0, 0, 0, 0.04);
+    background-color: rgba(25, 118, 210, 0.04);
 }
 
 .btn-icon:active {
-    background-color: rgba(0, 0, 0, 0.08);
+    background-color: rgba(25, 118, 210, 0.08);
 }
 
 .btn-primary {
