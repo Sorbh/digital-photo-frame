@@ -55,6 +55,14 @@
                 </div>
             </div>
 
+            <!-- Floating Action Button -->
+            <div id="selectionFab" class="selection-fab hidden">
+                <button id="bulkDeleteBtn" class="fab-button" title="Delete Selected">
+                    <span class="material-icons">delete</span>
+                </button>
+                <span class="fab-badge" id="fabBadge">0</span>
+            </div>
+
             <div class="file-grid" id="fileGrid">
                 <!-- Files and folders will be populated here -->
             </div>
@@ -148,6 +156,19 @@
                 </div>
                 <div class="modal-actions">
                     <button id="cancelGooglePhotosBtn" class="btn-secondary">Cancel</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bulk Delete Confirmation Modal -->
+        <div id="bulkDeleteModal" class="modal hidden">
+            <div class="modal-content">
+                <h2>Delete Photos</h2>
+                <p>Are you sure you want to delete <span id="deleteCount">0</span> selected photos?</p>
+                <p class="warning-text">This action cannot be undone.</p>
+                <div class="modal-actions">
+                    <button id="cancelBulkDeleteBtn" class="btn-secondary">Cancel</button>
+                    <button id="confirmBulkDeleteBtn" class="btn-danger">Delete</button>
                 </div>
             </div>
         </div>

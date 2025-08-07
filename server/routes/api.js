@@ -25,6 +25,7 @@ router.get('/folders/:folderPath(*)/thumbnail', folderController.getFolderThumbn
 // Protected routes (authentication required)
 router.post('/upload', requireAuth, upload.array('images'), imageController.uploadImages.bind(imageController));
 router.delete('/images', requireAuth, imageController.deleteImage.bind(imageController));
+router.delete('/images/batch', requireAuth, imageController.batchDeleteImages.bind(imageController));
 router.post('/images/rotate', requireAuth, imageController.rotateImage.bind(imageController));
 
 // Folder management routes (protected)

@@ -2,7 +2,10 @@ class PhotoFrameAdmin {
     constructor() {
         this.currentPath = this.getInitialPath();
         this.selectedFiles = [];
+        this.selectedItems = new Set(); // For multi-select
         this.contextMenuTarget = null;
+        this.longPressTimeout = null;
+        this.longPressDelay = 500; // 500ms for long press
         this.initializeEventListeners();
         this.loadFolderContents();
         this.checkFeatureFlags();
@@ -152,6 +155,18 @@ class PhotoFrameAdmin {
             }
         });
 
+        // Selection controls
+        document.getElementById('bulkDeleteBtn').addEventListener('click', () => this.showBulkDeleteModal());
+        
+        // Bulk delete modal
+        document.getElementById('cancelBulkDeleteBtn').addEventListener('click', () => this.hideBulkDeleteModal());
+        document.getElementById('confirmBulkDeleteBtn').addEventListener('click', () => this.confirmBulkDelete());
+        document.getElementById('bulkDeleteModal').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) {
+                this.hideBulkDeleteModal();
+            }
+        });
+
         // Google Photos modal
         document.getElementById('cancelGooglePhotosBtn').addEventListener('click', () => {
             if (window.googlePhotosSync) {
@@ -235,6 +250,8 @@ class PhotoFrameAdmin {
     }
 
     async loadFolderContents() {
+        this.clearSelection(); // Clear selection when navigating
+        
         try {
             const response = await this.authenticatedFetch(`/api/admin/folders?path=${encodeURIComponent(this.currentPath)}`);
             if (!response) return; // Session expired, handled by authenticatedFetch
@@ -308,14 +325,34 @@ class PhotoFrameAdmin {
         div.dataset.path = file.path;
         div.dataset.type = 'image';
         div.innerHTML = `
+            <div class="selection-checkbox" data-path="${file.path}"></div>
             <img src="${file.url}" alt="${file.name}" loading="lazy">
             <span class="file-name">${file.name}</span>
         `;
         
+        // Handle checkbox selection
+        const checkbox = div.querySelector('.selection-checkbox');
+        checkbox.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.toggleSelection(file);
+        });
+        
+        // Add long press for mobile
+        div.addEventListener('mousedown', (e) => this.handlePointerDown(e, file, div));
+        div.addEventListener('touchstart', (e) => this.handlePointerDown(e, file, div), { passive: false });
+        div.addEventListener('mouseup', (e) => this.handlePointerUp(e, file, div));
+        div.addEventListener('touchend', (e) => this.handlePointerUp(e, file, div));
+        div.addEventListener('mouseleave', () => this.cancelLongPress());
         div.addEventListener('contextmenu', (e) => this.showContextMenu(e, {...file, type: 'image'}));
+        
+        // Regular click handler for photo modal
         div.addEventListener('click', (e) => {
-            e.preventDefault();
-            this.showPhotoModal(file.url, file.name);
+            // Don't open modal if clicking on checkbox
+            if (e.target.closest('.selection-checkbox')) return;
+            if (!this.longPressTriggered) {
+                e.preventDefault();
+                this.showPhotoModal(file.url, file.name);
+            }
         });
         
         return div;
@@ -768,6 +805,145 @@ class PhotoFrameAdmin {
         const modalImage = document.getElementById('modalImage');
         modalImage.src = '';
     }
+
+    // Long Press Detection Methods
+    handlePointerDown(e, file, element) {
+        this.longPressTriggered = false;
+        element.classList.add('selecting');
+        
+        this.longPressTimeout = setTimeout(() => {
+            this.longPressTriggered = true;
+            element.classList.remove('selecting');
+            this.toggleSelection(file);
+            // Add haptic feedback on mobile
+            if (navigator.vibrate) {
+                navigator.vibrate(50);
+            }
+        }, this.longPressDelay);
+        
+        e.preventDefault();
+    }
+
+    handlePointerUp(e, file, element) {
+        this.cancelLongPress();
+        element.classList.remove('selecting');
+    }
+
+    cancelLongPress() {
+        if (this.longPressTimeout) {
+            clearTimeout(this.longPressTimeout);
+            this.longPressTimeout = null;
+        }
+    }
+
+
+    // Selection Management Methods
+    toggleSelection(file) {
+        const filePath = file.path;
+        const fileElement = document.querySelector(`[data-path="${filePath}"]`);
+        const checkbox = fileElement.querySelector('.selection-checkbox');
+        
+        // Add bounce animation
+        checkbox.classList.add('checking');
+        setTimeout(() => checkbox.classList.remove('checking'), 300);
+        
+        if (this.selectedItems.has(filePath)) {
+            this.selectedItems.delete(filePath);
+            fileElement.classList.remove('selected');
+            checkbox.classList.remove('checked');
+        } else {
+            this.selectedItems.add(filePath);
+            fileElement.classList.add('selected');
+            checkbox.classList.add('checked');
+        }
+        
+        this.updateSelectionUI();
+    }
+
+    clearSelection() {
+        this.selectedItems.forEach(filePath => {
+            const fileElement = document.querySelector(`[data-path="${filePath}"]`);
+            if (fileElement) {
+                const checkbox = fileElement.querySelector('.selection-checkbox');
+                fileElement.classList.remove('selected');
+                checkbox.classList.remove('checked');
+            }
+        });
+        
+        this.selectedItems.clear();
+        this.updateSelectionUI();
+    }
+
+    updateSelectionUI() {
+        const selectionCount = this.selectedItems.size;
+        const fabBadge = document.getElementById('fabBadge');
+        const selectionFab = document.getElementById('selectionFab');
+        
+        fabBadge.textContent = selectionCount;
+        
+        if (selectionCount > 0) {
+            selectionFab.classList.remove('hidden');
+        } else {
+            selectionFab.classList.add('hidden');
+        }
+    }
+
+    showBulkDeleteModal() {
+        if (this.selectedItems.size === 0) return;
+        
+        const modal = document.getElementById('bulkDeleteModal');
+        const deleteCountElement = document.getElementById('deleteCount');
+        
+        deleteCountElement.textContent = this.selectedItems.size;
+        modal.classList.remove('hidden');
+    }
+
+    hideBulkDeleteModal() {
+        const modal = document.getElementById('bulkDeleteModal');
+        modal.classList.add('hidden');
+    }
+
+    async confirmBulkDelete() {
+        const selectedPaths = Array.from(this.selectedItems);
+        
+        if (selectedPaths.length === 0) {
+            this.hideBulkDeleteModal();
+            return;
+        }
+        
+        try {
+            this.showToast('Deleting photos...', 'info');
+            
+            const response = await this.authenticatedFetch('/api/images/batch', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    paths: selectedPaths
+                })
+            });
+            
+            if (!response) return; // Session expired
+            
+            const data = await response.json();
+            
+            if (response.ok) {
+                this.showToast(`Successfully deleted ${data.deletedCount} photos`, 'success');
+                this.clearSelection();
+                this.loadFolderContents(); // Refresh the grid
+            } else {
+                console.error('Bulk delete failed:', data);
+                this.showToast(data.message || 'Failed to delete photos', 'error');
+            }
+        } catch (error) {
+            console.error('Error during bulk delete:', error);
+            this.showToast('Failed to delete photos', 'error');
+        } finally {
+            this.hideBulkDeleteModal();
+        }
+    }
+
 }
 
 // Initialize the admin panel when DOM is loaded

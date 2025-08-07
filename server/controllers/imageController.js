@@ -299,6 +299,59 @@ class ImageController {
     }
   }
 
+  // Batch delete images
+  async batchDeleteImages(req, res) {
+    try {
+      const { paths } = req.body;
+      
+      if (!Array.isArray(paths) || paths.length === 0) {
+        return res.status(400).json({ message: 'Invalid paths provided' });
+      }
+      
+      const results = {
+        deletedCount: 0,
+        failedCount: 0,
+        errors: []
+      };
+      
+      for (const imagePath of paths) {
+        try {
+          const fullPath = path.join(__dirname, '..', imagePath);
+          
+          if (await fs.pathExists(fullPath)) {
+            await fs.remove(fullPath);
+            results.deletedCount++;
+          } else {
+            results.failedCount++;
+            results.errors.push(`Image not found: ${imagePath}`);
+          }
+        } catch (error) {
+          console.error(`Error deleting image ${imagePath}:`, error);
+          results.failedCount++;
+          results.errors.push(`Failed to delete: ${imagePath}`);
+        }
+      }
+      
+      // Clear cache after deletion to update available images
+      this.clearImageCache();
+      
+      if (results.failedCount > 0) {
+        res.status(207).json({
+          message: `Deleted ${results.deletedCount} images, failed to delete ${results.failedCount}`,
+          ...results
+        });
+      } else {
+        res.json({
+          message: `Successfully deleted ${results.deletedCount} images`,
+          ...results
+        });
+      }
+    } catch (error) {
+      console.error('Error in batch delete:', error);
+      res.status(500).json({ message: 'Server error during batch deletion' });
+    }
+  }
+
   // Rotate image
   async rotateImage(req, res) {
     try {

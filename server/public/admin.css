@@ -143,6 +143,32 @@ body {
     background-color: rgba(25, 118, 210, 0.04);
 }
 
+.btn-danger {
+    background-color: var(--error);
+    color: var(--on-error);
+    border: none;
+    padding: 12px 24px;
+    border-radius: 24px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background-color 0.2s var(--ease-standard), box-shadow 0.2s var(--ease-standard);
+}
+
+.btn-danger:hover {
+    background-color: #d32f2f;
+    box-shadow: var(--elevation-2);
+}
+
+.btn-danger:disabled {
+    background-color: rgba(0, 0, 0, 0.12);
+    color: rgba(0, 0, 0, 0.38);
+    cursor: not-allowed;
+}
+
 /* Breadcrumb */
 .breadcrumb {
     background-color: var(--surface);
@@ -791,6 +817,11 @@ body {
     .btn-primary .material-icons {
         font-size: 18px;
     }
+    
+    .btn-danger {
+        padding: 8px 16px;
+        font-size: 0.8125rem;
+    }
 }
 
 /* Photo Modal */
@@ -892,5 +923,207 @@ body {
         bottom: 10px;
         padding: 8px 16px;
         font-size: 0.875rem;
+    }
+}
+
+/* Clean Square Checkbox Styles - Matching Screenshot Design */
+.selection-checkbox {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    width: 20px;
+    height: 20px;
+    background-color: transparent;
+    border: 1.5px solid rgba(255, 255, 255, 0.6);
+    border-radius: 3px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transform: scale(0.9);
+    transition: all 0.2s var(--ease-standard);
+    z-index: 10;
+    box-sizing: border-box;
+}
+
+/* Hover state - show checkbox */
+.file-item:hover .selection-checkbox {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* Hover effect on checkbox itself */
+.selection-checkbox:hover {
+    border-color: rgba(255, 255, 255, 0.9);
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Selected state */
+.selection-checkbox.checked,
+.file-item.selected .selection-checkbox {
+    background-color: rgba(0, 0, 0, 0.8);
+    border-color: rgba(0, 0, 0, 0.8);
+    opacity: 1;
+    transform: scale(1);
+}
+
+
+/* Animation when checking/unchecking */
+.selection-checkbox.checking {
+    animation: checkbox-bounce 0.2s var(--ease-standard);
+}
+
+@keyframes checkbox-bounce {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+/* Floating Action Button */
+.selection-fab {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 150;
+    opacity: 0;
+    transform: scale(0.8);
+    transition: all 0.3s var(--ease-standard);
+}
+
+.selection-fab:not(.hidden) {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.fab-button {
+    width: 56px;
+    height: 56px;
+    border-radius: 28px;
+    background-color: var(--error);
+    color: var(--on-error);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--elevation-3);
+    transition: all 0.2s var(--ease-standard);
+}
+
+.fab-button:hover {
+    background-color: #d32f2f;
+    box-shadow: var(--elevation-4);
+    transform: scale(1.05);
+}
+
+.fab-button .material-icons {
+    font-size: 24px;
+}
+
+.fab-badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background-color: var(--secondary);
+    color: var(--on-secondary);
+    border-radius: 10px;
+    min-width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 500;
+    padding: 0 6px;
+}
+
+/* File Item Selection - Hover Checkbox Style */
+.file-item {
+    position: relative;
+    transition: all 0.2s var(--ease-standard);
+    user-select: none;
+}
+
+.file-item.selecting {
+    transform: scale(0.95);
+    box-shadow: var(--elevation-2);
+    animation: long-press-pulse 0.5s ease-out;
+}
+
+@keyframes long-press-pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(0.95); }
+    100% { transform: scale(0.95); }
+}
+
+.file-item.selected {
+    border: 3px solid var(--primary);
+    border-radius: 8px;
+    box-shadow: var(--elevation-3);
+}
+
+.file-item.selected::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(25, 118, 210, 0.15);
+    border-radius: 8px;
+    pointer-events: none;
+}
+
+/* Warning text styling */
+.warning-text {
+    color: var(--error);
+    font-size: 0.875rem;
+    margin-top: 8px;
+}
+
+/* Selection Responsive */
+@media (max-width: 768px) {
+    .selection-fab {
+        bottom: 16px;
+        right: 16px;
+    }
+    
+    .fab-button {
+        width: 48px;
+        height: 48px;
+        border-radius: 24px;
+    }
+    
+    .fab-button .material-icons {
+        font-size: 20px;
+    }
+    
+    .fab-badge {
+        top: -6px;
+        right: -6px;
+        min-width: 18px;
+        height: 18px;
+        font-size: 0.6875rem;
+    }
+    
+    .selection-checkbox {
+        width: 18px;
+        height: 18px;
+        top: 6px;
+        left: 6px;
+        border-radius: 2px;
+        border-width: 1px;
+    }
+    
+    
+    /* Reduced hover scaling on mobile for better touch experience */
+    .selection-checkbox:hover {
+        transform: scale(1.05);
+    }
+    
+    .selection-checkbox.checked:hover,
+    .file-item.selected .selection-checkbox:hover {
+        transform: scale(1.05);
     }
 }
