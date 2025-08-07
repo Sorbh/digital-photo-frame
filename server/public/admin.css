@@ -792,3 +792,105 @@ body {
         font-size: 18px;
     }
 }
+
+/* Photo Modal */
+.photo-modal {
+    background-color: rgba(0, 0, 0, 0.9);
+    backdrop-filter: blur(4px);
+}
+
+.photo-modal-content {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 90vw;
+    height: 90vh;
+    max-width: none;
+    max-height: none;
+    background: transparent;
+    border-radius: 0;
+    padding: 0;
+    box-shadow: none;
+}
+
+.photo-modal-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s var(--ease-standard);
+    z-index: 1001;
+}
+
+.photo-modal-close:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.photo-modal-close .material-icons {
+    color: white;
+    font-size: 24px;
+}
+
+.modal-photo {
+    max-width: 100%;
+    max-height: calc(100% - 80px);
+    object-fit: contain;
+    border-radius: 8px;
+    box-shadow: var(--elevation-4);
+}
+
+.photo-modal-info {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 24px;
+    backdrop-filter: blur(8px);
+}
+
+.photo-name {
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+/* Photo Modal Responsive */
+@media (max-width: 768px) {
+    .photo-modal-content {
+        width: 95vw;
+        height: 95vh;
+    }
+    
+    .photo-modal-close {
+        top: 10px;
+        right: 10px;
+        width: 40px;
+        height: 40px;
+    }
+    
+    .photo-modal-close .material-icons {
+        font-size: 20px;
+    }
+    
+    .modal-photo {
+        max-height: calc(100% - 60px);
+    }
+    
+    .photo-modal-info {
+        bottom: 10px;
+        padding: 8px 16px;
+        font-size: 0.875rem;
+    }
+}

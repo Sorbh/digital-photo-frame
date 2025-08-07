@@ -137,6 +137,21 @@ class PhotoFrameAdmin {
             }
         });
 
+        // Photo modal
+        document.getElementById('closePhotoModal').addEventListener('click', () => this.hidePhotoModal());
+        document.getElementById('photoModal').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) {
+                this.hidePhotoModal();
+            }
+        });
+
+        // Keyboard support for photo modal
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !document.getElementById('photoModal').classList.contains('hidden')) {
+                this.hidePhotoModal();
+            }
+        });
+
         // Google Photos modal
         document.getElementById('cancelGooglePhotosBtn').addEventListener('click', () => {
             if (window.googlePhotosSync) {
@@ -298,6 +313,10 @@ class PhotoFrameAdmin {
         `;
         
         div.addEventListener('contextmenu', (e) => this.showContextMenu(e, {...file, type: 'image'}));
+        div.addEventListener('click', (e) => {
+            e.preventDefault();
+            this.showPhotoModal(file.url, file.name);
+        });
         
         return div;
     }
@@ -725,6 +744,29 @@ class PhotoFrameAdmin {
         setTimeout(() => {
             toast.remove();
         }, 3000);
+    }
+
+    showPhotoModal(imageUrl, imageName) {
+        const modal = document.getElementById('photoModal');
+        const modalImage = document.getElementById('modalImage');
+        const modalPhotoName = document.getElementById('modalPhotoName');
+        
+        modalImage.src = imageUrl;
+        modalImage.alt = imageName;
+        modalPhotoName.textContent = imageName;
+        
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+
+    hidePhotoModal() {
+        const modal = document.getElementById('photoModal');
+        modal.classList.add('hidden');
+        document.body.style.overflow = '';
+        
+        // Clear the image to prevent showing old image while loading new one
+        const modalImage = document.getElementById('modalImage');
+        modalImage.src = '';
     }
 }
 
