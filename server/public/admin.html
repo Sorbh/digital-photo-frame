@@ -1,42 +1,48 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Digital Photo Frame Admin</title>
-    <link rel="stylesheet" href="admin.css">
-    <link rel="stylesheet" href="css/google-photos-sync.css">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+    <link rel="stylesheet" href="css/design-system.css">
+    <link rel="stylesheet" href="css/admin-extensions.css">
 </head>
+
 <body>
     <div class="app">
         <header class="toolbar">
             <div class="toolbar-left">
                 <button id="backBtn" class="btn-icon" title="Back">
-                    <span class="material-icons">arrow_back</span>
+                    <span class="material-symbols-outlined">arrow_back</span>
                 </button>
                 <h1 class="app-title">Photo Frame Admin</h1>
             </div>
             <div class="toolbar-right">
-                <button id="accessAccountsBtn" class="btn-secondary" title="Manage Access Accounts">
-                    <span class="material-icons">admin_panel_settings</span>
+                <button id="accessAccountsBtn" class="btn btn-secondary" title="Manage Access Accounts">
+                    <span class="material-symbols-outlined">admin_panel_settings</span>
                     Access Accounts
                 </button>
-                <button id="googlePhotosBtn" class="btn-secondary" title="Sync Google Photos">
-                    <span class="material-icons">photo_library</span>
+                <button id="googlePhotosBtn" class="btn btn-secondary" title="Sync Google Photos">
+                    <span class="material-symbols-outlined">photo_library</span>
                     Google Photos
                 </button>
-                <button id="createFolderBtn" class="btn-primary" title="Create Folder">
-                    <span class="material-icons">create_new_folder</span>
+                <button id="createFolderBtn" class="btn btn-primary" title="Create Folder">
+                    <span class="material-symbols-outlined">create_new_folder</span>
                     New Folder
                 </button>
-                <button id="uploadBtn" class="btn-primary" title="Upload Images">
-                    <span class="material-icons">upload</span>
+                <button id="uploadBtn" class="btn btn-primary" title="Upload Images">
+                    <span class="material-symbols-outlined">upload</span>
                     Upload
                 </button>
                 <button id="logoutBtn" class="btn-icon" title="Logout">
-                    <span class="material-icons">logout</span>
+                    <span class="material-symbols-outlined">logout</span>
                 </button>
             </div>
         </header>
@@ -50,7 +56,7 @@
         <main class="main-content">
             <div id="dropZone" class="drop-zone hidden">
                 <div class="drop-zone-content">
-                    <span class="material-icons">cloud_upload</span>
+                    <span class="material-symbols-outlined">cloud_upload</span>
                     <p>Drop images here to upload</p>
                 </div>
             </div>
@@ -58,17 +64,17 @@
             <!-- Floating Action Button -->
             <div id="selectionFab" class="selection-fab hidden">
                 <button id="bulkDeleteBtn" class="fab-button" title="Delete Selected">
-                    <span class="material-icons">delete</span>
+                    <span class="material-symbols-outlined">delete</span>
                 </button>
                 <span class="fab-badge" id="fabBadge">0</span>
             </div>
 
-            <div class="file-grid" id="fileGrid">
+            <div class="admin-grid" id="fileGrid">
                 <!-- Files and folders will be populated here -->
             </div>
 
             <div id="emptyState" class="empty-state hidden">
-                <span class="material-icons">photo_library</span>
+                <span class="material-symbols-outlined">photo_library</span>
                 <h3>No images yet</h3>
                 <p>Upload some images to get started</p>
             </div>
@@ -77,38 +83,38 @@
         <!-- Context Menu -->
         <div id="contextMenu" class="context-menu hidden">
             <div class="menu-item" data-action="rotate-right" data-for="image">
-                <span class="material-icons">rotate_right</span>
+                <span class="material-symbols-outlined">rotate_right</span>
                 Rotate Right
             </div>
             <div class="menu-item" data-action="rotate-left" data-for="image">
-                <span class="material-icons">rotate_left</span>
+                <span class="material-symbols-outlined">rotate_left</span>
                 Rotate Left
             </div>
             <div class="menu-item" data-action="delete">
-                <span class="material-icons">delete</span>
+                <span class="material-symbols-outlined">delete</span>
                 Delete
             </div>
         </div>
 
         <!-- Modals -->
         <div id="createFolderModal" class="modal hidden">
-            <div class="modal-content">
-                <h2>Create New Folder</h2>
-                <input type="text" id="folderNameInput" placeholder="Folder name" maxlength="50">
+            <div class="modal-content card card-elevated">
+                <h2 class="light-title">Create New Folder</h2>
+                <input type="text" id="folderNameInput" class="form-input" placeholder="Folder name" maxlength="50">
                 <div class="modal-actions">
-                    <button id="cancelCreateBtn" class="btn-secondary">Cancel</button>
-                    <button id="confirmCreateBtn" class="btn-primary">Create</button>
+                    <button id="cancelCreateBtn" class="btn btn-secondary">Cancel</button>
+                    <button id="confirmCreateBtn" class="btn btn-primary">Create</button>
                 </div>
             </div>
         </div>
 
         <div id="uploadModal" class="modal hidden">
-            <div class="modal-content">
-                <h2>Upload Images</h2>
+            <div class="modal-content card card-elevated">
+                <h2 class="light-title">Upload Images</h2>
                 <div class="upload-area">
                     <input type="file" id="fileInput" multiple accept="image/*" hidden>
                     <div class="upload-drop-zone" id="uploadDropZone">
-                        <span class="material-icons">cloud_upload</span>
+                        <span class="material-symbols-outlined">cloud_upload</span>
                         <p>Click to select images or drag and drop</p>
                         <small>Supports JPEG, PNG, GIF, WebP (max 10MB each)</small>
                     </div>
@@ -120,15 +126,15 @@
                     <span class="progress-text">Uploading...</span>
                 </div>
                 <div class="modal-actions">
-                    <button id="cancelUploadBtn" class="btn-secondary">Cancel</button>
-                    <button id="confirmUploadBtn" class="btn-primary" disabled>Upload</button>
+                    <button id="cancelUploadBtn" class="btn btn-secondary">Cancel</button>
+                    <button id="confirmUploadBtn" class="btn btn-primary" disabled>Upload</button>
                 </div>
             </div>
         </div>
 
         <div id="googlePhotosModal" class="modal hidden">
-            <div class="modal-content">
-                <h2>Import from Google Photos</h2>
+            <div class="modal-content card card-elevated">
+                <h2 class="light-title">Import from Google Photos</h2>
                 <div class="google-photos-content">
                     <div id="sessionLoadingState" class="session-state">
                         <div class="session-loader">
@@ -138,37 +144,38 @@
                     </div>
                     <div id="sessionReadyState" class="session-state hidden">
                         <div class="session-icon">
-                            <span class="material-icons">photo_library</span>
+                            <span class="material-symbols-outlined">photo_library</span>
                         </div>
                         <p>Google Photos session is ready!</p>
-                        <button id="openSessionBtn" class="btn-primary">
-                            <span class="material-icons">open_in_new</span>
+                        <button id="openSessionBtn" class="btn btn-primary">
+                            <span class="material-symbols-outlined">open_in_new</span>
                             Open Google Photos Picker
                         </button>
                     </div>
                     <div id="sessionErrorState" class="session-state hidden">
                         <div class="session-icon error">
-                            <span class="material-icons">error</span>
+                            <span class="material-symbols-outlined">error</span>
                         </div>
                         <p id="sessionErrorMessage">Failed to create session</p>
-                        <button id="retrySessionBtn" class="btn-secondary">Try Again</button>
+                        <button id="retrySessionBtn" class="btn btn-secondary">Try Again</button>
                     </div>
                 </div>
                 <div class="modal-actions">
-                    <button id="cancelGooglePhotosBtn" class="btn-secondary">Cancel</button>
+                    <button id="cancelGooglePhotosBtn" class="btn btn-secondary">Cancel</button>
                 </div>
             </div>
         </div>
 
         <!-- Bulk Delete Confirmation Modal -->
         <div id="bulkDeleteModal" class="modal hidden">
-            <div class="modal-content">
-                <h2>Delete Photos</h2>
-                <p>Are you sure you want to delete <span id="deleteCount">0</span> selected photos?</p>
+            <div class="modal-content card card-elevated">
+                <h2 class="light-title">Delete Photos</h2>
+                <p class="body-text">Are you sure you want to delete <span id="deleteCount">0</span> selected photos?
+                </p>
                 <p class="warning-text">This action cannot be undone.</p>
                 <div class="modal-actions">
-                    <button id="cancelBulkDeleteBtn" class="btn-secondary">Cancel</button>
-                    <button id="confirmBulkDeleteBtn" class="btn-danger">Delete</button>
+                    <button id="cancelBulkDeleteBtn" class="btn btn-secondary">Cancel</button>
+                    <button id="confirmBulkDeleteBtn" class="btn btn-danger">Delete</button>
                 </div>
             </div>
         </div>
@@ -177,7 +184,7 @@
         <div id="photoModal" class="modal photo-modal hidden">
             <div class="photo-modal-content">
                 <button id="closePhotoModal" class="photo-modal-close" title="Close">
-                    <span class="material-icons">close</span>
+                    <span class="material-symbols-outlined">close</span>
                 </button>
                 <img id="modalImage" src="" alt="" class="modal-photo">
                 <div class="photo-modal-info">
@@ -193,4 +200,5 @@
     <script src="admin.js"></script>
     <script src="js/googlePhotosSync.js"></script>
 </body>
+
 </html>

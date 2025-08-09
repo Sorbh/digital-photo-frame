@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Photo Frame - Style Guide</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+    <!-- Digital Photo Frame Design System -->
+    <link rel="stylesheet" href="style-guide.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark/light theme">
+                <span class="theme-icon">🌙</span>
+                <span class="theme-toggle-text">Dark</span>
+            </button>
+            <h1 class="thin-display">Style Guide</h1>
+            <p class="body-text">Digital Photo Frame Design System</p>
+        </div>
+
+        <!-- Typography Section -->
+        <div class="section">
+            <h2 class="extra-light-heading">Typography</h2>
+
+            <div class="thin-display" style="font-size: 3rem; margin-bottom: 1rem;">Thin Display Text</div>
+            <p class="body-text">6xl / Thin (100)</p>
+
+            <div class="extra-light-heading" style="margin-top: 2rem;">Extra Light Heading</div>
+            <p class="body-text">4xl / Extra Light (200)</p>
+
+            <div class="light-title" style="margin-top: 2rem;">Light Title</div>
+            <p class="body-text">2xl / Light (300)</p>
+
+            <div class="body-text" style="margin-top: 2rem;">Body text in light weight for readability</div>
+            <p class="body-text">lg / Light (300)</p>
+        </div>
+
+        <!-- Colors Section -->
+        <div class="section">
+            <h2 class="extra-light-heading">Colors</h2>
+            <div class="color-categories">
+                <div class="color-category">
+                    <h4>Primary Blues</h4>
+                    <div class="color-swatches">
+                        <div class="color-swatch">
+                            <div class="color-chip" style="background-color: #336df0;"></div>
+                            <div class="color-info">
+                                <div class="color-name">Blue 400</div>
+                                <div class="color-hex">#336df0</div>
+                            </div>
+                        </div>
+                        <div class="color-swatch">
+                            <div class="color-chip" style="background-color: #0052cc;"></div>
+                            <div class="color-info">
+                                <div class="color-name">Blue 600</div>
+                                <div class="color-hex">#0052cc</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="color-category">
+                    <h4>Accent Purples</h4>
+                    <div class="color-swatches">
+                        <div class="color-swatch">
+                            <div class="color-chip" style="background-color: #8533df;"></div>
+                            <div class="color-info">
+                                <div class="color-name">Purple 400</div>
+                                <div class="color-hex">#8533df</div>
+                            </div>
+                        </div>
+                        <div class="color-swatch">
+                            <div class="color-chip" style="background-color: #5200cc;"></div>
+                            <div class="color-info">
+                                <div class="color-name">Purple 600</div>
+                                <div class="color-hex">#5200cc</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="color-category">
+                    <h4>Surface Colors</h4>
+                    <div class="color-swatches">
+                        <div class="color-swatch">
+                            <div class="color-chip" style="background-color: #fafafa; border: 1px solid #e0e0e0;"></div>
+                            <div class="color-info">
+                                <div class="color-name">Background</div>
+                                <div class="color-hex">#fafafa</div>
+                            </div>
+                        </div>
+                        <div class="color-swatch">
+                            <div class="color-chip" style="background-color: #f41414;"></div>
+                            <div class="color-info">
+                                <div class="color-name">Surface</div>
+                                <div class="color-hex">#f41414</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Theme Toggle Demo -->
+            <div class="card card-elevated" style="margin-top: var(--spacing-xl); padding: var(--spacing-lg); text-align: center;">
+                <h3 class="light-title">Theme System</h3>
+                <p class="body-text" style="margin-bottom: var(--spacing-md);">
+                    Click the theme toggle button in the top-right corner to switch between light and dark themes.
+                    All components automatically adapt to the selected theme using CSS custom properties.
+                </p>
+                <div style="display: flex; justify-content: center; gap: var(--spacing-md); flex-wrap: wrap;">
+                    <div class="color-chip" style="background-color: var(--primary); width: 40px; height: 40px; border-radius: var(--radius-md);"></div>
+                    <div class="color-chip" style="background-color: var(--secondary); width: 40px; height: 40px; border-radius: var(--radius-md);"></div>
+                    <div class="color-chip" style="background-color: var(--tertiary); width: 40px; height: 40px; border-radius: var(--radius-md);"></div>
+                    <div class="color-chip" style="background-color: var(--surface); border: 1px solid var(--outline); width: 40px; height: 40px; border-radius: var(--radius-md);"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Components Section -->
+        <div class="section">
+            <h2 class="extra-light-heading">Components</h2>
+
+            <!-- Buttons -->
+            <div class="card card-standard" style="margin-bottom: 2rem;">
+                <h3 class="light-title">Buttons</h3>
+                <div class="button-grid">
+                    <button class="btn btn-primary">Primary Button</button>
+                    <button class="btn btn-secondary">Secondary Button</button>
+                    <button class="btn btn-outline">Outline Button</button>
+                </div>
+            </div>
+
+            <!-- Cards -->
+            <div class="card card-standard" style="margin-bottom: 2rem;">
+                <h3 class="light-title">Cards</h3>
+                <div class="card-grid">
+                    <div class="card card-standard">
+                        <h4 class="light-title">Standard Card</h4>
+                        <p class="body-text">This is a standard card component with subtle borders and surface coloring.
+                        </p>
+                    </div>
+                    <div class="card card-elevated">
+                        <h4 class="light-title">Elevated Card</h4>
+                        <p class="body-text">This card has elevation with shadow for more visual hierarchy.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Elements -->
+            <div class="card card-standard" style="margin-bottom: 2rem;">
+                <h3 class="light-title">Form Elements</h3>
+                <div class="dropdown-sections">
+                    <div class="card card-standard">
+                        <h4>Text Inputs</h4>
+                        <div class="dropdown-list">
+                            <input type="text" class="form-input" placeholder="Enter your name">
+                            <input type="email" class="form-input" placeholder="Enter your email">
+                            <input type="password" class="form-input" placeholder="Enter password">
+                            <textarea class="form-input" rows="3" placeholder="Enter your message"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="card card-standard">
+                        <h4>Dropdowns</h4>
+                        <div class="dropdown-list">
+                            <div class="dropdown">
+                                <button class="dropdown-button">
+                                    <span class="dropdown-text">Select an option</span>
+                                    <span class="dropdown-arrow">▼</span>
+                                </button>
+                                <div class="dropdown-menu">
+                                    <div class="dropdown-item">Option 1</div>
+                                    <div class="dropdown-item">Option 2</div>
+                                    <div class="dropdown-item">Option 3</div>
+                                    <div class="dropdown-item">Option 4</div>
+                                </div>
+                            </div>
+
+                            <div class="dropdown">
+                                <button class="dropdown-button disabled">
+                                    <span class="dropdown-text">Disabled dropdown</span>
+                                    <span class="dropdown-arrow">▼</span>
+                                </button>
+                                <div class="dropdown-menu">
+                                    <div class="dropdown-item">Disabled Option 1</div>
+                                    <div class="dropdown-item">Disabled Option 2</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Controls -->
+            <div class="card card-standard" style="margin-bottom: 2rem;">
+                <h3 class="light-title">Form Controls</h3>
+                <div class="form-controls">
+                    <div class="card card-standard">
+                        <h4>Checkboxes & Radio Buttons</h4>
+                        <div class="control-item">
+                            <div class="checkbox"></div>
+                            <span>Accept terms and conditions</span>
+                        </div>
+                        <div class="control-item">
+                            <div class="checkbox accent checked"></div>
+                            <span>Subscribe to newsletter</span>
+                        </div>
+                        <div class="control-item">
+                            <div class="radio"></div>
+                            <span>Basic Plan</span>
+                        </div>
+                        <div class="control-item">
+                            <div class="radio accent checked"></div>
+                            <span>Pro Plan</span>
+                        </div>
+                        <div class="control-item">
+                            <div class="radio"></div>
+                            <span>Enterprise Plan</span>
+                        </div>
+                    </div>
+
+                    <div class="card card-standard">
+                        <h4>Toggle Switches</h4>
+                        <div class="toggle-item">
+                            <span>Enable notifications</span>
+                            <div class="toggle-switch checked"></div>
+                        </div>
+                        <div class="toggle-item">
+                            <span>Dark mode</span>
+                            <div class="toggle-switch accent checked"></div>
+                        </div>
+                        <div class="toggle-item">
+                            <span>Auto-save</span>
+                            <div class="toggle-switch"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Login Card Component -->
+            <div class="card card-standard" style="margin-bottom: 2rem;">
+                <h3 class="light-title">Login Card</h3>
+                <div class="login-card-container">
+                    <div class="card card-standard login-card">
+                        <button class="btn btn-outline login-signup-link">Sign Up</button>
+
+                        <div class="login-card-header">
+                            <h2 class="login-card-title">Login to your account</h2>
+                            <p class="login-card-subtitle">Enter your email below to login to your account</p>
+                        </div>
+
+                        <form class="login-form">
+                            <div class="login-form-group">
+                                <label class="login-form-label">Email</label>
+                                <input type="email" class="form-input" placeholder="m@example.com">
+                            </div>
+
+                            <div class="login-form-group">
+                                <label class="login-form-label">Password</label>
+                                <input type="password" class="form-input" placeholder="••••••••">
+                                <a href="#" class="login-form-link">Forgot your password?</a>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary">Login</button>
+                            <button type="button" class="btn btn-secondary">Login with Google</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Breadcrumbs Component -->
+            <div class="card card-standard" style="margin-bottom: 2rem;">
+                <h3 class="light-title">Breadcrumbs</h3>
+                <div class="card card-standard">
+                    <nav class="breadcrumbs" aria-label="Breadcrumb">
+                        <a href="#" class="breadcrumb-item">Home</a>
+                        <span class="breadcrumb-separator">›</span>
+                        <a href="#" class="breadcrumb-item">Components</a>
+                        <span class="breadcrumb-separator">›</span>
+                        <span class="breadcrumb-item active">Breadcrumb</span>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Photo Grid Cell Component -->
+            <div class="card card-standard">
+                <h3 class="light-title">Photo Grid Cell</h3>
+                <div class="photo-grid-demo">
+                    <!-- Standard Photo Grid Cell -->
+                    <div class="photo-grid-cell">
+                        <div class="photo-grid-image">
+                            <img src="https://picsum.photos/300/200?random=1" alt="Sample photo" />
+                        </div>
+                        <div class="photo-grid-overlay">
+                            <div class="photo-grid-checkbox">
+                                <div class="checkbox"></div>
+                            </div>
+                            <div class="photo-grid-actions">
+                                <button class="btn-icon" title="View"><span class="material-symbols-outlined">visibility</span></button>
+                                <button class="btn-icon" title="Download"><span class="material-symbols-outlined">download</span></button>
+                                <button class="btn-icon" title="Delete"><span class="material-symbols-outlined">delete</span></button>
+                            </div>
+                        </div>
+                        <div class="photo-grid-info">
+                            <div class="photo-grid-name">photo_001.jpg</div>
+                            <div class="photo-grid-date">Jan 15, 2024</div>
+                        </div>
+                    </div>
+
+                    <!-- Selected State -->
+                    <div class="photo-grid-cell selected">
+                        <div class="photo-grid-image">
+                            <img src="https://picsum.photos/300/200?random=2" alt="Sample photo" />
+                        </div>
+                        <div class="photo-grid-overlay">
+                            <div class="photo-grid-checkbox">
+                                <div class="checkbox checked"></div>
+                            </div>
+                            <div class="photo-grid-actions">
+                                <button class="btn-icon" title="View"><span class="material-symbols-outlined">visibility</span></button>
+                                <button class="btn-icon" title="Download"><span class="material-symbols-outlined">download</span></button>
+                                <button class="btn-icon" title="Delete"><span class="material-symbols-outlined">delete</span></button>
+                            </div>
+                        </div>
+                        <div class="photo-grid-info">
+                            <div class="photo-grid-name">vacation_sunset.jpg</div>
+                            <div class="photo-grid-date">Dec 22, 2023</div>
+                        </div>
+                    </div>
+
+                    <!-- Loading State -->
+                    <div class="photo-grid-cell loading">
+                        <div class="photo-grid-image">
+                            <div class="photo-grid-skeleton"></div>
+                        </div>
+                        <div class="photo-grid-info">
+                            <div class="photo-grid-name skeleton-text"></div>
+                            <div class="photo-grid-date skeleton-text"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Utility Classes Section -->
+        <div class="section">
+            <h2 class="extra-light-heading">Utility Classes</h2>
+
+            <div class="util-grid">
+                <!-- Border Radius -->
+                <div class="util-section">
+                    <h3 class="light-title">Border Radius</h3>
+                    <div class="radius-examples">
+                        <div class="radius-example radius-small">Small</div>
+                        <div class="radius-example radius-medium">Med</div>
+                        <div class="radius-example radius-large">Large</div>
+                        <div class="radius-example radius-full">Full</div>
+                    </div>
+                </div>
+
+                <!-- Text Colors -->
+                <div class="util-section">
+                    <h3 class="light-title">Text Colors</h3>
+                    <div class="text-examples">
+                        <p class="text-primary">Primary Text</p>
+                        <p class="text-secondary">Secondary Text</p>
+                        <p class="text-muted">Muted Text</p>
+                        <p class="text-accent">Accent Text</p>
+                    </div>
+                </div>
+
+                <!-- Shadows -->
+                <div class="util-section">
+                    <h3 class="light-title">Shadows</h3>
+                    <div class="shadow-examples">
+                        <div class="shadow-example shadow-small">Small</div>
+                        <div class="shadow-example shadow-medium">Medium</div>
+                        <div class="shadow-example shadow-large">Large</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Logic-Driven UI Design Principles -->
+        <div class="section">
+            <h2 class="extra-light-heading">Logic-Driven UI Design Principles</h2>
+            <div class="body-text">
+                <p style="margin-bottom: 2rem;"><em>Based on objective guidelines rather than subjective opinion for
+                        intuitive, accessible, and visually polished interfaces.</em></p>
+
+                <h3 class="light-title">1. Spacing Based on Relationships</h3>
+                <ul style="margin-left: 2rem; margin-top: 1rem; margin-bottom: 2rem;">
+                    <li>The amount of spacing between interface elements should depend on how closely related they are
+                    </li>
+                    <li>Related elements = closer spacing (8-16px)</li>
+                    <li>Unrelated elements = more spacing (24-48px)</li>
+                    <li>Use consistent spacing scale: 8px, 16px, 24px, 32px, 48px</li>
+                </ul>
+
+                <h3 class="light-title">2. Button Design Guidelines</h3>
+                <ul style="margin-left: 2rem; margin-top: 1rem; margin-bottom: 2rem;">
+                    <li>Make buttons at least 48pt by 48pt in size (larger than WCAG 44pt recommendation)</li>
+                    <li>Align with 8pt grid system for consistency</li>
+                    <li>Ensure adequate padding: minimum 12px vertical, 24px horizontal</li>
+                    <li>Use clear, action-oriented button text</li>
+                </ul>
+
+                <h3 class="light-title">3. Single Primary Button Rule</h3>
+                <ul style="margin-left: 2rem; margin-top: 1rem; margin-bottom: 2rem;">
+                    <li>Only one primary button per interface/section</li>
+                    <li>Primary button highlights the most important action</li>
+                    <li>Helps users understand what to do next to complete their task</li>
+                    <li>Secondary actions use outline or text buttons</li>
+                </ul>
+
+                <h3 class="light-title">4. Visual Hierarchy</h3>
+                <ul style="margin-left: 2rem; margin-top: 1rem; margin-bottom: 2rem;">
+                    <li>Primary action should be the most prominent element</li>
+                    <li>Use high contrast background colors for primary elements</li>
+                    <li>Apply bold font weights to important actions</li>
+                    <li>Size and positioning indicate importance</li>
+                </ul>
+
+                <h3 class="light-title">5. Objective Design Decisions</h3>
+                <ul style="margin-left: 2rem; margin-top: 1rem; margin-bottom: 2rem;">
+                    <li>Rely on logical guidelines, not artistic intuition</li>
+                    <li>Use established patterns for familiar interactions</li>
+                    <li>Test decisions against usability principles</li>
+                    <li>Prioritize function over form</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Usage Guidelines -->
+        <div class="section">
+            <h2 class="extra-light-heading">Usage Guidelines</h2>
+            <div class="body-text">
+                <h3 class="light-title">Design Principles</h3>
+                <ul style="margin-left: 2rem; margin-top: 1rem;">
+                    <li>Clean typography hierarchy with appropriate font weights</li>
+                    <li>Purposeful color usage following Material Design 3</li>
+                    <li>Clear component hierarchy with consistent spacing</li>
+                    <li>Accessible contrast ratios and interactive states</li>
+                    <li>Responsive design with mobile-first approach</li>
+                </ul>
+
+                <h3 class="light-title" style="margin-top: 2rem;">Implementation</h3>
+                <ul style="margin-left: 2rem; margin-top: 1rem;">
+                    <li>Use CSS custom properties for consistent theming</li>
+                    <li>Implement smooth transitions for interactive elements</li>
+                    <li>Ensure proper focus states for accessibility</li>
+                    <li>Test components across different screen sizes</li>
+                    <li>Maintain semantic HTML structure</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Make checkboxes functional
+        document.querySelectorAll('.checkbox').forEach(checkbox => {
+            checkbox.addEventListener('click', function () {
+                this.classList.toggle('checked');
+            });
+        });
+
+        // Make radio buttons functional (grouped by section)
+        document.querySelectorAll('.radio').forEach(radio => {
+            radio.addEventListener('click', function () {
+                // Find all radio buttons in the same control group
+                const controlGroup = this.closest('.control-group');
+                const radios = controlGroup.querySelectorAll('.radio');
+
+                // Uncheck all radio buttons in the group
+                radios.forEach(r => r.classList.remove('checked'));
+
+                // Check the clicked radio button
+                this.classList.add('checked');
+            });
+        });
+
+        // Make toggle switches functional
+        document.querySelectorAll('.toggle-switch').forEach(toggle => {
+            toggle.addEventListener('click', function () {
+                this.classList.toggle('checked');
+            });
+        });
+
+        // Make dropdowns functional
+        document.querySelectorAll('.dropdown').forEach(dropdown => {
+            const button = dropdown.querySelector('.dropdown-button');
+            const menu = dropdown.querySelector('.dropdown-menu');
+            const text = dropdown.querySelector('.dropdown-text');
+            const items = dropdown.querySelectorAll('.dropdown-item');
+
+            // Toggle dropdown
+            button.addEventListener('click', function (e) {
+                e.preventDefault();
+
+                // Don't open if disabled
+                if (this.classList.contains('disabled')) return;
+
+                // Close other dropdowns
+                document.querySelectorAll('.dropdown.open').forEach(other => {
+                    if (other !== dropdown) {
+                        other.classList.remove('open');
+                    }
+                });
+
+                // Toggle current dropdown
+                dropdown.classList.toggle('open');
+            });
+
+            // Handle item selection
+            items.forEach(item => {
+                item.addEventListener('click', function () {
+                    // Update button text
+                    text.textContent = this.textContent;
+
+                    // Remove selected class from all items
+                    items.forEach(i => i.classList.remove('selected'));
+
+                    // Add selected class to clicked item
+                    this.classList.add('selected');
+
+                    // Close dropdown
+                    dropdown.classList.remove('open');
+                });
+            });
+        });
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function (e) {
+            if (!e.target.closest('.dropdown')) {
+                document.querySelectorAll('.dropdown.open').forEach(dropdown => {
+                    dropdown.classList.remove('open');
+                });
+            }
+        });
+
+        // Add hover effects for better UX
+        document.querySelectorAll('.checkbox, .radio, .toggle-switch').forEach(control => {
+            control.addEventListener('mouseenter', function () {
+                this.style.transform = 'scale(1.05)';
+            });
+
+            control.addEventListener('mouseleave', function () {
+                this.style.transform = 'scale(1)';
+            });
+        });
+
+        // Theme Toggle functionality
+        class ThemeManager {
+            constructor() {
+                this.themeToggle = document.getElementById('themeToggle');
+                this.themeIcon = this.themeToggle.querySelector('.theme-icon');
+                this.themeText = this.themeToggle.querySelector('.theme-toggle-text');
+                
+                // Get saved theme or default to light
+                this.currentTheme = localStorage.getItem('theme') || 'light';
+                
+                // Apply initial theme
+                this.applyTheme(this.currentTheme);
+                
+                // Setup event listener
+                this.themeToggle.addEventListener('click', () => this.toggleTheme());
+            }
+            
+            toggleTheme() {
+                this.currentTheme = this.currentTheme === 'light' ? 'dark' : 'light';
+                this.applyTheme(this.currentTheme);
+                localStorage.setItem('theme', this.currentTheme);
+            }
+            
+            applyTheme(theme) {
+                document.documentElement.setAttribute('data-theme', theme);
+                
+                if (theme === 'dark') {
+                    this.themeIcon.textContent = '☀️';
+                    this.themeText.textContent = 'Light';
+                } else {
+                    this.themeIcon.textContent = '🌙';
+                    this.themeText.textContent = 'Dark';
+                }
+            }
+        }
+
+        // Initialize theme manager
+        new ThemeManager();
+
+        // Photo Grid Cell functionality
+        document.querySelectorAll('.photo-grid-cell').forEach(cell => {
+            const checkbox = cell.querySelector('.checkbox');
+            const actionButtons = cell.querySelectorAll('.btn-icon');
+            
+            // Make cell clickable to toggle selection
+            cell.addEventListener('click', function(e) {
+                // Don't trigger if clicking on action buttons
+                if (!e.target.closest('.btn-icon')) {
+                    checkbox.classList.toggle('checked');
+                    this.classList.toggle('selected');
+                }
+            });
+            
+            // Action button functionality
+            actionButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.stopPropagation(); // Prevent cell selection
+                    const title = this.getAttribute('title');
+                    console.log(`${title} action triggered for photo`);
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>

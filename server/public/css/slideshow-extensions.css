@@ -1,0 +1,415 @@
+/**
+ * Slideshow Extensions CSS
+ * 
+ * Page-specific styles for the slideshow interface
+ * Uses design-system.css for base components
+ */
+
+/* ===========================
+   SLIDESHOW LAYOUT
+   =========================== */
+
+body {
+    background-color: #000;
+    overflow: hidden;
+    cursor: auto;
+    transition: cursor var(--transition-fast);
+}
+
+body.hide-cursor {
+    cursor: none;
+}
+
+.slideshow-container {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ===========================
+   SLIDE TRANSITIONS
+   =========================== */
+
+.slide {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.slide.active {
+    opacity: 1;
+}
+
+.slide img {
+    width: 100vw;
+    height: 100vh;
+    object-fit: contain;
+    object-position: center;
+    border-radius: 0;
+    max-width: 100vw;
+    max-height: 100vh;
+}
+
+/* ===========================
+   LOADING AND ERROR STATES
+   =========================== */
+
+.loading {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #fff;
+    font-size: 24px;
+    font-weight: var(--font-weight-light);
+    text-align: center;
+}
+
+.loading::after {
+    content: '';
+    display: block;
+    width: 40px;
+    height: 40px;
+    margin: 20px auto;
+    border: 3px solid rgba(255, 255, 255, 0.2);
+    border-top: 3px solid #fff;
+    border-radius: var(--radius-full);
+    animation: spin 1s linear infinite;
+}
+
+.error {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #ff6b6b;
+    font-size: 20px;
+    text-align: center;
+    background: rgba(255, 107, 107, 0.1);
+    padding: 30px;
+    border-radius: var(--radius-lg);
+    backdrop-filter: blur(10px);
+}
+
+/* ===========================
+   INFO OVERLAY
+   =========================== */
+
+.info {
+    position: absolute;
+    bottom: 40px;
+    left: 40px;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 16px;
+    font-weight: var(--font-weight-light);
+    background: rgba(0, 0, 0, 0.5);
+    padding: 12px 20px;
+    border-radius: 20px;
+    backdrop-filter: blur(10px);
+    transition: opacity var(--transition-fast);
+}
+
+.info.hidden {
+    opacity: 0;
+}
+
+/* ===========================
+   PROGRESS BAR
+   =========================== */
+
+.progress-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.3);
+    width: 0%;
+    transition: width 0.1s linear;
+}
+
+/* ===========================
+   CONTROLS
+   =========================== */
+
+.controls {
+    position: absolute;
+    top: 30px;
+    right: 30px;
+    display: flex;
+    gap: 15px;
+}
+
+.control-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    padding: 0;
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    transition: background var(--transition-fast);
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+}
+
+.control-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.folder-selector-container {
+    margin-right: 15px;
+}
+
+.control-btn .material-icons {
+    font-size: 20px;
+}
+
+/* ===========================
+   FULLSCREEN MODE
+   =========================== */
+
+.fullscreen .controls {
+    opacity: 0;
+    transition: opacity var(--transition-fast);
+}
+
+.fullscreen:hover .controls {
+    opacity: 1;
+}
+
+/* ===========================
+   AUTHENTICATION OVERLAY
+   =========================== */
+
+.auth-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    opacity: 1;
+    transition: opacity var(--transition-fast);
+}
+
+.auth-overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.auth-container {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 40px;
+    border-radius: 20px;
+    text-align: center;
+    box-shadow: var(--shadow-lg);
+    backdrop-filter: blur(10px);
+    max-width: 400px;
+    width: 90%;
+}
+
+.auth-title {
+    font-size: 28px;
+    font-weight: var(--font-weight-light);
+    color: #2c3e50;
+    margin-bottom: 10px;
+}
+
+.auth-subtitle {
+    font-size: 16px;
+    color: #7f8c8d;
+    margin-bottom: 30px;
+}
+
+/* ===========================
+   PIN FORM
+   =========================== */
+
+.pin-form {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    margin-top: 20px;
+}
+
+.pin-input {
+    font-size: 24px;
+    text-align: center;
+    padding: 15px;
+    border: 2px solid #ecf0f1;
+    border-radius: var(--radius-lg);
+    background: #fff;
+    color: #2c3e50;
+    letter-spacing: 0.5em;
+    max-width: 200px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 10;
+    font-family: var(--font-family);
+}
+
+.pin-input:focus {
+    outline: 3px solid rgba(52, 152, 219, 0.3);
+    outline-offset: 1px;
+    border-color: #3498db;
+}
+
+.pin-input.error {
+    border-color: #e74c3c;
+    outline: 3px solid rgba(231, 76, 60, 0.3);
+    outline-offset: 1px;
+}
+
+.pin-input:disabled {
+    background-color: #f8f9fa;
+    color: #6c757d;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.pin-input:disabled.error {
+    border-color: #dc3545;
+    background-color: #f8d7da;
+}
+
+.auth-button {
+    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    border-radius: var(--radius-lg);
+    font-size: 16px;
+    font-weight: var(--font-weight-medium);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 5;
+    font-family: var(--font-family);
+    transition: box-shadow var(--transition-fast);
+}
+
+.auth-button:hover {
+    box-shadow: 0 10px 20px rgba(52, 152, 219, 0.3);
+}
+
+.auth-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+/* ===========================
+   AUTH MESSAGES
+   =========================== */
+
+.auth-error {
+    color: #e74c3c;
+    font-size: 14px;
+    margin-top: 10px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    position: relative;
+    z-index: 8;
+    opacity: 0;
+    transition: opacity var(--transition-fast);
+}
+
+.auth-error:not(:empty) {
+    opacity: 1;
+}
+
+.auth-loading {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    color: #7f8c8d;
+    margin-top: 10px;
+    height: 40px;
+}
+
+.auth-loading.show {
+    display: flex;
+}
+
+.spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid #ecf0f1;
+    border-top: 2px solid #3498db;
+    border-radius: var(--radius-full);
+    animation: spin 1s linear infinite;
+}
+
+/* ===========================
+   ANIMATIONS
+   =========================== */
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* ===========================
+   RESPONSIVE DESIGN
+   =========================== */
+
+@media (max-width: 768px) {
+    .info {
+        bottom: 20px;
+        left: 20px;
+        font-size: 14px;
+        padding: 10px 16px;
+    }
+
+    .controls {
+        top: 20px;
+        right: 20px;
+    }
+
+    .control-btn {
+        padding: 10px;
+        font-size: 16px;
+    }
+
+    .auth-container {
+        padding: 30px 20px;
+        margin: 20px;
+    }
+
+    .auth-title {
+        font-size: 24px;
+    }
+
+    .pin-input {
+        font-size: 20px;
+        padding: 12px;
+        max-width: 160px;
+    }
+}

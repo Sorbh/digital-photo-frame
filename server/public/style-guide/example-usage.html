@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Example - Using Digital Photo Frame Design System</title>
+    
+    <!-- Import Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    
+    <!-- Import the Design System -->
+    <link rel="stylesheet" href="style-guide.css">
+    
+    <style>
+        /* Example of extending the design system with custom styles */
+        .demo-section {
+            margin-bottom: var(--spacing-xl);
+        }
+        
+        .demo-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-lg);
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: var(--spacing-lg);
+        }
+        
+        .feature-card {
+            background: var(--surface);
+            border: 1px solid var(--outline);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-lg);
+            transition: transform var(--transition-fast);
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--primary);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--on-primary);
+            font-size: 1.5rem;
+            margin-bottom: var(--spacing-md);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header with Theme Toggle -->
+        <div class="header">
+            <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark/light theme">
+                <span class="theme-icon">🌙</span>
+                <span class="theme-toggle-text">Dark</span>
+            </button>
+            <h1 class="thin-display">Design System Demo</h1>
+            <p class="body-text">Example of using the reusable design system</p>
+        </div>
+
+        <!-- Hero Section -->
+        <div class="section">
+            <div class="demo-header">
+                <div>
+                    <h2 class="extra-light-heading">Welcome to Our App</h2>
+                    <p class="body-text">Built with the Digital Photo Frame design system</p>
+                </div>
+                <button class="btn btn-primary">Get Started</button>
+            </div>
+        </div>
+
+        <!-- Features Section -->
+        <div class="section">
+            <h2 class="extra-light-heading">Features</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">📸</div>
+                    <h3 class="light-title">Photo Management</h3>
+                    <p class="body-text">Organize and display your photos beautifully</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">🎨</div>
+                    <h3 class="light-title">Theme Support</h3>
+                    <p class="body-text">Switch between light and dark themes seamlessly</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3 class="light-title">Fast & Responsive</h3>
+                    <p class="body-text">Optimized for all devices and screen sizes</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Example -->
+        <div class="section">
+            <h2 class="extra-light-heading">Contact Form</h2>
+            <div class="card card-standard" style="max-width: 500px;">
+                <form class="login-form">
+                    <div class="login-form-group">
+                        <label class="login-form-label">Name</label>
+                        <input type="text" class="form-input" placeholder="Enter your name">
+                    </div>
+                    
+                    <div class="login-form-group">
+                        <label class="login-form-label">Email</label>
+                        <input type="email" class="form-input" placeholder="Enter your email">
+                    </div>
+                    
+                    <div class="login-form-group">
+                        <label class="login-form-label">Message</label>
+                        <textarea class="form-input" rows="4" placeholder="Your message"></textarea>
+                    </div>
+                    
+                    <div class="button-grid">
+                        <button type="submit" class="btn btn-primary">Send Message</button>
+                        <button type="button" class="btn btn-secondary">Clear</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Settings Example -->
+        <div class="section">
+            <h2 class="extra-light-heading">Settings</h2>
+            <div class="card-grid">
+                <div class="card card-standard">
+                    <h3 class="light-title">Preferences</h3>
+                    <div class="toggle-item">
+                        <span>Email Notifications</span>
+                        <div class="toggle-switch checked"></div>
+                    </div>
+                    <div class="toggle-item">
+                        <span>Push Notifications</span>
+                        <div class="toggle-switch"></div>
+                    </div>
+                    <div class="toggle-item">
+                        <span>Auto-backup Photos</span>
+                        <div class="toggle-switch accent checked"></div>
+                    </div>
+                </div>
+                
+                <div class="card card-elevated">
+                    <h3 class="light-title">Account</h3>
+                    <div class="control-item">
+                        <div class="checkbox checked"></div>
+                        <span>Keep me logged in</span>
+                    </div>
+                    <div class="control-item">
+                        <div class="checkbox"></div>
+                        <span>Share usage data</span>
+                    </div>
+                    <div class="control-item">
+                        <div class="checkbox accent"></div>
+                        <span>Marketing emails</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Reuse the same theme toggle functionality
+        class ThemeManager {
+            constructor() {
+                this.themeToggle = document.getElementById('themeToggle');
+                this.themeIcon = this.themeToggle.querySelector('.theme-icon');
+                this.themeText = this.themeToggle.querySelector('.theme-toggle-text');
+                
+                // Get saved theme or default to light
+                this.currentTheme = localStorage.getItem('theme') || 'light';
+                
+                // Apply initial theme
+                this.applyTheme(this.currentTheme);
+                
+                // Setup event listener
+                this.themeToggle.addEventListener('click', () => this.toggleTheme());
+            }
+            
+            toggleTheme() {
+                this.currentTheme = this.currentTheme === 'light' ? 'dark' : 'light';
+                this.applyTheme(this.currentTheme);
+                localStorage.setItem('theme', this.currentTheme);
+            }
+            
+            applyTheme(theme) {
+                document.documentElement.setAttribute('data-theme', theme);
+                
+                if (theme === 'dark') {
+                    this.themeIcon.textContent = '☀️';
+                    this.themeText.textContent = 'Light';
+                } else {
+                    this.themeIcon.textContent = '🌙';
+                    this.themeText.textContent = 'Dark';
+                }
+            }
+        }
+
+        // Initialize theme manager
+        new ThemeManager();
+
+        // Make interactive elements functional (from the design system)
+        document.querySelectorAll('.checkbox').forEach(checkbox => {
+            checkbox.addEventListener('click', function () {
+                this.classList.toggle('checked');
+            });
+        });
+
+        document.querySelectorAll('.toggle-switch').forEach(toggle => {
+            toggle.addEventListener('click', function () {
+                this.classList.toggle('checked');
+            });
+        });
+    </script>
+</body>
+</html>

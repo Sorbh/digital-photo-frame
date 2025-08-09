@@ -4,23 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Access Accounts - Digital Photo Frame Admin</title>
-    <link rel="stylesheet" href="admin.css">
-    <link rel="stylesheet" href="access-accounts.css">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+    <link rel="stylesheet" href="css/design-system.css">
+    <link rel="stylesheet" href="css/access-accounts-extensions.css">
 </head>
 <body>
     <div class="app">
         <header class="toolbar">
             <div class="toolbar-left">
                 <button id="backBtn" class="btn-icon" title="Back to Admin">
-                    <span class="material-icons">arrow_back</span>
+                    <span class="material-symbols-outlined">arrow_back</span>
                 </button>
                 <h1 class="app-title">Access Accounts</h1>
             </div>
             <div class="toolbar-right">
-                <button id="createAccountBtn" class="btn-primary" title="Create Account">
-                    <span class="material-icons">person_add</span>
+                <button id="createAccountBtn" class="btn btn-primary" title="Create Account">
+                    <span class="material-symbols-outlined">person_add</span>
                     New Account
                 </button>
             </div>
@@ -29,8 +31,8 @@
         <main class="main-content">
             <div class="accounts-container">
                 <div id="loadingState" class="loading-state">
-                    <span class="material-icons">hourglass_empty</span>
-                    <p>Loading accounts...</p>
+                    <span class="material-symbols-outlined">hourglass_empty</span>
+                    <p class="body-text">Loading accounts...</p>
                 </div>
 
                 <div id="accountsList" class="accounts-list hidden">
@@ -38,43 +40,43 @@
                 </div>
 
                 <div id="emptyState" class="empty-state hidden">
-                    <span class="material-icons">group</span>
-                    <h3>No access accounts yet</h3>
-                    <p>Create an account to get started</p>
+                    <span class="material-symbols-outlined">group</span>
+                    <h3 class="light-title">No access accounts yet</h3>
+                    <p class="body-text">Create an account to get started</p>
                 </div>
             </div>
         </main>
 
         <!-- Create/Edit Account Modal -->
         <div id="accountModal" class="modal hidden">
-            <div class="modal-content large">
-                <h2 id="modalTitle">Create Access Account</h2>
+            <div class="modal-content card card-elevated large">
+                <h2 id="modalTitle" class="light-title">Create Access Account</h2>
                 
                 <form id="accountForm" class="account-form">
-                    <div class="form-section">
-                        <h3>Account Details</h3>
+                    <div class="form-section card card-standard">
+                        <h3 class="light-title">Account Details</h3>
                         <div class="form-group">
                             <label for="accountName">Account Name</label>
-                            <input type="text" id="accountName" name="name" required maxlength="50" 
+                            <input type="text" id="accountName" name="name" class="form-input" required maxlength="50" 
                                    placeholder="e.g. Family Photos">
                             <span class="error-message" id="nameError"></span>
                         </div>
                         
                         <div class="form-group">
                             <label for="accountPin">PIN Code</label>
-                            <input type="text" id="accountPin" name="pin" required pattern="[0-9]{4,6}" 
+                            <input type="text" id="accountPin" name="pin" class="form-input" required pattern="[0-9]{4,6}" 
                                    placeholder="4-6 digit PIN" maxlength="6">
                             <span class="error-message" id="pinError"></span>
                             <small class="form-help">4-6 digits, must be unique</small>
                         </div>
                     </div>
 
-                    <div class="form-section">
-                        <h3>Folder Access</h3>
+                    <div class="form-section card card-standard">
+                        <h3 class="light-title">Folder Access</h3>
                         <div class="folder-grid-container">
                             <div id="loadingFolders" class="loading-folders">
-                                <span class="material-icons">folder</span>
-                                <p>Loading folders...</p>
+                                <span class="material-symbols-outlined">folder</span>
+                                <p class="body-text">Loading folders...</p>
                             </div>
                             <div id="folderGrid" class="folder-grid hidden">
                                 <!-- Folder checkboxes will be populated here -->
@@ -84,9 +86,9 @@
                 </form>
 
                 <div class="modal-actions">
-                    <button id="cancelAccountBtn" class="btn-secondary">Cancel</button>
-                    <button id="saveAccountBtn" class="btn-primary" type="submit" form="accountForm">
-                        <span class="material-icons">save</span>
+                    <button id="cancelAccountBtn" class="btn btn-secondary">Cancel</button>
+                    <button id="saveAccountBtn" class="btn btn-primary" type="submit" form="accountForm">
+                        <span class="material-symbols-outlined">save</span>
                         Save Account
                     </button>
                 </div>
@@ -95,14 +97,14 @@
 
         <!-- Delete Confirmation Modal -->
         <div id="deleteModal" class="modal hidden">
-            <div class="modal-content">
-                <h2>Delete Account</h2>
-                <p>Are you sure you want to delete <strong id="deleteAccountName"></strong>?</p>
+            <div class="modal-content card card-elevated">
+                <h2 class="light-title">Delete Account</h2>
+                <p class="body-text">Are you sure you want to delete <strong id="deleteAccountName"></strong>?</p>
                 <p class="delete-warning">This action cannot be undone.</p>
                 <div class="modal-actions">
-                    <button id="cancelDeleteBtn" class="btn-secondary">Cancel</button>
-                    <button id="confirmDeleteBtn" class="btn-danger">
-                        <span class="material-icons">delete</span>
+                    <button id="cancelDeleteBtn" class="btn btn-secondary">Cancel</button>
+                    <button id="confirmDeleteBtn" class="btn btn-danger">
+                        <span class="material-symbols-outlined">delete</span>
                         Delete Account
                     </button>
                 </div>

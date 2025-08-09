@@ -4,218 +4,53 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Digital Photo Frame - Login</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Roboto', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-
-        .login-container {
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            padding: 40px;
-            width: 100%;
-            max-width: 400px;
-            text-align: center;
-        }
-
-        .login-header {
-            margin-bottom: 30px;
-        }
-
-        .login-header .material-icons {
-            font-size: 64px;
-            color: #667eea;
-            margin-bottom: 16px;
-        }
-
-        .login-header h1 {
-            font-size: 24px;
-            font-weight: 500;
-            color: #333;
-            margin-bottom: 8px;
-        }
-
-        .login-header p {
-            color: #666;
-            font-size: 14px;
-        }
-
-        .login-form {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .form-group {
-            position: relative;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 16px 20px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 16px;
-            transition: border-color 0.3s ease;
-            outline: none;
-        }
-
-        .form-group input:focus {
-            border-color: #667eea;
-        }
-
-        .form-group input::placeholder {
-            color: #999;
-        }
-
-        .login-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 16px 24px;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .login-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
-        }
-
-        .login-btn:active {
-            transform: translateY(0);
-        }
-
-        .login-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .error-message {
-            color: #e53e3e;
-            font-size: 14px;
-            margin-top: 10px;
-            padding: 12px;
-            background: #fed7d7;
-            border-radius: 8px;
-            border: 1px solid #feb2b2;
-        }
-
-        .success-message {
-            color: #38a169;
-            font-size: 14px;
-            margin-top: 10px;
-            padding: 12px;
-            background: #c6f6d5;
-            border-radius: 8px;
-            border: 1px solid #9ae6b4;
-        }
-
-        .slideshow-link {
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid #e0e0e0;
-        }
-
-        .slideshow-link a {
-            color: #667eea;
-            text-decoration: none;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            transition: color 0.3s ease;
-        }
-
-        .slideshow-link a:hover {
-            color: #5a67d8;
-        }
-
-        .spinner {
-            width: 20px;
-            height: 20px;
-            border: 2px solid transparent;
-            border-top: 2px solid white;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .hidden {
-            display: none;
-        }
-
-        @media (max-width: 480px) {
-            .login-container {
-                padding: 30px 20px;
-            }
-        }
-    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+    <link rel="stylesheet" href="css/design-system.css">
+    <link rel="stylesheet" href="css/login-extensions.css">
 </head>
 <body>
     <div class="login-container">
-        <div class="login-header">
-            <span class="material-icons">photo_camera</span>
-            <h1>Digital Photo Frame</h1>
-            <p>Enter password to access admin panel</p>
-        </div>
-
-        <form class="login-form" id="loginForm">
-            <div class="form-group">
-                <input 
-                    type="password" 
-                    name="password" 
-                    placeholder="Enter admin password"
-                    required
-                    autocomplete="current-password"
-                    id="passwordInput"
-                >
+        <div class="card card-standard login-card">
+            <div class="login-card-header">
+                <span class="material-symbols-outlined login-icon">photo_camera</span>
+                <h2 class="login-card-title">Digital Photo Frame</h2>
+                <p class="login-card-subtitle">Enter password to access admin panel</p>
             </div>
 
-            <button type="submit" class="login-btn" id="loginBtn">
-                <span class="btn-text">Login</span>
-                <div class="spinner hidden" id="spinner"></div>
-            </button>
+            <form class="login-form" id="loginForm">
+                <div class="login-form-group">
+                    <label class="login-form-label">Password</label>
+                    <input 
+                        type="password" 
+                        name="password" 
+                        class="form-input"
+                        placeholder="Enter admin password"
+                        required
+                        autocomplete="current-password"
+                        id="passwordInput"
+                    >
+                </div>
 
-            <div id="errorMessage" class="error-message hidden"></div>
-            <div id="successMessage" class="success-message hidden"></div>
-        </form>
+                <button type="submit" class="btn btn-primary" id="loginBtn">
+                    <span class="btn-text">Login</span>
+                    <div class="spinner hidden" id="spinner"></div>
+                </button>
 
-        <div class="slideshow-link">
-            <a href="/slideshow">
-                <span class="material-icons">slideshow</span>
-                View Slideshow (No login required)
-            </a>
+                <div id="errorMessage" class="error-message hidden"></div>
+                <div id="successMessage" class="success-message hidden"></div>
+            </form>
+
+            <div class="slideshow-link">
+                <a href="/slideshow" class="slideshow-link-anchor">
+                    <span class="material-symbols-outlined">slideshow</span>
+                    View Slideshow (No login required)
+                </a>
+            </div>
         </div>
-    </div>
+    </div></body>
 
     <script>
         class LoginManager {

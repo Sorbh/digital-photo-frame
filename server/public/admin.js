@@ -309,8 +309,10 @@ class PhotoFrameAdmin {
         div.dataset.path = folder.path;
         div.dataset.type = 'folder';
         div.innerHTML = `
-            <span class="material-icons">folder</span>
-            <span class="file-name">${folder.name}</span>
+            <div class="folder-icon">
+                <img src="css/ic_folder.png" alt="Folder" />
+            </div>
+            <div class="folder-name">${folder.name}</div>
         `;
         
         div.addEventListener('click', () => this.navigateTo(folder.path));
@@ -325,16 +327,46 @@ class PhotoFrameAdmin {
         div.dataset.path = file.path;
         div.dataset.type = 'image';
         div.innerHTML = `
-            <div class="selection-checkbox" data-path="${file.path}"></div>
-            <img src="${file.url}" alt="${file.name}" loading="lazy">
-            <span class="file-name">${file.name}</span>
+            <div class="admin-photo-image">
+                <img src="${file.url}" alt="${file.name}" loading="lazy">
+            </div>
+            <div class="photo-grid-overlay">
+                <div class="photo-grid-checkbox">
+                    <div class="checkbox" data-path="${file.path}"></div>
+                </div>
+                <div class="photo-grid-actions">
+                    <button class="btn-icon" title="View" data-action="view">
+                        <span class="material-symbols-outlined">visibility</span>
+                    </button>
+                    <button class="btn-icon" title="Delete" data-action="delete">
+                        <span class="material-symbols-outlined">delete</span>
+                    </button>
+                </div>
+            </div>
+            <div class="photo-grid-info">
+                <div class="photo-grid-name">${file.name}</div>
+            </div>
         `;
         
         // Handle checkbox selection
-        const checkbox = div.querySelector('.selection-checkbox');
+        const checkbox = div.querySelector('.checkbox');
         checkbox.addEventListener('click', (e) => {
             e.stopPropagation();
             this.toggleSelection(file);
+        });
+        
+        // Handle action buttons
+        const actionButtons = div.querySelectorAll('.btn-icon');
+        actionButtons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                e.stopPropagation(); // Prevent cell selection
+                const action = button.getAttribute('data-action');
+                if (action === 'view') {
+                    this.showPhotoModal(file.url, file.name);
+                } else if (action === 'delete') {
+                    this.deleteItem({...file, type: 'image'});
+                }
+            });
         });
         
         // Add long press for mobile
@@ -347,8 +379,8 @@ class PhotoFrameAdmin {
         
         // Regular click handler for photo modal
         div.addEventListener('click', (e) => {
-            // Don't open modal if clicking on checkbox
-            if (e.target.closest('.selection-checkbox')) return;
+            // Don't open modal if clicking on checkbox or action buttons
+            if (e.target.closest('.photo-grid-checkbox') || e.target.closest('.btn-icon')) return;
             if (!this.longPressTriggered) {
                 e.preventDefault();
                 this.showPhotoModal(file.url, file.name);
@@ -841,11 +873,7 @@ class PhotoFrameAdmin {
     toggleSelection(file) {
         const filePath = file.path;
         const fileElement = document.querySelector(`[data-path="${filePath}"]`);
-        const checkbox = fileElement.querySelector('.selection-checkbox');
-        
-        // Add bounce animation
-        checkbox.classList.add('checking');
-        setTimeout(() => checkbox.classList.remove('checking'), 300);
+        const checkbox = fileElement.querySelector('.checkbox');
         
         if (this.selectedItems.has(filePath)) {
             this.selectedItems.delete(filePath);
@@ -864,9 +892,11 @@ class PhotoFrameAdmin {
         this.selectedItems.forEach(filePath => {
             const fileElement = document.querySelector(`[data-path="${filePath}"]`);
             if (fileElement) {
-                const checkbox = fileElement.querySelector('.selection-checkbox');
+                const checkbox = fileElement.querySelector('.checkbox');
                 fileElement.classList.remove('selected');
-                checkbox.classList.remove('checked');
+                if (checkbox) {
+                    checkbox.classList.remove('checked');
+                }
             }
         });
         
