@@ -6,7 +6,13 @@ class PhotoFrameAdmin {
         this.contextMenuTarget = null;
         this.longPressTimeout = null;
         this.longPressDelay = 500; // 500ms for long press
+        
+        // Photo modal zoom/pan state
+        this.isZoomed = false;
+        this.dragState = { isDragging: false, startX: 0, startY: 0, translateX: 0, translateY: 0 };
+        
         this.initializeEventListeners();
+        this.updateURL(); // Ensure URL reflects current path
         this.loadFolderContents();
         this.checkFeatureFlags();
     }
@@ -50,9 +56,24 @@ class PhotoFrameAdmin {
     }
 
     getInitialPath() {
+        // Check URL search parameters first (?path=folder)
         const urlParams = new URLSearchParams(window.location.search);
         const pathParam = urlParams.get('path');
-        return pathParam || 'uploads';
+        
+        if (pathParam) {
+            return pathParam;
+        }
+        
+        // Check hash fragment (#/folder)
+        const hash = window.location.hash;
+        if (hash && hash.startsWith('#/')) {
+            const hashPath = hash.substring(2); // Remove #/
+            if (hashPath && hashPath !== 'uploads') {
+                return `uploads/${hashPath}`;
+            }
+        }
+        
+        return 'uploads';
     }
 
     updateURL() {
@@ -85,12 +106,20 @@ class PhotoFrameAdmin {
         document.getElementById('createFolderBtn').addEventListener('click', () => this.showCreateFolderModal());
         document.getElementById('confirmCreateBtn').addEventListener('click', () => this.createFolder());
         document.getElementById('cancelCreateBtn').addEventListener('click', () => this.hideCreateFolderModal());
+        document.getElementById('closeCreateFolderModal').addEventListener('click', () => this.hideCreateFolderModal());
 
         // Upload
         document.getElementById('uploadBtn').addEventListener('click', () => this.showUploadModal());
+        document.getElementById('closeUploadModal').addEventListener('click', () => this.hideUploadModal());
         
         // Logout
         document.getElementById('logoutBtn').addEventListener('click', () => this.logout());
+        
+        // Theme toggle
+        document.getElementById('themeToggle').addEventListener('click', () => {
+            document.dispatchEvent(new CustomEvent('basecoat:theme'));
+        });
+        
         document.getElementById('confirmUploadBtn').addEventListener('click', () => this.uploadFiles());
         document.getElementById('cancelUploadBtn').addEventListener('click', () => this.hideUploadModal());
         document.getElementById('uploadDropZone').addEventListener('click', () => document.getElementById('fileInput').click());
@@ -99,6 +128,7 @@ class PhotoFrameAdmin {
         document.getElementById('fileInput').addEventListener('change', (e) => {
             this.selectedFiles = Array.from(e.target.files);
             this.updateUploadButton();
+            this.updateSelectedFilesDisplay();
         });
 
         // Drag and drop for upload modal
@@ -109,11 +139,11 @@ class PhotoFrameAdmin {
 
         // Context menu
         document.addEventListener('click', (e) => {
-            if (!e.target.closest('#contextMenu')) {
+            if (!e.target.closest('#contextMenuPopover')) {
                 this.hideContextMenu();
             }
         });
-        document.getElementById('contextMenu').addEventListener('click', (e) => {
+        document.getElementById('contextMenuPopover').addEventListener('click', (e) => {
             e.stopPropagation();
             if (e.target.closest('.menu-item')) {
                 this.handleContextMenuAction(e.target.closest('.menu-item').dataset.action);
@@ -127,7 +157,7 @@ class PhotoFrameAdmin {
             }
         });
 
-        // Modal backdrop clicks
+        // Modal backdrop clicks for dialog elements
         document.getElementById('createFolderModal').addEventListener('click', (e) => {
             if (e.target === e.currentTarget) {
                 this.hideCreateFolderModal();
@@ -150,7 +180,7 @@ class PhotoFrameAdmin {
 
         // Keyboard support for photo modal
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && !document.getElementById('photoModal').classList.contains('hidden')) {
+            if (e.key === 'Escape' && document.getElementById('photoModal').open) {
                 this.hidePhotoModal();
             }
         });
@@ -161,6 +191,7 @@ class PhotoFrameAdmin {
         // Bulk delete modal
         document.getElementById('cancelBulkDeleteBtn').addEventListener('click', () => this.hideBulkDeleteModal());
         document.getElementById('confirmBulkDeleteBtn').addEventListener('click', () => this.confirmBulkDelete());
+        document.getElementById('closeBulkDeleteModal').addEventListener('click', () => this.hideBulkDeleteModal());
         document.getElementById('bulkDeleteModal').addEventListener('click', (e) => {
             if (e.target === e.currentTarget) {
                 this.hideBulkDeleteModal();
@@ -212,6 +243,7 @@ class PhotoFrameAdmin {
             const files = Array.from(e.dataTransfer.files).filter(file => file.type.startsWith('image/'));
             this.selectedFiles = files;
             this.updateUploadButton();
+            this.updateSelectedFilesDisplay();
         });
     }
 
@@ -331,16 +363,23 @@ class PhotoFrameAdmin {
                 <img src="${file.url}" alt="${file.name}" loading="lazy">
             </div>
             <div class="photo-grid-overlay">
-                <div class="photo-grid-checkbox">
-                    <div class="checkbox" data-path="${file.path}"></div>
+                <div class="photo-grid-overlay-top">
+                    <div class="photo-grid-checkbox">
+                        <label class="label">
+                            <input type="checkbox" class="input" data-path="${file.path}" aria-label="Select Photo">
+                            <span class="sr-only">Select Photo</span>
+                        </label>
+                    </div>
                 </div>
-                <div class="photo-grid-actions">
-                    <button class="btn-icon" title="View" data-action="view">
-                        <span class="material-symbols-outlined">visibility</span>
-                    </button>
-                    <button class="btn-icon" title="Delete" data-action="delete">
-                        <span class="material-symbols-outlined">delete</span>
-                    </button>
+                <div class="photo-grid-overlay-bottom">
+                    <div class="photo-grid-actions">
+                        <button class="btn-icon" data-tooltip="View Photo" data-action="view" aria-label="View Photo">
+                            <span class="material-symbols-outlined">visibility</span>
+                        </button>
+                        <button class="btn-icon" data-tooltip="Delete Photo" data-action="delete" aria-label="Delete Photo">
+                            <span class="material-symbols-outlined">delete</span>
+                        </button>
+                    </div>
                 </div>
             </div>
             <div class="photo-grid-info">
@@ -349,8 +388,8 @@ class PhotoFrameAdmin {
         `;
         
         // Handle checkbox selection
-        const checkbox = div.querySelector('.checkbox');
-        checkbox.addEventListener('click', (e) => {
+        const checkbox = div.querySelector('input[type="checkbox"]');
+        checkbox.addEventListener('change', (e) => {
             e.stopPropagation();
             this.toggleSelection(file);
         });
@@ -439,12 +478,36 @@ class PhotoFrameAdmin {
             if (index > 0) currentPath += '/';
             currentPath += part;
             
+            // Add separator before each item except the first
+            if (index > 0) {
+                const separatorLi = document.createElement('li');
+                separatorLi.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" 
+                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m9 18 6-6-6-6"/>
+                    </svg>
+                `;
+                container.appendChild(separatorLi);
+            }
+            
+            // Create list item for breadcrumb
+            const li = document.createElement('li');
             const span = document.createElement('span');
             span.className = 'breadcrumb-item';
+            
+            // Style the breadcrumb item based on whether it's the current page
+            const isCurrentPage = index === pathParts.length - 1;
+            if (isCurrentPage) {
+                span.className += ' text-foreground font-medium';
+            } else {
+                span.className += ' cursor-pointer hover:text-foreground transition-colors';
+            }
+            
             span.dataset.path = currentPath;
             span.textContent = index === 0 ? 'Home' : part;
             
-            container.appendChild(span);
+            li.appendChild(span);
+            container.appendChild(li);
         });
     }
 
@@ -454,12 +517,14 @@ class PhotoFrameAdmin {
     }
 
     showCreateFolderModal() {
-        document.getElementById('createFolderModal').classList.remove('hidden');
+        const modal = document.getElementById('createFolderModal');
+        modal.showModal();
         document.getElementById('folderNameInput').focus();
     }
 
     hideCreateFolderModal() {
-        document.getElementById('createFolderModal').classList.add('hidden');
+        const modal = document.getElementById('createFolderModal');
+        modal.close();
         document.getElementById('folderNameInput').value = '';
     }
 
@@ -500,24 +565,58 @@ class PhotoFrameAdmin {
     }
 
     showUploadModal() {
-        document.getElementById('uploadModal').classList.remove('hidden');
+        const modal = document.getElementById('uploadModal');
+        modal.showModal();
         this.selectedFiles = [];
         this.updateUploadButton();
+        this.updateSelectedFilesDisplay();
     }
 
     hideUploadModal() {
-        document.getElementById('uploadModal').classList.add('hidden');
+        const modal = document.getElementById('uploadModal');
+        modal.close();
         document.getElementById('fileInput').value = '';
         this.selectedFiles = [];
         this.hideUploadProgress();
+        this.updateSelectedFilesDisplay();
     }
 
     updateUploadButton() {
         const btn = document.getElementById('confirmUploadBtn');
+        const btnText = document.getElementById('uploadBtnText');
         btn.disabled = this.selectedFiles.length === 0;
-        btn.textContent = this.selectedFiles.length > 0 ? 
-            `Upload ${this.selectedFiles.length} file${this.selectedFiles.length > 1 ? 's' : ''}` : 
-            'Upload';
+        
+        if (this.selectedFiles.length > 0) {
+            btnText.textContent = `Upload ${this.selectedFiles.length} file${this.selectedFiles.length > 1 ? 's' : ''}`;
+        } else {
+            btnText.textContent = 'Select Files';
+        }
+    }
+
+    updateSelectedFilesDisplay() {
+        const selectedFilesInfo = document.getElementById('selectedFilesInfo');
+        const filesList = document.getElementById('filesList');
+        
+        if (this.selectedFiles.length > 0) {
+            selectedFilesInfo.classList.remove('hidden');
+            filesList.innerHTML = this.selectedFiles.map(file => 
+                `<div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-sm">image</span>
+                    <span class="flex-1">${file.name}</span>
+                    <span class="text-xs">${this.formatFileSize(file.size)}</span>
+                </div>`
+            ).join('');
+        } else {
+            selectedFilesInfo.classList.add('hidden');
+        }
+    }
+
+    formatFileSize(bytes) {
+        if (bytes === 0) return '0 B';
+        const k = 1024;
+        const sizes = ['B', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
     }
 
     async uploadFiles() {
@@ -617,30 +716,39 @@ class PhotoFrameAdmin {
         console.log('Item type:', typeof item, 'Has name:', item?.name);
         
         this.contextMenuTarget = item;
-        const menu = document.getElementById('contextMenu');
+        const popover = document.getElementById('contextMenuPopover');
         
         // Show/hide menu items based on item type
-        const rotateItems = menu.querySelectorAll('[data-for="image"]');
+        const rotateItems = popover.querySelectorAll('[data-for="image"]');
         rotateItems.forEach(rotateItem => {
             rotateItem.style.display = item.type === 'image' ? 'flex' : 'none';
         });
         
-        menu.classList.remove('hidden');
-        menu.style.left = event.pageX + 'px';
-        menu.style.top = event.pageY + 'px';
+        // Position the popover at the right-click location
+        popover.style.position = 'fixed';
+        popover.style.left = event.clientX + 'px';
+        popover.style.top = event.clientY + 'px';
+        
+        // Show the popover
+        popover.showPopover();
         
         // Adjust position if menu goes off screen
-        const rect = menu.getBoundingClientRect();
-        if (rect.right > window.innerWidth) {
-            menu.style.left = (event.pageX - rect.width) + 'px';
-        }
-        if (rect.bottom > window.innerHeight) {
-            menu.style.top = (event.pageY - rect.height) + 'px';
-        }
+        setTimeout(() => {
+            const rect = popover.getBoundingClientRect();
+            if (rect.right > window.innerWidth) {
+                popover.style.left = (event.clientX - rect.width) + 'px';
+            }
+            if (rect.bottom > window.innerHeight) {
+                popover.style.top = (event.clientY - rect.height) + 'px';
+            }
+        }, 0);
     }
 
     hideContextMenu() {
-        document.getElementById('contextMenu').classList.add('hidden');
+        const popover = document.getElementById('contextMenuPopover');
+        if (popover.matches(':popover-open')) {
+            popover.hidePopover();
+        }
         this.contextMenuTarget = null;
     }
 
@@ -674,7 +782,8 @@ class PhotoFrameAdmin {
             return;
         }
         
-        const confirmDelete = confirm(`Are you sure you want to delete "${item.name}"?`);
+        // Show proper confirmation dialog
+        const confirmDelete = await this.showDeleteConfirmation(item.name, item.type || 'image');
         if (!confirmDelete) return;
         
         try {
@@ -824,18 +933,132 @@ class PhotoFrameAdmin {
         modalImage.alt = imageName;
         modalPhotoName.textContent = imageName;
         
-        modal.classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
+        // Reset zoom state
+        modalImage.classList.remove('zoomed');
+        modalImage.style.transform = '';
+        this.isZoomed = false;
+        this.dragState = { isDragging: false, startX: 0, startY: 0, translateX: 0, translateY: 0 };
+        
+        // Add event listeners for zoom and pan
+        this.setupPhotoModalInteractions(modalImage);
+        
+        modal.showModal();
     }
 
     hidePhotoModal() {
         const modal = document.getElementById('photoModal');
-        modal.classList.add('hidden');
-        document.body.style.overflow = '';
+        modal.close();
         
-        // Clear the image to prevent showing old image while loading new one
+        // Clear the image and reset state
         const modalImage = document.getElementById('modalImage');
         modalImage.src = '';
+        modalImage.classList.remove('zoomed');
+        modalImage.style.transform = '';
+        this.isZoomed = false;
+        
+        // Remove event listeners
+        this.cleanupPhotoModalInteractions(modalImage);
+    }
+
+    setupPhotoModalInteractions(modalImage) {
+        // Click to zoom
+        this.photoClickHandler = (e) => {
+            e.stopPropagation();
+            this.togglePhotoZoom(modalImage);
+        };
+        
+        // Mouse drag for panning when zoomed
+        this.photoMouseDownHandler = (e) => {
+            if (!this.isZoomed) return;
+            this.startPhotoDrag(e, modalImage);
+        };
+        
+        this.photoMouseMoveHandler = (e) => {
+            this.handlePhotoDrag(e, modalImage);
+        };
+        
+        this.photoMouseUpHandler = () => {
+            this.endPhotoDrag();
+        };
+        
+        // Touch events for mobile
+        this.photoTouchStartHandler = (e) => {
+            if (!this.isZoomed) return;
+            this.startPhotoDrag(e.touches[0], modalImage);
+        };
+        
+        this.photoTouchMoveHandler = (e) => {
+            if (this.dragState.isDragging) {
+                e.preventDefault();
+                this.handlePhotoDrag(e.touches[0], modalImage);
+            }
+        };
+        
+        this.photoTouchEndHandler = () => {
+            this.endPhotoDrag();
+        };
+        
+        // Add event listeners
+        modalImage.addEventListener('click', this.photoClickHandler);
+        modalImage.addEventListener('mousedown', this.photoMouseDownHandler);
+        document.addEventListener('mousemove', this.photoMouseMoveHandler);
+        document.addEventListener('mouseup', this.photoMouseUpHandler);
+        modalImage.addEventListener('touchstart', this.photoTouchStartHandler, { passive: true });
+        document.addEventListener('touchmove', this.photoTouchMoveHandler, { passive: false });
+        document.addEventListener('touchend', this.photoTouchEndHandler);
+    }
+
+    cleanupPhotoModalInteractions(modalImage) {
+        if (this.photoClickHandler) modalImage.removeEventListener('click', this.photoClickHandler);
+        if (this.photoMouseDownHandler) modalImage.removeEventListener('mousedown', this.photoMouseDownHandler);
+        if (this.photoMouseMoveHandler) document.removeEventListener('mousemove', this.photoMouseMoveHandler);
+        if (this.photoMouseUpHandler) document.removeEventListener('mouseup', this.photoMouseUpHandler);
+        if (this.photoTouchStartHandler) modalImage.removeEventListener('touchstart', this.photoTouchStartHandler);
+        if (this.photoTouchMoveHandler) document.removeEventListener('touchmove', this.photoTouchMoveHandler);
+        if (this.photoTouchEndHandler) document.removeEventListener('touchend', this.photoTouchEndHandler);
+    }
+
+    togglePhotoZoom(modalImage) {
+        this.isZoomed = !this.isZoomed;
+        
+        if (this.isZoomed) {
+            modalImage.classList.add('zoomed');
+            modalImage.style.cursor = 'move';
+        } else {
+            modalImage.classList.remove('zoomed');
+            modalImage.style.cursor = 'zoom-in';
+            modalImage.style.transform = '';
+            this.dragState.translateX = 0;
+            this.dragState.translateY = 0;
+        }
+    }
+
+    startPhotoDrag(event, modalImage) {
+        if (!this.isZoomed) return;
+        
+        this.dragState.isDragging = true;
+        this.dragState.startX = event.clientX - this.dragState.translateX;
+        this.dragState.startY = event.clientY - this.dragState.translateY;
+        modalImage.style.cursor = 'grabbing';
+    }
+
+    handlePhotoDrag(event, modalImage) {
+        if (!this.dragState.isDragging || !this.isZoomed) return;
+        
+        this.dragState.translateX = event.clientX - this.dragState.startX;
+        this.dragState.translateY = event.clientY - this.dragState.startY;
+        
+        modalImage.style.transform = `scale(1.5) translate(${this.dragState.translateX}px, ${this.dragState.translateY}px)`;
+    }
+
+    endPhotoDrag() {
+        if (this.dragState.isDragging) {
+            this.dragState.isDragging = false;
+            const modalImage = document.getElementById('modalImage');
+            if (modalImage && this.isZoomed) {
+                modalImage.style.cursor = 'move';
+            }
+        }
     }
 
     // Long Press Detection Methods
@@ -873,16 +1096,16 @@ class PhotoFrameAdmin {
     toggleSelection(file) {
         const filePath = file.path;
         const fileElement = document.querySelector(`[data-path="${filePath}"]`);
-        const checkbox = fileElement.querySelector('.checkbox');
+        const checkbox = fileElement.querySelector('input[type="checkbox"]');
         
         if (this.selectedItems.has(filePath)) {
             this.selectedItems.delete(filePath);
             fileElement.classList.remove('selected');
-            checkbox.classList.remove('checked');
+            checkbox.checked = false;
         } else {
             this.selectedItems.add(filePath);
             fileElement.classList.add('selected');
-            checkbox.classList.add('checked');
+            checkbox.checked = true;
         }
         
         this.updateSelectionUI();
@@ -892,10 +1115,10 @@ class PhotoFrameAdmin {
         this.selectedItems.forEach(filePath => {
             const fileElement = document.querySelector(`[data-path="${filePath}"]`);
             if (fileElement) {
-                const checkbox = fileElement.querySelector('.checkbox');
+                const checkbox = fileElement.querySelector('input[type="checkbox"]');
                 fileElement.classList.remove('selected');
                 if (checkbox) {
-                    checkbox.classList.remove('checked');
+                    checkbox.checked = false;
                 }
             }
         });
@@ -908,9 +1131,25 @@ class PhotoFrameAdmin {
         const selectionCount = this.selectedItems.size;
         const fabBadge = document.getElementById('fabBadge');
         const selectionFab = document.getElementById('selectionFab');
+        const currentCount = parseInt(fabBadge.textContent) || 0;
         
+        // Update badge text
         fabBadge.textContent = selectionCount;
         
+        // Add bounce animation if count changed
+        if (selectionCount !== currentCount && selectionCount > 0) {
+            fabBadge.classList.remove('updated');
+            // Force reflow to restart animation
+            fabBadge.offsetHeight;
+            fabBadge.classList.add('updated');
+            
+            // Remove animation class after animation completes
+            setTimeout(() => {
+                fabBadge.classList.remove('updated');
+            }, 600);
+        }
+        
+        // Show/hide FAB with smooth animation
         if (selectionCount > 0) {
             selectionFab.classList.remove('hidden');
         } else {
@@ -925,12 +1164,12 @@ class PhotoFrameAdmin {
         const deleteCountElement = document.getElementById('deleteCount');
         
         deleteCountElement.textContent = this.selectedItems.size;
-        modal.classList.remove('hidden');
+        modal.showModal();
     }
 
     hideBulkDeleteModal() {
         const modal = document.getElementById('bulkDeleteModal');
-        modal.classList.add('hidden');
+        modal.close();
     }
 
     async confirmBulkDelete() {
@@ -972,6 +1211,73 @@ class PhotoFrameAdmin {
         } finally {
             this.hideBulkDeleteModal();
         }
+    }
+
+    // Enhanced confirmation dialog for single item deletion
+    async showDeleteConfirmation(itemName, itemType = 'image') {
+        return new Promise((resolve) => {
+            // Create a custom confirmation dialog
+            const dialogHtml = `
+                <dialog id="deleteConfirmModal" class="dialog" aria-labelledby="delete-confirm-title">
+                    <article>
+                        <header>
+                            <h2 id="delete-confirm-title">Delete ${itemType === 'folder' ? 'Folder' : 'Photo'}</h2>
+                        </header>
+                        <section>
+                            <p>Are you sure you want to delete <strong>"${itemName}"</strong>?</p>
+                            <p class="text-sm text-destructive mt-2">This action cannot be undone.</p>
+                        </section>
+                        <footer>
+                            <button id="cancelSingleDeleteBtn" class="btn-outline">Cancel</button>
+                            <button id="confirmSingleDeleteBtn" class="btn-destructive">
+                                <span class="material-symbols-outlined">delete</span>
+                                Delete ${itemType === 'folder' ? 'Folder' : 'Photo'}
+                            </button>
+                        </footer>
+                    </article>
+                </dialog>
+            `;
+            
+            // Remove existing modal if present
+            const existing = document.getElementById('deleteConfirmModal');
+            if (existing) {
+                existing.remove();
+            }
+            
+            // Add new modal to body
+            document.body.insertAdjacentHTML('beforeend', dialogHtml);
+            const modal = document.getElementById('deleteConfirmModal');
+            
+            // Event handlers
+            const cancelBtn = document.getElementById('cancelSingleDeleteBtn');
+            const confirmBtn = document.getElementById('confirmSingleDeleteBtn');
+            
+            const cleanup = () => {
+                modal.close();
+                setTimeout(() => modal.remove(), 200);
+            };
+            
+            cancelBtn.addEventListener('click', () => {
+                cleanup();
+                resolve(false);
+            });
+            
+            confirmBtn.addEventListener('click', () => {
+                cleanup();
+                resolve(true);
+            });
+            
+            // Close on backdrop click
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    cleanup();
+                    resolve(false);
+                }
+            });
+            
+            // Show modal
+            modal.showModal();
+        });
     }
 
 }

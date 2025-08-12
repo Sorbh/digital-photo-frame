@@ -1,27 +1,128 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Access Accounts - Digital Photo Frame Admin</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/basecoat-css@0.3.1/dist/basecoat.cdn.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/basecoat-css@0.3.1/dist/js/all.min.js" defer></script>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
-    <link rel="stylesheet" href="css/design-system.css">
-    <link rel="stylesheet" href="css/access-accounts-extensions.css">
+    
+    <!-- Theme Switcher Script -->
+    <script>
+    (() => {
+      try {
+        const stored = localStorage.getItem('themeMode');
+        if (stored ? stored === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches) {
+          document.documentElement.classList.add('dark');
+        }
+      } catch (_) {}
+      
+      document.addEventListener('basecoat:theme', (e) => {
+        const mode = e.detail?.mode || (document.documentElement.classList.contains('dark') ? 'light' : 'dark');
+        if (mode === 'dark') {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+        localStorage.setItem('themeMode', mode);
+      });
+    })();
+    </script>
+    <style>
+        /* Basecoat-style body CSS with theme support */
+        body {
+            background: var(--background);
+            color: var(--foreground);
+            overscroll-behavior: none;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Custom styles for access accounts */
+        .app {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 1rem;
+        }
+
+        .accounts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1rem;
+        }
+
+        .account-card {
+            position: relative;
+        }
+
+        .account-actions {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .folder-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .folder-item {
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .folder-item:hover {
+            border-color: var(--primary);
+            background: var(--muted);
+        }
+
+        .folder-item.selected {
+            border-color: var(--primary);
+            background: var(--primary);
+            color: var(--primary-foreground);
+        }
+
+        .loading-state,
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+        }
+
+        .loading-state .material-symbols-outlined,
+        .empty-state .material-symbols-outlined {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.6;
+        }
+    </style>
 </head>
+
 <body>
     <div class="app">
-        <header class="toolbar">
-            <div class="toolbar-left">
+        <header class="flex items-center justify-between p-4 border-b bg-card">
+            <div class="flex items-center gap-4">
                 <button id="backBtn" class="btn-icon" title="Back to Admin">
                     <span class="material-symbols-outlined">arrow_back</span>
                 </button>
-                <h1 class="app-title">Access Accounts</h1>
+                <h1 class="text-xl font-semibold">Access Accounts</h1>
             </div>
-            <div class="toolbar-right">
-                <button id="createAccountBtn" class="btn btn-primary" title="Create Account">
+            <div class="flex items-center gap-2">
+                <button id="createAccountBtn" class="btn" title="Create Account">
                     <span class="material-symbols-outlined">person_add</span>
                     New Account
                 </button>
@@ -29,87 +130,101 @@
         </header>
 
         <main class="main-content">
-            <div class="accounts-container">
-                <div id="loadingState" class="loading-state">
-                    <span class="material-symbols-outlined">hourglass_empty</span>
-                    <p class="body-text">Loading accounts...</p>
-                </div>
+            <div id="loadingState" class="loading-state">
+                <span class="material-symbols-outlined">hourglass_empty</span>
+                <p>Loading accounts...</p>
+            </div>
 
-                <div id="accountsList" class="accounts-list hidden">
-                    <!-- Accounts will be populated here -->
-                </div>
+            <div id="accountsList" class="accounts-grid hidden">
+                <!-- Accounts will be populated here -->
+            </div>
 
-                <div id="emptyState" class="empty-state hidden">
-                    <span class="material-symbols-outlined">group</span>
-                    <h3 class="light-title">No access accounts yet</h3>
-                    <p class="body-text">Create an account to get started</p>
-                </div>
+            <div id="emptyState" class="empty-state hidden">
+                <span class="material-symbols-outlined">group</span>
+                <h3 class="text-lg font-medium mb-2">No access accounts yet</h3>
+                <p class="text-muted-foreground">Create an account to get started</p>
             </div>
         </main>
 
         <!-- Create/Edit Account Modal -->
-        <div id="accountModal" class="modal hidden">
-            <div class="modal-content card card-elevated large">
-                <h2 id="modalTitle" class="light-title">Create Access Account</h2>
-                
-                <form id="accountForm" class="account-form">
-                    <div class="form-section card card-standard">
-                        <h3 class="light-title">Account Details</h3>
-                        <div class="form-group">
-                            <label for="accountName">Account Name</label>
-                            <input type="text" id="accountName" name="name" class="form-input" required maxlength="50" 
-                                   placeholder="e.g. Family Photos">
-                            <span class="error-message" id="nameError"></span>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="accountPin">PIN Code</label>
-                            <input type="text" id="accountPin" name="pin" class="form-input" required pattern="[0-9]{4,6}" 
-                                   placeholder="4-6 digit PIN" maxlength="6">
-                            <span class="error-message" id="pinError"></span>
-                            <small class="form-help">4-6 digits, must be unique</small>
-                        </div>
-                    </div>
+        <dialog id="accountModal" class="dialog" aria-labelledby="modal-title">
+            <article>
+                <header>
+                    <h2 id="modalTitle">Create Access Account</h2>
+                    <button id="closeAccountModal" class="btn-sm-icon-ghost absolute top-4 right-4">
+                        <span class="material-symbols-outlined">close</span>
+                    </button>
+                </header>
+                <section>
+                    <form id="accountForm" class="form grid gap-6">
+                        <div class="card">
+                            <header>
+                                <h3>Account Details</h3>
+                            </header>
+                            <section class="grid gap-4">
+                                <div class="grid gap-2">
+                                    <label for="accountName" class="label">Account Name</label>
+                                    <input type="text" id="accountName" name="name" class="input" required
+                                        maxlength="50" placeholder="e.g. Family Photos">
+                                    <span class="error-message hidden" id="nameError"></span>
+                                </div>
 
-                    <div class="form-section card card-standard">
-                        <h3 class="light-title">Folder Access</h3>
-                        <div class="folder-grid-container">
-                            <div id="loadingFolders" class="loading-folders">
-                                <span class="material-symbols-outlined">folder</span>
-                                <p class="body-text">Loading folders...</p>
-                            </div>
-                            <div id="folderGrid" class="folder-grid hidden">
-                                <!-- Folder checkboxes will be populated here -->
-                            </div>
+                                <div class="grid gap-2">
+                                    <label for="accountPin" class="label">PIN Code</label>
+                                    <input type="text" id="accountPin" name="pin" class="input" required
+                                        pattern="[0-9]{4,6}" placeholder="4-6 digit PIN" maxlength="6">
+                                    <span class="error-message hidden" id="pinError"></span>
+                                    <p class="text-sm text-muted-foreground">4-6 digits, must be unique</p>
+                                </div>
+                            </section>
                         </div>
-                    </div>
-                </form>
 
-                <div class="modal-actions">
-                    <button id="cancelAccountBtn" class="btn btn-secondary">Cancel</button>
-                    <button id="saveAccountBtn" class="btn btn-primary" type="submit" form="accountForm">
+                        <div class="card">
+                            <header>
+                                <h3>Folder Access</h3>
+                            </header>
+                            <section>
+                                <div id="loadingFolders" class="loading-state">
+                                    <span class="material-symbols-outlined">folder</span>
+                                    <p>Loading folders...</p>
+                                </div>
+                                <div id="folderGrid" class="folder-grid hidden">
+                                    <!-- Folder checkboxes will be populated here -->
+                                </div>
+                            </section>
+                        </div>
+                    </form>
+                </section>
+                <footer>
+                    <button id="cancelAccountBtn" class="btn-outline">Cancel</button>
+                    <button id="saveAccountBtn" class="btn" type="submit" form="accountForm">
                         <span class="material-symbols-outlined">save</span>
                         Save Account
                     </button>
-                </div>
-            </div>
-        </div>
+                </footer>
+            </article>
+        </dialog>
 
         <!-- Delete Confirmation Modal -->
-        <div id="deleteModal" class="modal hidden">
-            <div class="modal-content card card-elevated">
-                <h2 class="light-title">Delete Account</h2>
-                <p class="body-text">Are you sure you want to delete <strong id="deleteAccountName"></strong>?</p>
-                <p class="delete-warning">This action cannot be undone.</p>
-                <div class="modal-actions">
-                    <button id="cancelDeleteBtn" class="btn btn-secondary">Cancel</button>
-                    <button id="confirmDeleteBtn" class="btn btn-danger">
+        <dialog id="deleteModal" class="dialog" aria-labelledby="delete-title" aria-describedby="delete-description">
+            <article>
+                <header>
+                    <h2 id="delete-title">Delete Account</h2>
+                </header>
+                <section>
+                    <p id="delete-description">Are you sure you want to delete <strong id="deleteAccountName"></strong>?
+                    </p>
+                    <p class="text-sm text-destructive mt-2">This action cannot be undone.</p>
+                </section>
+                <footer>
+                    <button id="cancelDeleteBtn" class="btn-outline">Cancel</button>
+                    <button id="confirmDeleteBtn" class="btn-destructive">
                         <span class="material-symbols-outlined">delete</span>
                         Delete Account
                     </button>
-                </div>
-            </div>
-        </div>
+                </footer>
+            </article>
+        </dialog>
 
         <!-- Toast notifications -->
         <div id="toastContainer" class="toast-container"></div>
@@ -117,4 +232,5 @@
 
     <script src="access-accounts.js"></script>
 </body>
+
 </html>

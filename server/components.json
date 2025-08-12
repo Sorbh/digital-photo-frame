@@ -1,0 +1,774 @@
+[
+    {
+        "title": "Alert",
+        "description": "Displays a callout for user attention.",
+        "usage": {
+            "description": "You can use one of the two classes: alert or alert-dialog.",
+            "language": "html",
+            "content": "<div class=\"alert\">\n  <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"12\" cy=\"12\" r=\"10\" /><path d=\"m9 12 2 2 4-4\" /></svg>\n  <h2>Success! Your changes have been saved</h2>\n  <section>This is an alert with icon, title and description.</section>\n</div>"
+        },
+        "html_examples": [
+            {
+                "description": "No description",
+                "language": "html",
+                "content": "<div class=\"alert-destructive\">\n  <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"12\" cy=\"12\" r=\"10\" /><line x1=\"12\" x2=\"12\" y1=\"8\" y2=\"12\" /><line x1=\"12\" x2=\"12.01\" y1=\"16\" y2=\"16\" /></svg>\n  <h2>Something went wrong!</h2>\n  <section>Your session has expired. Please log in again.</section>\n</div>"
+            },
+            {
+                "description": "No description",
+                "language": "html",
+                "content": "<div class=\"alert\">\n  <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z\" /><path d=\"M12 8v4\" /><path d=\"M12 16h.01\" /></svg>\n  <h2>This is a very long alert title that demonstrates how the component handles extended text content and potentially wraps across multiple lines</h2>\n</div>"
+            },
+            {
+                "description": "No icon",
+                "language": "html",
+                "content": "<div class=\"alert\">\n  <h2>Success! Your changes have been saved</h2>\n  <section>This is an alert with icon, title and description.</section>\n</div>"
+            }
+        ]
+    },
+    {
+        "title": "Alert Dialog",
+        "description": "A modal dialog that interrupts the user with important content and expects a response.",
+        "usage": {
+            "description": "The Alert Dialog component is identical to Dialog except for two small differences: we do not display a close button and we do not let the user close the dialog when clicking on the backdrop (no onclick attribute on the <dialog> or the <article> elements).",
+            "language": "html",
+            "content": "<button type=\"button\" onclick=\"document.getElementById('alert-dialog').showModal()\" class=\"btn-outline\">Open alert dialog</button>\n\n<dialog id=\"alert-dialog\" class=\"dialog\" aria-labelledby=\"alert-dialog-title\" aria-describedby=\"alert-dialog-description\">\n  <article>\n    <header>\n      <h2 id=\"alert-dialog-title\">Are you absolutely sure?</h2>\n      <p id=\"alert-dialog-description\">This action cannot be undone. This will permanently delete your account and remove your data from our servers.</p>\n    </header>\n\n    <footer>\n      <button class=\"btn-outline\" onclick=\"document.getElementById('alert-dialog').close()\">Cancel</button>\n      <button class=\"btn-primary\" onclick=\"document.getElementById('alert-dialog').close()\">Continue</button>\n    </footer>\n  </article>\n</dialog>"
+        },
+        "html_examples": []
+    },
+    {
+        "title": "Avatar",
+        "description": "An image element with a fallback for representing the user.",
+        "usage": {
+            "description": "Avatars are fairly simple to implement with Tailwind. The example above shows how to implement one with Tailwind and an <img> element. More examples can be found in the kitchen sink.",
+            "language": "html",
+            "content": "<img class=\"size-8 shrink-0 object-cover rounded-full\" alt=\"@hunvreus\" src=\"https://github.com/hunvreus.png\">"
+        },
+        "html_examples": [
+            {
+                "description": "Avatar",
+                "content": "<img class=\"size-8 shrink-0 object-cover rounded-full\" alt=\"@hunvreus\" src=\"https://github.com/hunvreus.png\">"
+            }
+        ]
+    },
+    {
+        "title": "Badge",
+        "description": "Displays a badge or a component that looks like a badge.",
+        "usage": {
+            "description": "Use one of the badge classes: badge, badge-primary, badge-secondary, badge-destructive or badge-outline.",
+            "language": "html",
+            "content": "<span class=\"badge\">Badge</span>"
+        },
+        "html_examples": [
+            {
+                "description": "Primary",
+                "content": "<span class=\"badge\">Primary</span>"
+            },
+            {
+                "description": "Secondary",
+                "content": "<span class=\"badge-secondary\">Secondary</span>"
+            },
+            {
+                "description": "Destructive",
+                "content": "<span class=\"badge-destructive\">Destructive</span>"
+            },
+            {
+                "description": "Outline",
+                "content": "<span class=\"badge-outline\">Outline</span>"
+            },
+            {
+                "description": "With icon",
+                "content": "<span class=\"badge-destructive\">\n  <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"12\" cy=\"12\" r=\"10\" /><line x1=\"12\" x2=\"12\" y1=\"8\" y2=\"12\" /><line x1=\"12\" x2=\"12.01\" y1=\"16\" y2=\"16\" /></svg>\n  With icon\n</span>"
+            },
+            {
+                "description": "Link",
+                "content": "<a href=\"#\" class=\"badge-outline\">\n  Link\n  <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M5 12h14\" /><path d=\"m12 5 7 7-7 7\" /></svg>\n</a>"
+            }
+        ]
+    },
+    {
+        "title": "Breadcrumb",
+        "description": "Displays the path to the current resource using a hierarchy of links.",
+        "usage": {
+            "description": "This example uses some simple Tailwind CSS styles along with the Dropdown Menu component (which may require JavaScript).",
+            "language": "html",
+            "content": "<ol class=\"text-muted-foreground flex flex-wrap items-center gap-1.5 text-sm break-words sm:gap-2.5\">\n  <li class=\"inline-flex items-center gap-1.5\">\n    <a href=\"#\" class=\"hover:text-foreground transition-colors\">Home</a>\n  </li>\n  <li>\n    <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"size-3.5\"><path d=\"m9 18 6-6-6-6\" /></svg>\n  </li>\n  <li class=\"inline-flex items-center gap-1.5\">\n    <div id=\"demo-breadcrumb-menu\" class=\"dropdown-menu\">\n      <button type=\"button\" id=\"demo-breadcrumb-menu-trigger\" aria-haspopup=\"menu\" aria-controls=\"demo-breadcrumb-menu-menu\" aria-expanded=\"false\" class=\"flex size-9 items-center justify-center h-4 w-4 hover:text-foreground cursor-pointer\">\n        <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n          <circle cx=\"12\" cy=\"12\" r=\"1\" />\n          <circle cx=\"19\" cy=\"12\" r=\"1\" />\n          <circle cx=\"5\" cy=\"12\" r=\"1\" />\n        </svg>\n      </button>\n      <div id=\"demo-breadcrumb-menu-popover\" data-popover aria-hidden=\"true\">\n        <div role=\"menu\" id=\"demo-breadcrumb-menu-menu\" aria-labelledby=\"demo-breadcrumb-menu-trigger\">\n          <nav role=\"menu\">\n            <button type=\"button\" role=\"menuitem\">Documentation</button>\n            <button type=\"button\" role=\"menuitem\">Themes</button>\n            <button type=\"button\" role=\"menuitem\">GitHub</button>\n          </nav>\n        </div>\n      </div>\n    </div>\n  </li>\n  <li>\n    <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"size-3.5\"><path d=\"m9 18 6-6-6-6\" /></svg>\n  </li>\n  <li class=\"inline-flex items-center gap-1.5\">\n    <a href=\"#\" class=\"hover:text-foreground transition-colors\">Components</a>\n  </li>\n  <li>\n    <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"size-3.5\"><path d=\"m9 18 6-6-6-6\" /></svg>\n  </li>\n  <li class=\"inline-flex items-center gap-1.5\">\n    <span class=\"text-foreground font-normal\">Breadcrumb</span>\n  </li>\n</ol>"
+        },
+        "html_examples": []
+    },
+    {
+        "title": "Button",
+        "description": "Displays a button or a component that looks like a button.",
+        "usage": {
+            "description": "You can use one of the btn classes to style any element as a button:\n\nVariants:\nbtn or btn-primary for primary buttons,\nbtn-secondary for secondary buttons.\nbtn-destructive for destructive buttons.\nbtn-outline for outline buttons.\nbtn-ghost for ghost buttons.\nbtn-link for link buttons.\nbtn-icon for icon buttons. This can be combined with other variants, for example btn-icon-destructive.\nSizes:\nbtn-sm for small buttons.\nbtn-lg for large buttons.\nYou can combine sizes with any variant, for example btn-lg-destructive or btn-sm-icon-outline.",
+            "language": "html",
+            "content": "<button class=\"btn\">Button</button>"
+        },
+        "html_examples": [
+            {
+                "description": "Primary",
+                "content": "<button class=\"btn\">Primary</button>"
+            },
+            {
+                "description": "Secondary",
+                "content": "<button class=\"btn-secondary\">Button</button>"
+            },
+            {
+                "description": "Destructive",
+                "content": "<button class=\"btn-destructive\">Destructive</button>"
+            },
+            {
+                "description": "Outline",
+                "content": "<button class=\"btn-outline\">Outline</button>"
+            },
+            {
+                "description": "Ghost",
+                "content": "<button class=\"btn-ghost\">Ghost</button>"
+            },
+            {
+                "description": "Link",
+                "content": "<button class=\"btn-link\">Link</button>"
+            },
+            {
+                "description": "Icon",
+                "content": "<button class=\"btn-icon-outline\">\n  <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m9 18 6-6-6-6\" /></svg>\n</button>"
+            },
+            {
+                "description": "With Icon",
+                "content": "<button class=\"btn\">\n  <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z\" /><path d=\"m21.854 2.147-10.94 10.939\" /></svg>\n  Send email\n</button>"
+            },
+            {
+                "description": "Loading",
+                "content": "<button class=\"btn-outline\" disabled>\n  <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"animate-spin\"><path d=\"M12 2v4\" /><path d=\"m16.2 7.8 2.9-2.9\" /><path d=\"M18 12h4\" /><path d=\"m16.2 16.2 2.9 2.9\" /><path d=\"M12 18v4\" /><path d=\"m4.9 19.1 2.9-2.9\" /><path d=\"M2 12h4\" /><path d=\"m4.9 4.9 2.9 2.9\" /></svg>\n  Loading\n</button>"
+            },
+            {
+                "description": "Large",
+                "content": "<button class=\"btn-lg\">\n  <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"8\" cy=\"21\" r=\"1\" /><circle cx=\"19\" cy=\"21\" r=\"1\" /><path d=\"M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12\" /></svg>\n  Buy\n</button>"
+            },
+            {
+                "description": "Small",
+                "content": "<button class=\"btn-sm-icon-destructive\">\n  <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M3 6h18\" /><path d=\"M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6\" /><path d=\"M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2\" /></svg>\n</button>"
+            }
+        ]
+    },
+    {
+        "title": "Card",
+        "description": "Displays a card with header, content, and footer.",
+        "usage": {
+            "description": "Displays a card with header, content, and footer.",
+            "language": "html",
+            "content": "<div class=\"card\">\n  <header>\n    <h2>Card Title</h2>\n    <p>Card Description</p>\n  </header>\n  <section>\n    <p>Card Content</p>\n  </section>\n  <footer>\n    <p>Card Footer</p>\n  </footer>\n</div>"
+        },
+        "html_examples": [
+            {
+                "description": "With content and footer",
+                "content": "<div class=\"card\">\n  <header>\n    <h2>Meeting Notes</h2>\n    <p>Transcript from the meeting with the client.</p>\n  </header>\n  <section class=\"text-sm\">\n    <p>Client requested dashboard redesign with focus on mobile responsiveness.</p>\n    <ol class=\"mt-4 flex list-decimal flex-col gap-2 pl-6\">\n      <li>New analytics widgets for daily/weekly metrics</li>\n      <li>Simplified navigation menu</li>\n      <li>Dark mode support</li>\n      <li>Timeline: 6 weeks</li>\n      <li>Follow-up meeting scheduled for next Tuesday</li>\n    </ol>\n  </section>\n  <footer class=\"flex items-center\">\n    <div class=\"flex -space-x-2 [&_img]:ring-card [&_img]:ring-2 [&_img]:grayscale [&_img]:size-8 [&_img]:shrink-0 [&_img]:object-cover [&_img]:rounded-full\">\n      <img alt=\"@hunvreus\" src=\"https://github.com/hunvreus.png\">\n      <img alt=\"@shadcn\" src=\"https://github.com/shadcn.png\">\n      <img alt=\"@adamwathan\" src=\"https://github.com/adamwathan.png\">\n    </div>\n  </footer>\n</div>"
+            },
+            {
+                "description": "With image",
+                "content": "<div class=\"card\">\n  <header>\n    <h2>Is this an image?</h2>\n    <p>This is a card with an image.</p>\n  </header>\n  <section class=\"px-0\">\n    <img alt=\"Photo by Drew Beamer\" loading=\"lazy\" width=\"500\" height=\"500\" class=\"aspect-video object-cover\" style=\"color:transparent\" srcset=\"https://images.unsplash.com/photo-1588345921523-c2dcdb7f1dcd?w=800&dpr=2&q=80&w=640&q=75 1x, https://images.unsplash.com/photo-1588345921523-c2dcdb7f1dcd?w=800&dpr=2&q=80&w=1080&q=75 2x\" src=\"https://images.unsplash.com/photo-1588345921523-c2dcdb7f1dcd?w=800&dpr=2&q=80&w=1080&q=75\">\n  </section>\n  <footer class=\"flex items-center gap-2\">\n    <span class=\"badge-outline\">\n      <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M2 4v16\" /><path d=\"M2 8h18a2 2 0 0 1 2 2v10\" /><path d=\"M2 17h20\" /><path d=\"M6 8v9\" /></svg>\n      1\n    </span>\n    <span class=\"badge-outline\">\n      <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M10 4 8 6\" /><path d=\"M17 19v2\" /><path d=\"M2 12h20\" /><path d=\"M7 19v2\" /><path d=\"M9 5 7.621 3.621A2.121 2.121 0 0 0 4 5v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-5\" /></svg>\n      2\n    </span>\n    <span class=\"badge-outline\">\n      <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m12 8 6-3-6-3v10\" /><path d=\"m8 11.99-5.5 3.14a1 1 0 0 0 0 1.74l8.5 4.86a2 2 0 0 0 2 0l8.5-4.86a1 1 0 0 0 0-1.74L16 12\" /><path d=\"m6.49 12.85 11.02 6.3\" /><path d=\"M17.51 12.85 6.5 19.15\" /></svg>\n      350m²\n    </span>\n    <span class=\"ml-auto font-medium tabular-nums\">\n      $135,000\n    </span>\n  </footer>\n</div>"
+            }
+        ]
+    },
+    {
+        "title": "Checkbox",
+        "description": "A control that allows the user to toggle between checked and not checked.",
+        "usage": {
+            "description": "",
+            "language": "html",
+            "content": ""
+        },
+        "html_examples": [
+            {
+                "description": "Example 1",
+                "content": "<label class=\"label gap-3\">\n  <input type=\"checkbox\" class=\"input\">\n  Accept terms and conditions\n</label>"
+            },
+            {
+                "description": "Example 2",
+                "content": "<input type=\"checkbox\" class=\"input\">"
+            },
+            {
+                "description": "Example 3",
+                "content": "<label class=\"label gap-3\">\n  <input type=\"checkbox\" class=\"input\" disabled>\n  Accept terms and conditions\n</label>"
+            },
+            {
+                "description": "Example 4",
+                "content": "<div class=\"flex items-start gap-3\">\n  <input type=\"checkbox\" id=\"checkbox-with-text\" class=\"input\">\n  <div class=\"grid gap-2\">\n    <label for=\"checkbox-with-text\" class=\"label\">Accept terms and conditions</label>\n    <p class=\"text-muted-foreground text-sm\">By clicking this checkbox, you agree to the terms and conditions.</p>\n  </div>\n</div>"
+            },
+            {
+                "description": "Example 5",
+                "content": "<form class=\"form flex flex-row items-start gap-3 rounded-md border p-4 shadow-xs\">\n  <input type=\"checkbox\" id=\"checkbox-form-1\">\n  <div class=\"flex flex-col gap-1\">\n    <label for=\"checkbox-form-1\" class=\"leading-snug\">Use different settings for my mobile devices</label>\n    <p class=\"text-muted-foreground text-sm leading-snug\">You can manage your mobile notifications in the mobile settings page.</p>\n  </div>\n</form>"
+            },
+            {
+                "description": "Example 6",
+                "content": "<form class=\"form flex flex-col gap-4\">\n  <header>\n    <label for=\"demo-form-checkboxes\" class=\"text-base leading-normal\">Sidebar</label>\n    <p class=\"text-muted-foreground text-sm\">Select the items you want to display in the sidebar.</p>\n  </header>\n  <fieldset id=\"demo-form-checkboxes\" class=\"flex flex-col gap-2\">\n    <label class=\"font-normal leading-tight\">\n      <input type=\"checkbox\" name=\"demo-form-checkboxes\" value=\"1\" checked>\n      Recents\n    </label>\n    <label class=\"font-normal leading-tight\">\n      <input type=\"checkbox\" name=\"demo-form-checkboxes\" value=\"2\" checked>\n      Home\n    </label>\n    <label class=\"font-normal leading-tight\">\n      <input type=\"checkbox\" name=\"demo-form-checkboxes\" value=\"3\">\n      Applications\n    </label>\n    <label class=\"font-normal leading-tight\">\n      <input type=\"checkbox\" name=\"demo-form-checkboxes\" value=\"4\">\n      Desktop\n    </label>\n    <label class=\"font-normal leading-tight\">\n      <input type=\"checkbox\" name=\"demo-form-checkboxes\" value=\"5\">\n      Download\n    </label>\n    <label class=\"font-normal leading-tight\">\n      <input type=\"checkbox\" name=\"demo-form-checkboxes\" value=\"6\">\n      Documents\n    </label>\n  </fieldset>\n</form>"
+            }
+        ]
+    },
+    {
+        "title": "Combobox",
+        "description": "Autocomplete input and command palette with a list of suggestions.",
+        "usage": {
+            "description": "",
+            "language": "html",
+            "content": ""
+        },
+        "html_examples": [
+            {
+                "description": "Example 1",
+                "content": "<div id=\"select-632989\" class=\"select\">\n  <button type=\"button\" class=\"btn-outline justify-between font-normal w-[200px]\" id=\"select-632989-trigger\" aria-haspopup=\"listbox\" aria-expanded=\"false\" aria-controls=\"select-632989-listbox\">\n    <span class=\"truncate\"></span>\n\n    <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-chevrons-up-down-icon lucide-chevrons-up-down text-muted-foreground opacity-50 shrink-0\">\n      <path d=\"m7 15 5 5 5-5\" />\n      <path d=\"m7 9 5-5 5 5\" />\n    </svg>\n  </button>\n  <div id=\"select-632989-popover\" data-popover aria-hidden=\"true\">\n    <header>\n      <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-search-icon lucide-search\">\n        <circle cx=\"11\" cy=\"11\" r=\"8\" />\n        <path d=\"m21 21-4.3-4.3\" />\n      </svg>\n      <input type=\"text\" value=\"\" placeholder=\"Search framework...\" autocomplete=\"off\" autocorrect=\"off\" spellcheck=\"false\" aria-autocomplete=\"list\" role=\"combobox\" aria-expanded=\"false\" aria-controls=\"select-632989-listbox\" aria-labelledby=\"select-632989-trigger\" />\n    </header>\n\n    <div role=\"listbox\" id=\"select-632989-listbox\" aria-orientation=\"vertical\" aria-labelledby=\"select-632989-trigger\" data-empty=\"No framework found.\">\n      <div role=\"option\" data-value=\"Next.js\">Next.js</div>\n\n      <div role=\"option\" data-value=\"SvelteKit\">SvelteKit</div>\n\n      <div role=\"option\" data-value=\"Nuxt.js\">Nuxt.js</div>\n\n      <div role=\"option\" data-value=\"Remix\">Remix</div>\n\n      <div role=\"option\" data-value=\"Astro\">Astro</div>\n    </div>\n  </div>\n  <input type=\"hidden\" name=\"select-632989-value\" value=\"\" />\n</div>"
+            },
+            {
+                "description": "Example 2",
+                "content": "<script src=\"https://cdn.jsdelivr.net/npm/basecoat-css@0.3.1/dist/js/basecoat.min.js\" defer></script>\n<script src=\"https://cdn.jsdelivr.net/npm/basecoat-css@0.3.1/dist/js/select.min.js\" defer></script>"
+            },
+            {
+                "description": "Example 3",
+                "content": "<div id=\"select-632989\" class=\"select\">\n  <button type=\"button\" class=\"btn-outline justify-between font-normal w-[200px]\" id=\"select-632989-trigger\" aria-haspopup=\"listbox\" aria-expanded=\"false\" aria-controls=\"select-632989-listbox\">\n    <span class=\"truncate\"></span>\n\n    <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-chevrons-up-down-icon lucide-chevrons-up-down text-muted-foreground opacity-50 shrink-0\">\n      <path d=\"m7 15 5 5 5-5\" />\n      <path d=\"m7 9 5-5 5 5\" />\n    </svg>\n  </button>\n  <div id=\"select-632989-popover\" data-popover aria-hidden=\"true\">\n    <header>\n      <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-search-icon lucide-search\">\n        <circle cx=\"11\" cy=\"11\" r=\"8\" />\n        <path d=\"m21 21-4.3-4.3\" />\n      </svg>\n      <input type=\"text\" value=\"\" placeholder=\"Search framework...\" autocomplete=\"off\" autocorrect=\"off\" spellcheck=\"false\" aria-autocomplete=\"list\" role=\"combobox\" aria-expanded=\"false\" aria-controls=\"select-632989-listbox\" aria-labelledby=\"select-632989-trigger\" />\n    </header>\n\n    <div role=\"listbox\" id=\"select-632989-listbox\" aria-orientation=\"vertical\" aria-labelledby=\"select-632989-trigger\" data-empty=\"No framework found.\">\n      <div role=\"option\" data-value=\"Next.js\">Next.js</div>\n\n      <div role=\"option\" data-value=\"SvelteKit\">SvelteKit</div>\n\n      <div role=\"option\" data-value=\"Nuxt.js\">Nuxt.js</div>\n\n      <div role=\"option\" data-value=\"Remix\">Remix</div>\n\n      <div role=\"option\" data-value=\"Astro\">Astro</div>\n    </div>\n  </div>\n  <input type=\"hidden\" name=\"select-632989-value\" value=\"\" />\n</div>"
+            },
+            {
+                "description": "Example 4",
+                "content": "<script>\n  const comboboxComponent = document.querySelector(\"#my-combobox\");\n  comboboxComponent.addEventListener(\"basecoat:initialized\", () => {\n    comboboxComponent.selectByValue(\"apple\");\n  });\n</script>"
+            },
+            {
+                "description": "Example 5",
+                "content": "{% call select(\n  listbox_attrs={\"data-empty\": \"No framework found.\"},\n  is_combobox=true\n) %}\n  <div role=\"option\" data-value=\"nextjs\">Next.js</div>\n  <div role=\"option\" data-value=\"sveltekit\">SvelteKit</div>\n  <div role=\"option\" data-value=\"nuxtjs\">Nuxt.js</div>\n  <div role=\"option\" data-value=\"remix\">Remix</div>\n  <div role=\"option\" data-value=\"astro\">Astro</div>\n{% endcall %}"
+            },
+            {
+                "description": "Example 6",
+                "content": "<div id=\"select-989988\" class=\"select\">\n  <button type=\"button\" class=\"btn-outline justify-between font-normal w-[200px]\" id=\"select-989988-trigger\" aria-haspopup=\"listbox\" aria-expanded=\"false\" aria-controls=\"select-989988-listbox\">\n    <span class=\"truncate\"></span>\n\n    <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-chevrons-up-down-icon lucide-chevrons-up-down text-muted-foreground opacity-50 shrink-0\">\n      <path d=\"m7 15 5 5 5-5\" />\n      <path d=\"m7 9 5-5 5 5\" />\n    </svg>\n  </button>\n  <div id=\"select-989988-popover\" data-popover aria-hidden=\"true\" class=\"w-72\">\n    <header>\n      <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-search-icon lucide-search\">\n        <circle cx=\"11\" cy=\"11\" r=\"8\" />\n        <path d=\"m21 21-4.3-4.3\" />\n      </svg>\n      <input type=\"text\" value=\"\" placeholder=\"Search timezone...\" autocomplete=\"off\" autocorrect=\"off\" spellcheck=\"false\" aria-autocomplete=\"list\" role=\"combobox\" aria-expanded=\"false\" aria-controls=\"select-989988-listbox\" aria-labelledby=\"select-989988-trigger\" />\n    </header>\n\n    <div role=\"listbox\" id=\"select-989988-listbox\" aria-orientation=\"vertical\" aria-labelledby=\"select-989988-trigger\" data-empty=\"No timezone found.\">\n      <div class=\"max-h-64 overflow-y-auto scrollbar\">\n        <div role=\"group\" aria-labelledby=\"demo-combobox-timezones-group-0\">\n          <div role=\"heading\" id=\"demo-combobox-timezones-group-0\">Americas</div>\n\n          <div role=\"option\" data-value=\"America/New_York\">(GMT-5) New York</div>\n\n          <div role=\"option\" data-value=\"America/Los_Angeles\">(GMT-8) Los Angeles</div>\n\n          <div role=\"option\" data-value=\"America/Chicago\">(GMT-6) Chicago</div>\n\n          <div role=\"option\" data-value=\"America/Toronto\">(GMT-5) Toronto</div>\n\n          <div role=\"option\" data-value=\"America/Vancouver\">(GMT-8) Vancouver</div>\n\n          <div role=\"option\" data-value=\"America/Sao_Paulo\">(GMT-3) São Paulo</div>\n        </div>\n\n        <div role=\"group\" aria-labelledby=\"demo-combobox-timezones-group-1\">\n          <div role=\"heading\" id=\"demo-combobox-timezones-group-1\">Europe</div>\n\n          <div role=\"option\" data-value=\"Europe/London\">(GMT+0) London</div>\n\n          <div role=\"option\" data-value=\"Europe/Paris\">(GMT+1) Paris</div>\n\n          <div role=\"option\" data-value=\"Europe/Berlin\">(GMT+1) Berlin</div>\n\n          <div role=\"option\" data-value=\"Europe/Rome\">(GMT+1) Rome</div>\n\n          <div role=\"option\" data-value=\"Europe/Madrid\">(GMT+1) Madrid</div>\n\n          <div role=\"option\" data-value=\"Europe/Amsterdam\">(GMT+1) Amsterdam</div>\n        </div>\n\n        <div role=\"group\" aria-labelledby=\"demo-combobox-timezones-group-2\">\n          <div role=\"heading\" id=\"demo-combobox-timezones-group-2\">Asia/Pacific</div>\n\n          <div role=\"option\" data-value=\"Asia/Tokyo\">(GMT+9) Tokyo</div>\n\n          <div role=\"option\" data-value=\"Asia/Shanghai\">(GMT+8) Shanghai</div>\n\n          <div role=\"option\" data-value=\"Asia/Singapore\">(GMT+8) Singapore</div>\n\n          <div role=\"option\" data-value=\"Asia/Dubai\">(GMT+4) Dubai</div>\n\n          <div role=\"option\" data-value=\"Australia/Sydney\">(GMT+11) Sydney</div>\n\n          <div role=\"option\" data-value=\"Asia/Seoul\">(GMT+9) Seoul</div>\n        </div>\n      </div>\n      <hr role=\"separator\" />\n      <div role=\"option\">\n        <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n          <circle cx=\"12\" cy=\"12\" r=\"10\" />\n          <path d=\"M8 12h8\" />\n          <path d=\"M12 8v8\" />\n        </svg>\n        Create timezone\n      </div>\n    </div>\n  </div>\n  <input type=\"hidden\" name=\"select-989988-value\" value=\"\" />\n</div>"
+            },
+            {
+                "description": "Example 7",
+                "content": "<div id=\"select-419955\" class=\"select\">\n  <button type=\"button\" class=\"btn-outline justify-between font-normal w-[200px]\" id=\"select-419955-trigger\" aria-haspopup=\"listbox\" aria-expanded=\"false\" aria-controls=\"select-419955-listbox\">\n    <span class=\"truncate\"></span>\n\n    <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-chevrons-up-down-icon lucide-chevrons-up-down text-muted-foreground opacity-50 shrink-0\">\n      <path d=\"m7 15 5 5 5-5\" />\n      <path d=\"m7 9 5-5 5 5\" />\n    </svg>\n  </button>\n  <div id=\"select-419955-popover\" data-popover aria-hidden=\"true\" data-side=\"top\">\n    <header>\n      <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-search-icon lucide-search\">\n        <circle cx=\"11\" cy=\"11\" r=\"8\" />\n        <path d=\"m21 21-4.3-4.3\" />\n      </svg>\n      <input type=\"text\" value=\"\" placeholder=\"Search framework...\" autocomplete=\"off\" autocorrect=\"off\" spellcheck=\"false\" aria-autocomplete=\"list\" role=\"combobox\" aria-expanded=\"false\" aria-controls=\"select-419955-listbox\" aria-labelledby=\"select-419955-trigger\" />\n    </header>\n\n    <div role=\"listbox\" id=\"select-419955-listbox\" aria-orientation=\"vertical\" aria-labelledby=\"select-419955-trigger\" data-empty=\"No framework found.\">\n      <div role=\"option\" data-value=\"Next.js\">Next.js</div>\n\n      <div role=\"option\" data-value=\"SvelteKit\">SvelteKit</div>\n\n      <div role=\"option\" data-value=\"Nuxt.js\">Nuxt.js</div>\n\n      <div role=\"option\" data-value=\"Remix\">Remix</div>\n\n      <div role=\"option\" data-value=\"Astro\">Astro</div>\n    </div>\n  </div>\n  <input type=\"hidden\" name=\"select-419955-value\" value=\"\" />\n</div>"
+            }
+        ]
+    },
+    {
+        "title": "Dialog",
+        "description": "A window overlaid on either the primary window or another dialog window, rendering the content underneath inert.",
+        "usage": {
+            "description": "",
+            "language": "html",
+            "content": ""
+        },
+        "html_examples": [
+            {
+                "description": "Example 1",
+                "content": "<button type=\"button\" onclick=\"document.getElementById('demo-dialog-edit-profile').showModal()\" class=\"btn-outline\">Edit Profile</button>\n\n<dialog id=\"demo-dialog-edit-profile\" class=\"dialog w-full sm:max-w-[425px] max-h-[612px]\" aria-labelledby=\"demo-dialog-edit-profile-title\" aria-describedby=\"demo-dialog-edit-profile-description\" onclick=\"if (event.target === this) this.close()\">\n  <article>\n    <header>\n      <h2 id=\"demo-dialog-edit-profile-title\">Edit profile</h2>\n      <p id=\"demo-dialog-edit-profile-description\">Make changes to your profile here. Click save when you're done.</p>\n    </header>\n\n    <section>\n      <form class=\"form grid gap-4\">\n        <div class=\"grid gap-3\">\n          <label for=\"demo-dialog-edit-profile-name\">Name</label>\n          <input type=\"text\" value=\"Pedro Duarte\" id=\"demo-dialog-edit-profile-name\" autofocus />\n        </div>\n        <div class=\"grid gap-3\">\n          <label for=\"demo-dialog-edit-profile-username\">Username</label>\n          <input type=\"text\" value=\"@peduarte\" id=\"demo-dialog-edit-profile-username\" />\n        </div>\n      </form>\n    </section>\n\n    <footer>\n      <button class=\"btn-outline\" onclick=\"this.closest('dialog').close()\">Cancel</button>\n      <button class=\"btn\" onclick=\"this.closest('dialog').close()\">Save changes</button>\n    </footer>\n\n    <button type=\"button\" aria-label=\"Close dialog\" onclick=\"this.closest('dialog').close()\">\n      <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-x-icon lucide-x\">\n        <path d=\"M18 6 6 18\" />\n        <path d=\"m6 6 12 12\" />\n      </svg>\n    </button>\n  </article>\n</dialog>"
+            },
+            {
+                "description": "Example 2",
+                "content": "<button type=\"button\" onclick=\"document.getElementById('demo-dialog-edit-profile').showModal()\" class=\"btn-outline\">Edit Profile</button>\n\n<dialog id=\"demo-dialog-edit-profile\" class=\"dialog w-full sm:max-w-[425px] max-h-[612px]\" aria-labelledby=\"demo-dialog-edit-profile-title\" aria-describedby=\"demo-dialog-edit-profile-description\" onclick=\"if (event.target === this) this.close()\">\n  <article>\n    <header>\n      <h2 id=\"demo-dialog-edit-profile-title\">Edit profile</h2>\n      <p id=\"demo-dialog-edit-profile-description\">Make changes to your profile here. Click save when you're done.</p>\n    </header>\n\n    <section>\n      <form class=\"form grid gap-4\">\n        <div class=\"grid gap-3\">\n          <label for=\"demo-dialog-edit-profile-name\">Name</label>\n          <input type=\"text\" value=\"Pedro Duarte\" id=\"demo-dialog-edit-profile-name\" autofocus />\n        </div>\n        <div class=\"grid gap-3\">\n          <label for=\"demo-dialog-edit-profile-username\">Username</label>\n          <input type=\"text\" value=\"@peduarte\" id=\"demo-dialog-edit-profile-username\" />\n        </div>\n      </form>\n    </section>\n\n    <footer>\n      <button class=\"btn-outline\" onclick=\"this.closest('dialog').close()\">Cancel</button>\n      <button class=\"btn\" onclick=\"this.closest('dialog').close()\">Save changes</button>\n    </footer>\n\n    <button type=\"button\" aria-label=\"Close dialog\" onclick=\"this.closest('dialog').close()\">\n      <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-x-icon lucide-x\">\n        <path d=\"M18 6 6 18\" />\n        <path d=\"m6 6 12 12\" />\n      </svg>\n    </button>\n  </article>\n</dialog>"
+            },
+            {
+                "description": "Example 3",
+                "content": "{% set code_html %}\n{% set footer %}\n  <button class=\"btn-outline\" onclick=\"this.closest('dialog').close()\">Cancel</button>\n  <button class=\"btn\" onclick=\"this.closest('dialog').close()\">Save changes</button>\n{% endset %}\n{% call dialog(\n  id=\"demo-dialog-edit-profile\",\n  title=\"Edit profile\",\n  description=\"Make changes to your profile here. Click save when you're done.\",\n  trigger=\"Edit Profile\",\n  trigger_attrs={\"class\": \"btn-outline\"},\n  dialog_attrs={\"class\": \"w-full sm:max-w-[425px] max-h-[612px]\"},\n  footer=footer\n) %}\n<form class=\"form grid gap-4\">\n  <div class=\"grid gap-3\">\n    <label for=\"demo-dialog-edit-profile-name\">Name</label>\n    <input type=\"text\" value=\"Pedro Duarte\" id=\"demo-dialog-edit-profile-name\" />\n  </div>\n  <div class=\"grid gap-3\">\n    <label for=\"demo-dialog-edit-profile-username\">Username</label>\n    <input type=\"text\" value=\"@peduarte\" id=\"demo-dialog-edit-profile-username\" />\n  </div>\n</form>\n{% endcall %}"
+            },
+            {
+                "description": "Example 4",
+                "content": "<button type=\"button\" onclick=\"document.getElementById('dialog-example').showModal()\" class=\"btn-outline\">Scrollable Content</button>\n\n<dialog id=\"dialog-example\" class=\"dialog w-full sm:max-w-[425px] max-h-[612px]\" aria-labelledby=\"dialog-example-title\" aria-describedby=\"dialog-example-description\" onclick=\"if (event.target === this) this.close()\">\n  <article>\n    <header>\n      <h2 id=\"dialog-example-title\">Scrollable Content</h2>\n      <p id=\"dialog-example-description\">This is a dialog with scrollable content.</p>\n    </header>\n\n    <section class=\"overflow-y-auto scrollbar\">\n      <div class=\"space-y-4 text-sm\">\n        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>\n        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>\n        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>\n        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>\n        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>\n        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>\n        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>\n        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>\n        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>\n        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>\n      </div>\n    </section>\n\n    <footer>\n      <button class=\"btn-outline\" onclick=\"this.closest('dialog').close()\">Close</button>\n    </footer>\n\n    <button type=\"button\" aria-label=\"Close dialog\" onclick=\"this.closest('dialog').close()\">\n      <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-x-icon lucide-x\">\n        <path d=\"M18 6 6 18\" />\n        <path d=\"m6 6 12 12\" />\n      </svg>\n    </button>\n  </article>\n</dialog>"
+            }
+        ]
+    },
+    {
+        "title": "Dropdown Menu",
+        "description": "Displays a menu to the user — such as a set of actions or functions — triggered by a button.",
+        "usage": {
+            "description": "",
+            "language": "html",
+            "content": ""
+        },
+        "html_examples": [
+            {
+                "description": "Example 1",
+                "content": "<div id=\"demo-dropdown-menu\" class=\"dropdown-menu\">\n  <button type=\"button\" id=\"demo-dropdown-menu-trigger\" aria-haspopup=\"menu\" aria-controls=\"demo-dropdown-menu-menu\" aria-expanded=\"false\" class=\"btn-outline\">Open</button>\n  <div id=\"demo-dropdown-menu-popover\" data-popover aria-hidden=\"true\" class=\"min-w-56\">\n    <div role=\"menu\" id=\"demo-dropdown-menu-menu\" aria-labelledby=\"demo-dropdown-menu-trigger\">\n      <div role=\"group\" aria-labelledby=\"account-options\">\n        <div role=\"heading\" id=\"account-options\">My Account</div>\n        <div role=\"menuitem\">\n          Profile\n          <span class=\"text-muted-foreground ml-auto text-xs tracking-widest\">⇧⌘P</span>\n        </div>\n        <div role=\"menuitem\">\n          Billing\n          <span class=\"text-muted-foreground ml-auto text-xs tracking-widest\">⌘B</span>\n        </div>\n        <div role=\"menuitem\">\n          Settings\n          <span class=\"text-muted-foreground ml-auto text-xs tracking-widest\">⌘S</span>\n        </div>\n        <div role=\"menuitem\">\n          Keyboard shortcuts\n          <span class=\"text-muted-foreground ml-auto text-xs tracking-widest\">⌘K</span>\n        </div>\n      </div>\n      <hr role=\"separator\" />\n      <div role=\"menuitem\">GitHub</div>\n      <div role=\"menuitem\">Support</div>\n      <div role=\"menuitem\" aria-disabled=\"true\">API</div>\n      <hr role=\"separator\" />\n      <div role=\"menuitem\">\n        Logout\n        <span class=\"text-muted-foreground ml-auto text-xs tracking-widest\">⇧⌘P</span>\n      </div>\n    </div>\n  </div>\n</div>"
+            },
+            {
+                "description": "Example 2",
+                "content": "<script src=\"https://cdn.jsdelivr.net/npm/basecoat-css@0.3.1/dist/js/basecoat.min.js\" defer></script>\n<script src=\"https://cdn.jsdelivr.net/npm/basecoat-css@0.3.1/dist/js/dropdown-menu.min.js\" defer></script>"
+            },
+            {
+                "description": "Example 3",
+                "content": "<div id=\"demo-dropdown-menu\" class=\"dropdown-menu\">\n  <button type=\"button\" id=\"demo-dropdown-menu-trigger\" aria-haspopup=\"menu\" aria-controls=\"demo-dropdown-menu-menu\" aria-expanded=\"false\" class=\"btn-outline\">Open</button>\n  <div id=\"demo-dropdown-menu-popover\" data-popover aria-hidden=\"true\" class=\"min-w-56\">\n    <div role=\"menu\" id=\"demo-dropdown-menu-menu\" aria-labelledby=\"demo-dropdown-menu-trigger\">\n      <div role=\"group\" aria-labelledby=\"account-options\">\n        <div role=\"heading\" id=\"account-options\">My Account</div>\n        <div role=\"menuitem\">\n          Profile\n          <span class=\"text-muted-foreground ml-auto text-xs tracking-widest\">⇧⌘P</span>\n        </div>\n        <div role=\"menuitem\">\n          Billing\n          <span class=\"text-muted-foreground ml-auto text-xs tracking-widest\">⌘B</span>\n        </div>\n        <div role=\"menuitem\">\n          Settings\n          <span class=\"text-muted-foreground ml-auto text-xs tracking-widest\">⌘S</span>\n        </div>\n        <div role=\"menuitem\">\n          Keyboard shortcuts\n          <span class=\"text-muted-foreground ml-auto text-xs tracking-widest\">⌘K</span>\n        </div>\n      </div>\n      <hr role=\"separator\" />\n      <div role=\"menuitem\">GitHub</div>\n      <div role=\"menuitem\">Support</div>\n      <div role=\"menuitem\" aria-disabled=\"true\">API</div>\n      <hr role=\"separator\" />\n      <div role=\"menuitem\">\n        Logout\n        <span class=\"text-muted-foreground ml-auto text-xs tracking-widest\">⇧⌘P</span>\n      </div>\n    </div>\n  </div>\n</div>"
+            },
+            {
+                "description": "Example 4",
+                "content": "{% call dropdown_menu(\n  id=\"dropdown-menu\",\n  trigger=\"Open\",\n  trigger_attrs={\"class\": \"btn-outline\"},\n  popover_attrs={\"class\": \"min-w-56\"}\n) %}\n<div role=\"group\" aria-labelledby=\"account-options\">\n  <div role=\"heading\" id=\"account-options\">My Account</div>\n  <div role=\"menuitem\">\n    Profile\n    <span class=\"text-muted-foreground ml-auto text-xs tracking-widest\">⇧⌘P</span>\n  </div>\n  <div role=\"menuitem\">\n    Billing\n    <span class=\"text-muted-foreground ml-auto text-xs tracking-widest\">⌘B</span>\n  </div>\n  <div role=\"menuitem\">\n    Settings\n    <span class=\"text-muted-foreground ml-auto text-xs tracking-widest\">⌘S</span>\n  </div>\n  <div role=\"menuitem\">\n    Keyboard shortcuts\n    <span class=\"text-muted-foreground ml-auto text-xs tracking-widest\">⌘K</span>\n  </div>\n</div>\n<hr role=\"separator\">\n<div role=\"menuitem\">\n  GitHub\n</div>\n<div role=\"menuitem\">\n  Support\n</div>\n<div role=\"menuitem\" disabled>\n  API\n</div>\n<hr role=\"separator\">\n<div role=\"menuitem\">\n  Logout\n  <span class=\"text-muted-foreground ml-auto text-xs tracking-widest\">⇧⌘P</span>\n</div>\n{% endcall %}"
+            },
+            {
+                "description": "Example 5",
+                "content": "<div id=\"dropdown-menu-checkboxes\" class=\"dropdown-menu\">\n  <button type=\"button\" id=\"dropdown-menu-checkboxes-trigger\" aria-haspopup=\"menu\" aria-controls=\"dropdown-menu-checkboxes-menu\" aria-expanded=\"false\" class=\"btn-outline\">Open</button>\n  <div id=\"dropdown-menu-checkboxes-popover\" data-popover aria-hidden=\"true\" class=\"min-w-56\">\n    <div role=\"menu\" id=\"dropdown-menu-checkboxes-menu\" aria-labelledby=\"dropdown-menu-checkboxes-trigger\">\n      <div role=\"group\" aria-labelledby=\"account-options\">\n        <div role=\"heading\" id=\"account-options\">Account Options</div>\n        <div role=\"menuitem\">\n          <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n            <path d=\"M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2\" />\n            <circle cx=\"12\" cy=\"7\" r=\"4\" />\n          </svg>\n          Profile\n          <span class=\"text-muted-foreground ml-auto text-xs tracking-widest\">⇧⌘P</span>\n        </div>\n        <div role=\"menuitem\">\n          <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n            <rect width=\"20\" height=\"14\" x=\"2\" y=\"5\" rx=\"2\" />\n            <line x1=\"2\" x2=\"22\" y1=\"10\" y2=\"10\" />\n          </svg>\n          Billing\n          <span class=\"text-muted-foreground ml-auto text-xs tracking-widest\">⌘B</span>\n        </div>\n        <div role=\"menuitem\">\n          <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n            <path d=\"M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z\" />\n            <circle cx=\"12\" cy=\"12\" r=\"3\" />\n          </svg>\n          Settings\n          <span class=\"text-muted-foreground ml-auto text-xs tracking-widest\">⌘S</span>\n        </div>\n      </div>\n      <hr role=\"separator\" />\n      <div role=\"group\" aria-labelledby=\"appearance-options\">\n        <div role=\"heading\" id=\"appearance-options\">Appearance</div>\n        <div role=\"menuitemcheckbox\" aria-checked=\"true\" class=\"group\">\n          <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"invisible group-aria-checked:visible\" aria-hidden=\"true\" focusable=\"false\"><path d=\"M20 6 9 17l-5-5\" /></svg>\n          Status Bar\n          <span class=\"text-muted-foreground ml-auto text-xs tracking-widest\">⇧⌘P</span>\n        </div>\n        <div role=\"menuitemcheckbox\" aria-checked=\"false\" class=\"group\" aria-disabled=\"true\">\n          <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"invisible group-aria-checked:visible\" aria-hidden=\"true\" focusable=\"false\"><path d=\"M20 6 9 17l-5-5\" /></svg>\n          Activity Bar\n          <span class=\"text-muted-foreground ml-auto text-xs tracking-widest\">⌘B</span>\n        </div>\n        <div role=\"menuitemcheckbox\" aria-checked=\"false\" class=\"group\">\n          <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"invisible group-aria-checked:visible\" aria-hidden=\"true\" focusable=\"false\"><path d=\"M20 6 9 17l-5-5\" /></svg>\n          Panel\n          <span class=\"text-muted-foreground ml-auto text-xs tracking-widest\">⌘S</span>\n        </div>\n      </div>\n      <hr role=\"separator\" />\n      <div role=\"menuitem\">\n        <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n          <path d=\"M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4\" />\n          <polyline points=\"16 17 21 12 16 7\" />\n          <line x1=\"21\" x2=\"9\" y1=\"12\" y2=\"12\" />\n        </svg>\n        Logout\n        <span class=\"text-muted-foreground ml-auto text-xs tracking-widest\">⇧⌘P</span>\n      </div>\n    </div>\n  </div>\n</div>\n\n<script>\n  (() => {\n    const dropdownMenu = document.querySelector(\"#dropdown-menu-checkboxes\");\n    const checkboxes = dropdownMenu.querySelectorAll('div[role=\"menuitemcheckbox\"]');\n    checkboxes.forEach((checkbox) => {\n      checkbox.addEventListener(\"click\", () => {\n        const isChecked = checkbox.getAttribute(\"aria-checked\") === \"true\";\n        checkbox.setAttribute(\"aria-checked\", !isChecked);\n      });\n    });\n  })();\n</script>"
+            },
+            {
+                "description": "Example 6",
+                "content": "<div id=\"dropdown-menu-radio-group\" class=\"dropdown-menu\">\n  <button type=\"button\" id=\"dropdown-menu-radio-group-trigger\" aria-haspopup=\"menu\" aria-controls=\"dropdown-menu-radio-group-menu\" aria-expanded=\"false\" class=\"btn-outline\">Open</button>\n  <div id=\"dropdown-menu-radio-group-popover\" data-popover aria-hidden=\"true\" class=\"min-w-56\">\n    <div role=\"menu\" id=\"dropdown-menu-radio-group-menu\" aria-labelledby=\"dropdown-menu-radio-group-trigger\">\n      <div role=\"group\" aria-labelledby=\"position-options\">\n        <span id=\"position-options\" role=\"heading\">Panel Position</span>\n        <hr role=\"separator\" />\n        <div role=\"menuitemradio\" aria-checked=\"false\" class=\"group\">\n          <div class=\"size-4 flex items-center justify-center\">\n            <div class=\"size-2 rounded-full bg-foreground invisible group-aria-checked:visible\" aria-hidden=\"true\" , focusable=\"false\"></div>\n          </div>\n          Status Bar\n          <span class=\"text-muted-foreground ml-auto text-xs tracking-widest\">⇧⌘P</span>\n        </div>\n        <div role=\"menuitemradio\" aria-checked=\"true\" class=\"group\">\n          <div class=\"size-4 flex items-center justify-center\">\n            <div class=\"size-2 rounded-full bg-foreground invisible group-aria-checked:visible\" aria-hidden=\"true\" , focusable=\"false\"></div>\n          </div>\n          Activity Bar\n          <span class=\"text-muted-foreground ml-auto text-xs tracking-widest\">⌘B</span>\n        </div>\n        <div role=\"menuitemradio\" aria-checked=\"false\" class=\"group\">\n          <div class=\"size-4 flex items-center justify-center\">\n            <div class=\"size-2 rounded-full bg-foreground invisible group-aria-checked:visible\" aria-hidden=\"true\" , focusable=\"false\"></div>\n          </div>\n          Panel\n          <span class=\"text-muted-foreground ml-auto text-xs tracking-widest\">⌘S</span>\n        </div>\n      </div>\n    </div>\n  </div>\n</div>\n\n<script>\n  (() => {\n    const dropdownMenu = document.querySelector(\"#dropdown-menu-radio-group\");\n    const radioButtons = dropdownMenu.querySelectorAll('div[role=\"menuitemradio\"]');\n    radioButtons.forEach((radioButton) => {\n      radioButton.addEventListener(\"click\", () => {\n        radioButtons.forEach((radioButton) => {\n          radioButton.setAttribute(\"aria-checked\", \"false\");\n        });\n        radioButton.setAttribute(\"aria-checked\", \"true\");\n      });\n    });\n  })();\n</script>"
+            }
+        ]
+    },
+    {
+        "title": "Form",
+        "description": "Building forms with Basecoat components.",
+        "usage": {
+            "description": "Adding the form class to the parent of any form element (<label>, <input>, <textarea>, <select>) will automatically apply the style you would get from adding label, input, textarea, or select classes. Read more about Label, Input, Textarea, and Select.",
+            "language": "html",
+            "content": "<form class=\"form grid gap-6\">\n  <div class=\"grid gap-2\">\n    <label for=\"demo-form-text\">Username</label>\n    <input type=\"text\" id=\"demo-form-text\" placeholder=\"hunvreus\">\n    <p class=\"text-muted-foreground text-sm\">This is your public display name.</p>\n  </div>\n\n  <div class=\"grid gap-2\">\n    <label for=\"demo-form-select\">Email</label>\n    <select id=\"demo-form-select\">\n      <option value=\"bob@example.com\">m@example.com</option>\n      <option value=\"alice@example.com\">m@google.com</option>\n      <option value=\"john@example.com\">m@support.com</option>\n    </select>\n    <p class=\"text-muted-foreground text-sm\">You can manage email addresses in your email settings.</p>\n  </div>\n\n  <div class=\"grid gap-2\">\n    <label for=\"demo-form-text\">Bio</label>\n    <textarea id=\"demo-form-textarea\" placeholder=\"I like to...\" rows=\"3\"></textarea>\n    <p class=\"text-muted-foreground text-sm\">You can @mention other users and organizations.</p>\n  </div>\n\n  <div class=\"grid gap-2\">\n    <label for=\"demo-form-date\">Date of birth</label>\n    <input type=\"date\" id=\"demo-form-date\">\n    <p class=\"text-muted-foreground text-sm\">Your date of birth is used to calculate your age.</p>\n  </div>\n\n  <div class=\"flex flex-col gap-3\">\n    <label for=\"demo-form-radio\">Notify me about...</label>\n    <fieldset id=\"demo-form-radio\" class=\"grid gap-3\">\n      <label class=\"font-normal\"><input type=\"radio\" name=\"demo-form-radio\" value=\"1\" checked>All new messages</label>\n      <label class=\"font-normal\"><input type=\"radio\" name=\"demo-form-radio\" value=\"2\">Direct messages and mentions</label>\n      <label class=\"font-normal\"><input type=\"radio\" name=\"demo-form-radio\" value=\"3\">Nothing</label>\n    </fieldset>\n  </div>\n\n  <section class=\"grid gap-4\">\n    <h3 class=\"text-lg font-medium\">Email Notifications</h3>\n    <div class=\"gap-2 flex flex-row items-start justify-between rounded-lg border p-4 shadow-xs\">\n      <div class=\"flex flex-col gap-0.5\">\n        <label for=\"demo-form-switch\" class=\"leading-normal\">Marketing emails</label>\n        <p class=\"text-muted-foreground text-sm\">Receive emails about new products, features, and more.</p>\n      </div>\n      <input type=\"checkbox\" id=\"demo-form-switch\" role=\"switch\">\n    </div>\n    <div class=\"gap-2 flex flex-row items-start justify-between rounded-lg border p-4 shadow-xs\">\n      <div class=\"flex flex-col gap-0.5 opacity-60\">\n        <label for=\"demo-form-switch-disabled\" class=\"leading-normal\">Security emails</label>\n        <p class=\"text-muted-foreground text-sm\">Receive emails about your account security.</p>\n      </div>\n      <input type=\"checkbox\" id=\"demo-form-switch-disabled\" role=\"switch\" disabled>\n    </div>\n  </section>\n\n  <button type=\"submit\" class=\"btn\">Submit</button>\n</form>"
+        },
+        "html_examples": []
+    },
+    {
+        "title": "Input",
+        "description": "Displays a form input field or a component that looks like an input field.",
+        "usage": {
+            "description": "Simply add the input class to your <input> element or have a parent with the form class. You can also set the aria-invalid attribute to true to make the input invalid.",
+            "language": "html",
+            "content": "<input class=\"input\" type=\"email\" placeholder=\"Email\">"
+        },
+        "html_examples": [
+            {
+                "description": "Email",
+                "content": "<input class=\"input\" type=\"email\" placeholder=\"Email\">"
+            },
+            {
+                "description": "Invalid",
+                "content": "<input class=\"input\" type=\"email\" placeholder=\"Email\" aria-invalid=\"true\">"
+            },
+            {
+                "description": "Disabled",
+                "content": "<input class=\"input\" type=\"email\" placeholder=\"Email\" disabled>"
+            },
+            {
+                "description": "With label",
+                "content": "<div class=\"grid gap-3\">\n  <label for=\"input-with-label\" class=\"label\">Label</label>\n  <input class=\"input\" id=\"input-with-label\" type=\"email\" placeholder=\"Email\">\n</div>"
+            },
+            {
+                "description": "With text",
+                "content": "<div class=\"grid gap-3\">\n  <label for=\"input-with-text\" class=\"label\">Label</label>\n  <input class=\"input\" id=\"input-with-text\" type=\"email\" placeholder=\"Email\">\n  <p class=\"text-muted-foreground text-sm\">Fill in your email address.</p>\n</div>"
+            },
+            {
+                "description": "With button",
+                "content": "<div class=\"flex items-center space-x-2\">\n  <input class=\"input\" type=\"email\" placeholder=\"Email\">\n  <button type=\"submit\" class=\"btn\">Submit</button>\n</div>"
+            },
+            {
+                "description": "Form",
+                "content": "<form class=\"form space-y-6 w-full\">\n  <div class=\"grid gap-3\">\n    <label for=\"input-form\" class=\"label\">Username</label>\n    <input class=\"input\" id=\"input-form\" type=\"text\" placeholder=\"hunvreus\">\n    <p class=\"text-muted-foreground text-sm\">This is your public display name.</p>\n  </div>\n  <button type=\"submit\" class=\"btn\">Submit</button>\n</form>"
+            }
+        ]
+    },
+    {
+        "title": "Label",
+        "description": "Renders an accessible label associated with controls.",
+        "usage": {
+            "description": "",
+            "language": "html",
+            "content": ""
+        },
+        "html_examples": [
+            {
+                "description": "Example 1",
+                "content": "<label class=\"label gap-3\">\n  <input type=\"checkbox\" class=\"input\">\n  Accept terms and conditions\n</label>"
+            },
+            {
+                "description": "Example 2",
+                "content": "<label class=\"label\" for=\"email\">Your email address</label>"
+            },
+            {
+                "description": "Example 3",
+                "content": "<div class=\"grid gap-3\">\n  <label class=\"label\" for=\"email\">Email</label>\n  <input class=\"input\" id=\"email\" type=\"email\" placeholder=\"Email\" disabled>\n</div>"
+            }
+        ]
+    },
+    {
+        "title": "Pagination",
+        "description": "Pagination with page navigation, next and previous links.",
+        "usage": {
+            "description": "",
+            "language": "html",
+            "content": ""
+        },
+        "html_examples": [
+            {
+                "description": "Example 1",
+                "content": "<nav role=\"navigation\" aria-label=\"pagination\" class=\"mx-auto flex w-full justify-center\">\n  <ul class=\"flex flex-row items-center gap-1\">\n    <li>\n      <a href=\"#\" class=\"btn-ghost\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m15 18-6-6 6-6\" /></svg> Previous</a>\n    </li>\n    <li>\n      <a href=\"#\" class=\"btn-icon-ghost\">1</a>\n    </li>\n    <li>\n      <a href=\"#\" class=\"btn-icon-outline\">2</a>\n    </li>\n    <li>\n      <a href=\"#\" class=\"btn-icon-ghost\">3</a>\n    </li>\n    <li>\n      <div class=\"size-9 flex items-center justify-center\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"size-4 shrink-0\"><circle cx=\"12\" cy=\"12\" r=\"1\" /><circle cx=\"19\" cy=\"12\" r=\"1\" /><circle cx=\"5\" cy=\"12\" r=\"1\" /></svg></div>\n    </li>\n    <li>\n      <a href=\"#\" class=\"btn-ghost\">Next <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m9 18 6-6-6-6\" /></svg></a>\n    </li>\n  </ul>\n</nav>"
+            },
+            {
+                "description": "Example 2",
+                "content": "<nav role=\"navigation\" aria-label=\"pagination\" class=\"mx-auto flex w-full justify-center\">\n  <ul class=\"flex flex-row items-center gap-1\">\n    <li>\n      <a href=\"#\" class=\"btn-ghost\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m15 18-6-6 6-6\" /></svg> Previous</a>\n    </li>\n    <li>\n      <a href=\"#\" class=\"btn-icon-ghost\">1</a>\n    </li>\n    <li>\n      <a href=\"#\" class=\"btn-icon-outline\">2</a>\n    </li>\n    <li>\n      <a href=\"#\" class=\"btn-icon-ghost\">3</a>\n    </li>\n    <li>\n      <div class=\"size-9 flex items-center justify-center\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"size-4 shrink-0\"><circle cx=\"12\" cy=\"12\" r=\"1\" /><circle cx=\"19\" cy=\"12\" r=\"1\" /><circle cx=\"5\" cy=\"12\" r=\"1\" /></svg></div>\n    </li>\n    <li>\n      <a href=\"#\" class=\"btn-ghost\">Next <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m9 18 6-6-6-6\" /></svg></a>\n    </li>\n  </ul>\n</nav>"
+            }
+        ]
+    },
+    {
+        "title": "Popover",
+        "description": "Displays rich content in a portal, triggered by a button.",
+        "usage": {
+            "description": "",
+            "language": "html",
+            "content": ""
+        },
+        "html_examples": [
+            {
+                "description": "Example 1",
+                "content": "<div id=\"demo-popover\" class=\"popover\">\n  <button id=\"demo-popover-trigger\" type=\"button\" aria-expanded=\"false\" aria-controls=\"demo-popover-popover\" class=\"btn-outline\">Open popover</button>\n  <div id=\"demo-popover-popover\" data-popover aria-hidden=\"true\" class=\"w-80\">\n    <div class=\"grid gap-4\">\n      <header class=\"grid gap-1.5\">\n        <h4 class=\"leading-none font-medium\">Dimensions</h4>\n        <p class=\"text-muted-foreground text-sm\">Set the dimensions for the layer.</p>\n      </header>\n      <form class=\"form grid gap-2\">\n        <div class=\"grid grid-cols-3 items-center gap-4\">\n          <label for=\"demo-popover-width\">Width</label>\n          <input type=\"text\" id=\"demo-popover-width\" value=\"100%\" class=\"col-span-2 h-8\" autofocus />\n        </div>\n        <div class=\"grid grid-cols-3 items-center gap-4\">\n          <label for=\"demo-popover-max-width\">Max. width</label>\n          <input type=\"text\" id=\"demo-popover-max-width\" value=\"300px\" class=\"col-span-2 h-8\" />\n        </div>\n        <div class=\"grid grid-cols-3 items-center gap-4\">\n          <label for=\"demo-popover-height\">Height</label>\n          <input type=\"text\" id=\"demo-popover-height\" value=\"25px\" class=\"col-span-2 h-8\" />\n        </div>\n        <div class=\"grid grid-cols-3 items-center gap-4\">\n          <label for=\"demo-popover-max-height\">Max. height</label>\n          <input type=\"text\" id=\"demo-popover-max-height\" value=\"none\" class=\"col-span-2 h-8\" />\n        </div>\n      </form>\n    </div>\n  </div>\n</div>"
+            },
+            {
+                "description": "Example 2",
+                "content": "<script src=\"https://cdn.jsdelivr.net/npm/basecoat-css@0.3.1/dist/js/basecoat.min.js\" defer></script>\n<script src=\"https://cdn.jsdelivr.net/npm/basecoat-css@0.3.1/dist/js/popover.min.js\" defer></script>"
+            },
+            {
+                "description": "Example 3",
+                "content": "<div id=\"demo-popover\" class=\"popover\">\n  <button id=\"demo-popover-trigger\" type=\"button\" aria-expanded=\"false\" aria-controls=\"demo-popover-popover\" class=\"btn-outline\">Open popover</button>\n  <div id=\"demo-popover-popover\" data-popover aria-hidden=\"true\" class=\"w-80\">\n    <div class=\"grid gap-4\">\n      <header class=\"grid gap-1.5\">\n        <h4 class=\"leading-none font-medium\">Dimensions</h4>\n        <p class=\"text-muted-foreground text-sm\">Set the dimensions for the layer.</p>\n      </header>\n      <form class=\"form grid gap-2\">\n        <div class=\"grid grid-cols-3 items-center gap-4\">\n          <label for=\"demo-popover-width\">Width</label>\n          <input type=\"text\" id=\"demo-popover-width\" value=\"100%\" class=\"col-span-2 h-8\" autofocus />\n        </div>\n        <div class=\"grid grid-cols-3 items-center gap-4\">\n          <label for=\"demo-popover-max-width\">Max. width</label>\n          <input type=\"text\" id=\"demo-popover-max-width\" value=\"300px\" class=\"col-span-2 h-8\" />\n        </div>\n        <div class=\"grid grid-cols-3 items-center gap-4\">\n          <label for=\"demo-popover-height\">Height</label>\n          <input type=\"text\" id=\"demo-popover-height\" value=\"25px\" class=\"col-span-2 h-8\" />\n        </div>\n        <div class=\"grid grid-cols-3 items-center gap-4\">\n          <label for=\"demo-popover-max-height\">Max. height</label>\n          <input type=\"text\" id=\"demo-popover-max-height\" value=\"none\" class=\"col-span-2 h-8\" />\n        </div>\n      </form>\n    </div>\n  </div>\n</div>"
+            },
+            {
+                "description": "Example 4",
+                "content": "{% call popover(\n  id=\"demo-popover\",\n  trigger=\"Open popover\",\n  trigger_attrs={\"class\": \"btn-outline\"},\n  popover_attrs={\"class\": \"w-80 p-4\"}\n) %}\n  <div class=\"grid gap-4\">\n    <header class=\"grid gap-1.5\">\n      <h4 class=\"leading-none font-medium\">Dimensions</h4>\n      <p class=\"text-muted-foreground text-sm\">Set the dimensions for the layer.</p>\n    </header>\n    <form class=\"form grid gap-2\">\n      <div class=\"grid grid-cols-3 items-center gap-4\">\n        <label for=\"demo-popover-width\">Width</label>\n        <input type=\"text\" id=\"demo-popover-width\" value=\"100%\" class=\"col-span-2 h-8\"/>\n      </div>\n      <div class=\"grid grid-cols-3 items-center gap-4\">\n        <label for=\"demo-popover-max-width\">Max. width</label>\n        <input type=\"text\" id=\"demo-popover-max-width\" value=\"300px\" class=\"col-span-2 h-8\"/>\n      </div>\n      <div class=\"grid grid-cols-3 items-center gap-4\">\n        <label for=\"demo-popover-height\">Height</label>\n        <input type=\"text\" id=\"demo-popover-height\" value=\"25px\" class=\"col-span-2 h-8\"/>\n      </div>\n      <div class=\"grid grid-cols-3 items-center gap-4\">\n        <label for=\"demo-popover-max-height\">Max. height</label>\n        <input type=\"text\" id=\"demo-popover-max-height\" value=\"none\" class=\"col-span-2 h-8\"/>\n      </div>\n    </form>\n  </div>\n{% endcall %}"
+            }
+        ]
+    },
+    {
+        "title": "Radio Group",
+        "description": "A set of checkable buttons—known as radio buttons—where no more than one of the buttons can be checked at a time.",
+        "usage": {
+            "description": "",
+            "language": "html",
+            "content": ""
+        },
+        "html_examples": [
+            {
+                "description": "Example 1",
+                "content": "<fieldset class=\"grid gap-3\">\n  <label class=\"label\"><input type=\"radio\" name=\"radio-group\" value=\"default\" class=\"input\">Default</label>\n  <label class=\"label\"><input type=\"radio\" name=\"radio-group\" value=\"comfortable\" class=\"input\" checked>Comfortable</label>\n  <label class=\"label\"><input type=\"radio\" name=\"radio-group\" value=\"compact\" class=\"input\">Compact</label>\n</fieldset>"
+            },
+            {
+                "description": "Example 2",
+                "content": "<fieldset class=\"grid gap-3\">\n  <label class=\"label\"><input type=\"radio\" name=\"radio-group\" value=\"default\" class=\"input\">Default</label>\n  <label class=\"label\"><input type=\"radio\" name=\"radio-group\" value=\"comfortable\" class=\"input\" checked>Comfortable</label>\n  <label class=\"label\"><input type=\"radio\" name=\"radio-group\" value=\"compact\" class=\"input\">Compact</label>\n</fieldset>"
+            },
+            {
+                "description": "Example 3",
+                "content": "<form class=\"form space-y-6 w-full\">\n  <div class=\"flex flex-col gap-3\">\n    <label for=\"demo-form-radio\">Notify me about...</label>\n    <fieldset id=\"demo-form-radio\" class=\"grid gap-3\">\n      <label class=\"font-normal\"><input type=\"radio\" name=\"demo-form-radio\" value=\"1\">All new messages</label>\n      <label class=\"font-normal\"><input type=\"radio\" name=\"demo-form-radio\" value=\"2\">Direct messages and mentions</label>\n      <label class=\"font-normal\"><input type=\"radio\" name=\"demo-form-radio\" value=\"3\" >Nothing</label>\n    </fieldset>\n  </div>\n  <button type=\"submit\" class=\"btn\">Submit</button>\n</form>"
+            }
+        ]
+    },
+    {
+        "title": "Select",
+        "description": "Displays a list of options for the user to pick from—triggered by a button.",
+        "usage": {
+            "description": "",
+            "language": "html",
+            "content": ""
+        },
+        "html_examples": [
+            {
+                "description": "Example 1",
+                "content": "<select class=\"select w-[180px]\">\n  <optgroup label=\"Fruits\">\n    <option>Apple</option>\n    <option>Banana</option>\n    <option>Blueberry</option>\n    <option>Grapes</option>\n    <option>Pineapple</option>\n  </optgroup>\n</select>"
+            },
+            {
+                "description": "Example 2",
+                "content": "<div id=\"select-473942\" class=\"select\">\n  <button type=\"button\" class=\"btn-outline justify-between font-normal w-[180px]\" id=\"select-473942-trigger\" aria-haspopup=\"listbox\" aria-expanded=\"false\" aria-controls=\"select-473942-listbox\">\n    <span class=\"truncate\">Apple</span>\n\n    <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-chevrons-up-down-icon lucide-chevrons-up-down text-muted-foreground opacity-50 shrink-0\">\n      <path d=\"m7 15 5 5 5-5\" />\n      <path d=\"m7 9 5-5 5 5\" />\n    </svg>\n  </button>\n  <div id=\"select-473942-popover\" data-popover aria-hidden=\"true\">\n    <header>\n      <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-search-icon lucide-search\">\n        <circle cx=\"11\" cy=\"11\" r=\"8\" />\n        <path d=\"m21 21-4.3-4.3\" />\n      </svg>\n      <input type=\"text\" value=\"\" placeholder=\"Search entries...\" autocomplete=\"off\" autocorrect=\"off\" spellcheck=\"false\" aria-autocomplete=\"list\" role=\"combobox\" aria-expanded=\"false\" aria-controls=\"select-473942-listbox\" aria-labelledby=\"select-473942-trigger\" />\n    </header>\n\n    <div role=\"listbox\" id=\"select-473942-listbox\" aria-orientation=\"vertical\" aria-labelledby=\"select-473942-trigger\">\n      <div role=\"group\" aria-labelledby=\"group-label-select-473942-items-1\">\n        <div role=\"heading\" id=\"group-label-select-473942-items-1\">Fruits</div>\n\n        <div id=\"select-473942-items-1-1\" role=\"option\" data-value=\"apple\" aria-selected=\"true\">Apple</div>\n\n        <div id=\"select-473942-items-1-2\" role=\"option\" data-value=\"banana\">Banana</div>\n\n        <div id=\"select-473942-items-1-3\" role=\"option\" data-value=\"blueberry\">Blueberry</div>\n\n        <div id=\"select-473942-items-1-4\" role=\"option\" data-value=\"pineapple\">Grapes</div>\n\n        <div id=\"select-473942-items-1-5\" role=\"option\" data-value=\"pineapple\">Pineapple</div>\n      </div>\n    </div>\n  </div>\n  <input type=\"hidden\" name=\"select-473942-value\" value=\"apple\" />\n</div>"
+            },
+            {
+                "description": "Example 3",
+                "content": "<select class=\"select w-[180px]\">\n  <optgroup label=\"Fruits\">\n    <option>Apple</option>\n    <option>Banana</option>\n    <option>Blueberry</option>\n    <option>Grapes</option>\n    <option>Pineapple</option>\n  </optgroup>\n</select>"
+            },
+            {
+                "description": "Example 4",
+                "content": "<script src=\"https://cdn.jsdelivr.net/npm/basecoat-css@0.3.1/dist/js/basecoat.min.js\" defer></script>\n<script src=\"https://cdn.jsdelivr.net/npm/basecoat-css@0.3.1/dist/js/select.min.js\" defer></script>"
+            },
+            {
+                "description": "Example 5",
+                "content": "<div id=\"select-473942\" class=\"select\">\n  <button type=\"button\" class=\"btn-outline justify-between font-normal w-[180px]\" id=\"select-473942-trigger\" aria-haspopup=\"listbox\" aria-expanded=\"false\" aria-controls=\"select-473942-listbox\">\n    <span class=\"truncate\">Apple</span>\n\n    <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-chevrons-up-down-icon lucide-chevrons-up-down text-muted-foreground opacity-50 shrink-0\">\n      <path d=\"m7 15 5 5 5-5\" />\n      <path d=\"m7 9 5-5 5 5\" />\n    </svg>\n  </button>\n  <div id=\"select-473942-popover\" data-popover aria-hidden=\"true\">\n    <header>\n      <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-search-icon lucide-search\">\n        <circle cx=\"11\" cy=\"11\" r=\"8\" />\n        <path d=\"m21 21-4.3-4.3\" />\n      </svg>\n      <input type=\"text\" value=\"\" placeholder=\"Search entries...\" autocomplete=\"off\" autocorrect=\"off\" spellcheck=\"false\" aria-autocomplete=\"list\" role=\"combobox\" aria-expanded=\"false\" aria-controls=\"select-473942-listbox\" aria-labelledby=\"select-473942-trigger\" />\n    </header>\n\n    <div role=\"listbox\" id=\"select-473942-listbox\" aria-orientation=\"vertical\" aria-labelledby=\"select-473942-trigger\">\n      <div role=\"group\" aria-labelledby=\"group-label-select-473942-items-1\">\n        <div role=\"heading\" id=\"group-label-select-473942-items-1\">Fruits</div>\n\n        <div id=\"select-473942-items-1-1\" role=\"option\" data-value=\"apple\" aria-selected=\"true\">Apple</div>\n\n        <div id=\"select-473942-items-1-2\" role=\"option\" data-value=\"banana\">Banana</div>\n\n        <div id=\"select-473942-items-1-3\" role=\"option\" data-value=\"blueberry\">Blueberry</div>\n\n        <div id=\"select-473942-items-1-4\" role=\"option\" data-value=\"pineapple\">Grapes</div>\n\n        <div id=\"select-473942-items-1-5\" role=\"option\" data-value=\"pineapple\">Pineapple</div>\n      </div>\n    </div>\n  </div>\n  <input type=\"hidden\" name=\"select-473942-value\" value=\"apple\" />\n</div>"
+            },
+            {
+                "description": "Example 6",
+                "content": "<script>\n  const selectComponent = document.querySelector(\"#my-select\");\n  selectComponent.addEventListener(\"basecoat:initialized\", () => {\n    selectComponent.selectByValue(\"apple\");\n  });\n</script>"
+            },
+            {
+                "description": "Example 8",
+                "content": "<div id=\"select-560508\" class=\"select\">\n  <button type=\"button\" class=\"btn-outline justify-between font-normal\" id=\"select-560508-trigger\" aria-haspopup=\"listbox\" aria-expanded=\"false\" aria-controls=\"select-560508-listbox\">\n    <span class=\"truncate\"></span>\n\n    <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-chevron-down-icon lucide-chevron-down text-muted-foreground opacity-50 shrink-0\"><path d=\"m6 9 6 6 6-6\" /></svg>\n  </button>\n  <div id=\"select-560508-popover\" data-popover aria-hidden=\"true\">\n    <div role=\"listbox\" id=\"select-560508-listbox\" aria-orientation=\"vertical\" aria-labelledby=\"select-560508-trigger\" class=\"scrollbar overflow-y-auto max-h-64\">\n      <div role=\"option\" data-value=\"item-0\">Item 0</div>\n\n      <div role=\"option\" data-value=\"item-1\">Item 1</div>\n\n      <div role=\"option\" data-value=\"item-2\">Item 2</div>\n\n      <div role=\"option\" data-value=\"item-3\">Item 3</div>\n\n      <div role=\"option\" data-value=\"item-4\">Item 4</div>\n\n      <div role=\"option\" data-value=\"item-5\">Item 5</div>\n\n      <div role=\"option\" data-value=\"item-6\">Item 6</div>\n\n      <div role=\"option\" data-value=\"item-7\">Item 7</div>\n\n      <div role=\"option\" data-value=\"item-8\">Item 8</div>\n\n      <div role=\"option\" data-value=\"item-9\">Item 9</div>\n\n      <div role=\"option\" data-value=\"item-10\">Item 10</div>\n\n      <div role=\"option\" data-value=\"item-11\">Item 11</div>\n\n      <div role=\"option\" data-value=\"item-12\">Item 12</div>\n\n      <div role=\"option\" data-value=\"item-13\">Item 13</div>\n\n      <div role=\"option\" data-value=\"item-14\">Item 14</div>\n\n      <div role=\"option\" data-value=\"item-15\">Item 15</div>\n\n      <div role=\"option\" data-value=\"item-16\">Item 16</div>\n\n      <div role=\"option\" data-value=\"item-17\">Item 17</div>\n\n      <div role=\"option\" data-value=\"item-18\">Item 18</div>\n\n      <div role=\"option\" data-value=\"item-19\">Item 19</div>\n\n      <div role=\"option\" data-value=\"item-20\">Item 20</div>\n\n      <div role=\"option\" data-value=\"item-21\">Item 21</div>\n\n      <div role=\"option\" data-value=\"item-22\">Item 22</div>\n\n      <div role=\"option\" data-value=\"item-23\">Item 23</div>\n\n      <div role=\"option\" data-value=\"item-24\">Item 24</div>\n\n      <div role=\"option\" data-value=\"item-25\">Item 25</div>\n\n      <div role=\"option\" data-value=\"item-26\">Item 26</div>\n\n      <div role=\"option\" data-value=\"item-27\">Item 27</div>\n\n      <div role=\"option\" data-value=\"item-28\">Item 28</div>\n\n      <div role=\"option\" data-value=\"item-29\">Item 29</div>\n\n      <div role=\"option\" data-value=\"item-30\">Item 30</div>\n\n      <div role=\"option\" data-value=\"item-31\">Item 31</div>\n\n      <div role=\"option\" data-value=\"item-32\">Item 32</div>\n\n      <div role=\"option\" data-value=\"item-33\">Item 33</div>\n\n      <div role=\"option\" data-value=\"item-34\">Item 34</div>\n\n      <div role=\"option\" data-value=\"item-35\">Item 35</div>\n\n      <div role=\"option\" data-value=\"item-36\">Item 36</div>\n\n      <div role=\"option\" data-value=\"item-37\">Item 37</div>\n\n      <div role=\"option\" data-value=\"item-38\">Item 38</div>\n\n      <div role=\"option\" data-value=\"item-39\">Item 39</div>\n\n      <div role=\"option\" data-value=\"item-40\">Item 40</div>\n\n      <div role=\"option\" data-value=\"item-41\">Item 41</div>\n\n      <div role=\"option\" data-value=\"item-42\">Item 42</div>\n\n      <div role=\"option\" data-value=\"item-43\">Item 43</div>\n\n      <div role=\"option\" data-value=\"item-44\">Item 44</div>\n\n      <div role=\"option\" data-value=\"item-45\">Item 45</div>\n\n      <div role=\"option\" data-value=\"item-46\">Item 46</div>\n\n      <div role=\"option\" data-value=\"item-47\">Item 47</div>\n\n      <div role=\"option\" data-value=\"item-48\">Item 48</div>\n\n      <div role=\"option\" data-value=\"item-49\">Item 49</div>\n\n      <div role=\"option\" data-value=\"item-50\">Item 50</div>\n\n      <div role=\"option\" data-value=\"item-51\">Item 51</div>\n\n      <div role=\"option\" data-value=\"item-52\">Item 52</div>\n\n      <div role=\"option\" data-value=\"item-53\">Item 53</div>\n\n      <div role=\"option\" data-value=\"item-54\">Item 54</div>\n\n      <div role=\"option\" data-value=\"item-55\">Item 55</div>\n\n      <div role=\"option\" data-value=\"item-56\">Item 56</div>\n\n      <div role=\"option\" data-value=\"item-57\">Item 57</div>\n\n      <div role=\"option\" data-value=\"item-58\">Item 58</div>\n\n      <div role=\"option\" data-value=\"item-59\">Item 59</div>\n\n      <div role=\"option\" data-value=\"item-60\">Item 60</div>\n\n      <div role=\"option\" data-value=\"item-61\">Item 61</div>\n\n      <div role=\"option\" data-value=\"item-62\">Item 62</div>\n\n      <div role=\"option\" data-value=\"item-63\">Item 63</div>\n\n      <div role=\"option\" data-value=\"item-64\">Item 64</div>\n\n      <div role=\"option\" data-value=\"item-65\">Item 65</div>\n\n      <div role=\"option\" data-value=\"item-66\">Item 66</div>\n\n      <div role=\"option\" data-value=\"item-67\">Item 67</div>\n\n      <div role=\"option\" data-value=\"item-68\">Item 68</div>\n\n      <div role=\"option\" data-value=\"item-69\">Item 69</div>\n\n      <div role=\"option\" data-value=\"item-70\">Item 70</div>\n\n      <div role=\"option\" data-value=\"item-71\">Item 71</div>\n\n      <div role=\"option\" data-value=\"item-72\">Item 72</div>\n\n      <div role=\"option\" data-value=\"item-73\">Item 73</div>\n\n      <div role=\"option\" data-value=\"item-74\">Item 74</div>\n\n      <div role=\"option\" data-value=\"item-75\">Item 75</div>\n\n      <div role=\"option\" data-value=\"item-76\">Item 76</div>\n\n      <div role=\"option\" data-value=\"item-77\">Item 77</div>\n\n      <div role=\"option\" data-value=\"item-78\">Item 78</div>\n\n      <div role=\"option\" data-value=\"item-79\">Item 79</div>\n\n      <div role=\"option\" data-value=\"item-80\">Item 80</div>\n\n      <div role=\"option\" data-value=\"item-81\">Item 81</div>\n\n      <div role=\"option\" data-value=\"item-82\">Item 82</div>\n\n      <div role=\"option\" data-value=\"item-83\">Item 83</div>\n\n      <div role=\"option\" data-value=\"item-84\">Item 84</div>\n\n      <div role=\"option\" data-value=\"item-85\">Item 85</div>\n\n      <div role=\"option\" data-value=\"item-86\">Item 86</div>\n\n      <div role=\"option\" data-value=\"item-87\">Item 87</div>\n\n      <div role=\"option\" data-value=\"item-88\">Item 88</div>\n\n      <div role=\"option\" data-value=\"item-89\">Item 89</div>\n\n      <div role=\"option\" data-value=\"item-90\">Item 90</div>\n\n      <div role=\"option\" data-value=\"item-91\">Item 91</div>\n\n      <div role=\"option\" data-value=\"item-92\">Item 92</div>\n\n      <div role=\"option\" data-value=\"item-93\">Item 93</div>\n\n      <div role=\"option\" data-value=\"item-94\">Item 94</div>\n\n      <div role=\"option\" data-value=\"item-95\">Item 95</div>\n\n      <div role=\"option\" data-value=\"item-96\">Item 96</div>\n\n      <div role=\"option\" data-value=\"item-97\">Item 97</div>\n\n      <div role=\"option\" data-value=\"item-98\">Item 98</div>\n    </div>\n  </div>\n  <input type=\"hidden\" name=\"select-560508-value\" value=\"\" />\n</div>"
+            },
+            {
+                "description": "Example 9",
+                "content": "<div id=\"select-566521\" class=\"select\">\n  <button type=\"button\" class=\"btn-outline justify-between font-normal\" id=\"select-566521-trigger\" aria-haspopup=\"listbox\" aria-expanded=\"false\" aria-controls=\"select-566521-listbox\" disabled=\"disabled\">\n    <span class=\"truncate\"></span>\n\n    <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-chevron-down-icon lucide-chevron-down text-muted-foreground opacity-50 shrink-0\"><path d=\"m6 9 6 6 6-6\" /></svg>\n  </button>\n  <div id=\"select-566521-popover\" data-popover aria-hidden=\"true\">\n    <div role=\"listbox\" id=\"select-566521-listbox\" aria-orientation=\"vertical\" aria-labelledby=\"select-566521-trigger\">\n      <div role=\"option\" data-value=\"disabled\">Disabled</div>\n    </div>\n  </div>\n  <input type=\"hidden\" name=\"select-566521-value\" value=\"\" />\n</div>"
+            },
+            {
+                "description": "Example 10",
+                "content": "<div id=\"select-with-icons\" class=\"select\">\n  <button type=\"button\" class=\"btn-outline justify-between font-normal w-[180px]\" id=\"select-with-icons-trigger\" aria-haspopup=\"listbox\" aria-expanded=\"false\" aria-controls=\"select-with-icons-listbox\">\n    <span class=\"truncate\"></span>\n\n    <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-chevron-down-icon lucide-chevron-down text-muted-foreground opacity-50 shrink-0\"><path d=\"m6 9 6 6 6-6\" /></svg>\n  </button>\n  <div id=\"select-with-icons-popover\" data-popover aria-hidden=\"true\">\n    <div role=\"listbox\" id=\"select-with-icons-listbox\" aria-orientation=\"vertical\" aria-labelledby=\"select-with-icons-trigger\">\n      <div type=\"button\" role=\"option\" data-value=\"bar\">\n        <span class=\"flex items-center gap-2\">\n          <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"text-muted-foreground\">\n            <path d=\"M3 3v16a2 2 0 0 0 2 2h16\" />\n            <path d=\"M7 16h8\" />\n            <path d=\"M7 11h12\" />\n            <path d=\"M7 6h3\" />\n          </svg>\n          Bar\n        </span>\n      </div>\n      <div type=\"button\" role=\"option\" data-value=\"line\">\n        <span class=\"flex items-center gap-2\">\n          <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"text-muted-foreground\">\n            <path d=\"M3 3v16a2 2 0 0 0 2 2h16\" />\n            <path d=\"m19 9-5 5-4-4-3 3\" />\n          </svg>\n          Line\n        </span>\n      </div>\n      <div type=\"button\" role=\"option\" data-value=\"pie\">\n        <span class=\"flex items-center gap-2\">\n          <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"text-muted-foreground\">\n            <path d=\"M21 12c.552 0 1.005-.449.95-.998a10 10 0 0 0-8.953-8.951c-.55-.055-.998.398-.998.95v8a1 1 0 0 0 1 1z\" />\n            <path d=\"M21.21 15.89A10 10 0 1 1 8 2.83\" />\n          </svg>\n          Pie\n        </span>\n      </div>\n    </div>\n  </div>\n  <input type=\"hidden\" name=\"select-with-icons-value\" value=\"\" />\n</div>"
+            }
+        ]
+    },
+    {
+        "title": "Skeleton",
+        "description": "Used to show a placeholder while content is loading.",
+        "usage": {
+            "description": "Simply use the animate-pulse class to create a skeleton.",
+            "language": "html",
+            "content": ""
+        },
+        "html_examples": [
+            {
+                "description": "Example 1",
+                "content": "<div class=\"flex items-center gap-4\">\n  <div class=\"bg-accent animate-pulse size-10 shrink-0 rounded-full\"></div>\n  <div class=\"grid gap-2\">\n    <div class=\"bg-accent animate-pulse rounded-md h-4 w-[150px]\"></div>\n    <div class=\"bg-accent animate-pulse rounded-md h-4 w-[100px]\"></div>\n  </div>\n</div>"
+            },
+            {
+                "description": "Example 2",
+                "content": "<div class=\"flex items-center gap-4\">\n  <div class=\"bg-accent animate-pulse size-10 shrink-0 rounded-full\"></div>\n  <div class=\"grid gap-2\">\n    <div class=\"bg-accent animate-pulse rounded-md h-4 w-[150px]\"></div>\n    <div class=\"bg-accent animate-pulse rounded-md h-4 w-[100px]\"></div>\n  </div>\n</div>"
+            },
+            {
+                "description": "Example 3",
+                "content": "<div class=\"card w-full @md:w-auto @md:min-w-sm\">\n  <header>\n    <div class=\"bg-accent animate-pulse rounded-md h-4 w-2/3\"></div>\n    <div class=\"bg-accent animate-pulse rounded-md h-4 w-1/2\"></div>\n  </header>\n  <section>\n    <div class=\"bg-accent animate-pulse rounded-md aspect-square w-full\"></div>\n  </section>\n</div>"
+            }
+        ]
+    },
+    {
+        "title": "Sidebar",
+        "description": "A composable, themeable and customizable sidebar component.",
+        "usage": {
+            "description": "",
+            "language": "html",
+            "content": ""
+        },
+        "html_examples": [
+            {
+                "description": "Example 1",
+                "content": "<script src=\"https://cdn.jsdelivr.net/npm/basecoat-css@0.3.1/dist/js/basecoat.min.js\" defer></script>\n<script src=\"https://cdn.jsdelivr.net/npm/basecoat-css@0.3.1/dist/js/sidebar.min.js\" defer></script>"
+            },
+            {
+                "description": "Example 2",
+                "content": "<aside class=\"sidebar\" data-side=\"left\" aria-hidden=\"false\">\n  <nav aria-label=\"Sidebar navigation\">\n    <section class=\"scrollbar\">\n      <div role=\"group\" aria-labelledby=\"group-label-content-1\">\n        <h3 id=\"group-label-content-1\">Getting started</h3>\n\n        <ul>\n          <li>\n            <a href=\"#\">\n              <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n                <path d=\"m7 11 2-2-2-2\" />\n                <path d=\"M11 13h4\" />\n                <rect width=\"18\" height=\"18\" x=\"3\" y=\"3\" rx=\"2\" ry=\"2\" />\n              </svg>\n              <span>Playground</span>\n            </a>\n          </li>\n\n          <li>\n            <a href=\"#\">\n              <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n                <path d=\"M12 8V4H8\" />\n                <rect width=\"16\" height=\"12\" x=\"4\" y=\"8\" rx=\"2\" />\n                <path d=\"M2 14h2\" />\n                <path d=\"M20 14h2\" />\n                <path d=\"M15 13v2\" />\n                <path d=\"M9 13v2\" />\n              </svg>\n              <span>Models</span>\n            </a>\n          </li>\n\n          <li>\n            <details id=\"submenu-content-1-3\">\n              <summary aria-controls=\"submenu-content-1-3-content\">\n                <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n                  <path d=\"M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z\" />\n                  <circle cx=\"12\" cy=\"12\" r=\"3\" />\n                </svg>\n                Settings\n              </summary>\n              <ul id=\"submenu-content-1-3-content\">\n                <li>\n                  <a href=\"#\">\n                    <span>General</span>\n                  </a>\n                </li>\n\n                <li>\n                  <a href=\"#\">\n                    <span>Team</span>\n                  </a>\n                </li>\n\n                <li>\n                  <a href=\"#\">\n                    <span>Billing</span>\n                  </a>\n                </li>\n\n                <li>\n                  <a href=\"#\">\n                    <span>Limits</span>\n                  </a>\n                </li>\n              </ul>\n            </details>\n          </li>\n        </ul>\n      </div>\n    </section>\n  </nav>\n</aside>\n\n<main>\n  <button type=\"button\" onclick=\"document.dispatchEvent(new CustomEvent('basecoat:sidebar'))\">Toggle sidebar</button>\n  <h1>Content</h1>\n</main>"
+            },
+            {
+                "description": "Example 3",
+                "content": "<!-- Toggles the sidebar -->\n<button type=\"button\" onclick=\"document.dispatchEvent(new CustomEvent('basecoat:sidebar'));\">Toggle sidebar</button>\n<!-- Opens the `#main-navigation` sidebar -->\n<button type=\"button\" onclick=\"document.dispatchEvent(new CustomEvent('basecoat:sidebar', { detail: { id: 'main-navigation', action: 'close' } }));\">Close sidebar</button>\n<!-- Closes the sidebar -->\n<button type=\"button\" onclick=\"document.dispatchEvent(new CustomEvent('basecoat:sidebar', { detail: { action: 'close' } }));\">Close sidebar</button>"
+            },
+            {
+                "description": "Example 4",
+                "content": "{% set menu = [\n  { type: \"group\", label: \"Getting started\", items: [\n    { label: \"Playground\", url: \"#\" },\n    { label: \"Models\", url: \"#\" },\n    { label: \"Settings\", type: \"submenu\", items: [\n      { label: \"General\", url: \"#\" },\n      { label: \"Team\", url: \"#\" },\n      { label: \"Billing\", url: \"#\" },\n      { label: \"Limits\", url: \"#\" }\n    ] }\n  ]}\n] %}\n\n{{ sidebar(\n  label=\"Sidebar navigation\",\n  menu=menu\n) }}\n<main>\n  <h1>Content</h1>\n</main>"
+            }
+        ]
+    },
+    {
+        "title": "Switch",
+        "description": "A control that allows the user to toggle between checked and not checked.",
+        "usage": {
+            "description": "",
+            "language": "html",
+            "content": ""
+        },
+        "html_examples": [
+            {
+                "description": "Example 1",
+                "content": "<label class=\"label\">\n  <input type=\"checkbox\" name=\"switch\" role=\"switch\" class=\"input\">\n  Airplane Mode\n</label>"
+            },
+            {
+                "description": "Example 2",
+                "content": "<input type=\"checkbox\" role=\"switch\" class=\"input\">"
+            },
+            {
+                "description": "Example 3",
+                "content": "<form class=\"form grid gap-4\">\n  <h3 class=\"text-lg font-medium\">Email Notifications</h3>\n  <div class=\"gap-2 flex flex-row items-start justify-between rounded-lg border p-4 shadow-xs\">\n    <div class=\"flex flex-col gap-0.5\">\n      <label for=\"demo-form-switch\" class=\"leading-normal\">Marketing emails</label>\n      <p class=\"text-muted-foreground text-sm\">Receive emails about new products, features, and more.</p>\n    </div>\n    <input type=\"checkbox\" id=\"demo-form-switch\" role=\"switch\">\n  </div>\n  <div class=\"gap-2 flex flex-row items-start justify-between rounded-lg border p-4 shadow-xs\">\n    <div class=\"flex flex-col gap-0.5 opacity-60\">\n      <label for=\"demo-form-switch-disabled\" class=\"leading-normal\">Marketing emails</label>\n      <p class=\"text-muted-foreground text-sm\">Receive emails about new products, features, and more.</p>\n    </div>\n    <input type=\"checkbox\" id=\"demo-form-switch-disabled\" role=\"switch\" disabled>\n  </div>\n</form>"
+            }
+        ]
+    },
+    {
+        "title": "Slider",
+        "description": "An input where the user selects a value from within a given range.",
+        "usage": {
+            "description": "",
+            "language": "html",
+            "content": ""
+        },
+        "html_examples": [
+            {
+                "description": "Example 1",
+                "content": "<input\n  type=\"range\"\n  class=\"input w-full\"\n  min=\"0\"\n  max=\"100\"\n  value=\"50\"\n>\n<script>\n  (() => {\n    const sliders = document.querySelectorAll('input[type=\"range\"].input');\n    if (!sliders) return;\n\n    const updateSlider = (el) => {\n      const min = parseFloat(el.min || 0);\n      const max = parseFloat(el.max || 100);\n      const value = parseFloat(el.value);\n      const percent = (max === min) ? 0 : ((value - min) / (max - min)) * 100;\n      el.style.setProperty('--slider-value', `${percent}%`);\n    };\n\n    sliders.forEach(slider => {\n      updateSlider(slider);\n      slider.addEventListener('input', (event) => updateSlider(event.target));\n    });\n  })();\n</script>"
+            },
+            {
+                "description": "Example 2",
+                "content": "<input\n  type=\"range\"\n  class=\"input w-full\"\n  min=\"0\"\n  max=\"100\"\n  value=\"50\"\n>\n<script>\n  (() => {\n    const sliders = document.querySelectorAll('input[type=\"range\"].input');\n    if (!sliders) return;\n\n    const updateSlider = (el) => {\n      const min = parseFloat(el.min || 0);\n      const max = parseFloat(el.max || 100);\n      const value = parseFloat(el.value);\n      const percent = (max === min) ? 0 : ((value - min) / (max - min)) * 100;\n      el.style.setProperty('--slider-value', `${percent}%`);\n    };\n\n    sliders.forEach(slider => {\n      updateSlider(slider);\n      slider.addEventListener('input', (event) => updateSlider(event.target));\n    });\n  })();\n</script>"
+            }
+        ]
+    },
+    {
+        "title": "Table",
+        "description": "A responsive table component.",
+        "usage": {
+            "description": "",
+            "language": "html",
+            "content": ""
+        },
+        "html_examples": [
+            {
+                "description": "Example 1",
+                "content": "<div class=\"overflow-x-auto\">\n<table class=\"table\">\n  <caption>A list of your recent invoices.</caption>\n  <thead>\n    <tr>\n      <th>Invoice</th>\n      <th>Status</th>\n      <th>Method</th>\n      <th>Amount</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <td class=\"font-medium\">INV001</td>\n      <td>Paid</td>\n      <td>Credit Card</td>\n      <td class=\"text-right\">$250.00</td>\n    </tr>\n    <tr>\n      <td class=\"font-medium\">INV002</td>\n      <td>Pending</td>\n      <td>PayPal</td>\n      <td class=\"text-right\">$150.00</td>\n    </tr>\n    <tr>\n      <td class=\"font-medium\">INV003</td>\n      <td>Unpaid</td>\n      <td>Bank Transfer</td>\n      <td class=\"text-right\">$350.00</td>\n    </tr>\n    <tr>\n      <td class=\"font-medium\">INV004</td>\n      <td>Paid</td>\n      <td>Paypal</td>\n      <td class=\"text-right\">$450.00</td>\n    </tr>\n    <tr>\n      <td class=\"font-medium\">INV005</td>\n      <td>Paid</td>\n      <td>Credit Card</td>\n      <td class=\"text-right\">$550.00</td>\n    </tr>\n    <tr>\n      <td class=\"font-medium\">INV006</td>\n      <td>Pending</td>\n      <td>Bank Transfer</td>\n      <td class=\"text-right\">$200.00</td>\n    </tr>\n    <tr>\n      <td class=\"font-medium\">INV007</td>\n      <td>Unpaid</td>\n      <td>Credit Card</td>\n      <td class=\"text-right\">$300.00</td>\n    </tr>\n  </tbody>\n  <tfoot>\n    <tr>\n      <td colspan=\"3\">Total</td>\n      <td class=\"text-right\">$2,500.00</td>\n    </tr>\n  </tfoot>\n</table>\n</div>"
+            },
+            {
+                "description": "Example 2",
+                "content": "<table class=\"table\">\n  <!-- Content of your table -->\n</table>"
+            }
+        ]
+    },
+    {
+        "title": "Tabs",
+        "description": "A set of layered sections of content—known as tab panels—that are displayed one at a time.",
+        "usage": {
+            "description": "",
+            "language": "html",
+            "content": ""
+        },
+        "html_examples": [
+            {
+                "description": "Example 1",
+                "content": "<div class=\"tabs w-full\" id=\"demo-tabs-with-panels\">\n  <nav role=\"tablist\" aria-orientation=\"horizontal\" class=\"w-full\">\n    <button type=\"button\" role=\"tab\" id=\"demo-tabs-with-panels-tab-1\" aria-controls=\"demo-tabs-with-panels-panel-1\" aria-selected=\"true\" tabindex=\"0\">Account</button>\n\n    <button type=\"button\" role=\"tab\" id=\"demo-tabs-with-panels-tab-2\" aria-controls=\"demo-tabs-with-panels-panel-2\" aria-selected=\"false\" tabindex=\"0\">Password</button>\n  </nav>\n\n  <div role=\"tabpanel\" id=\"demo-tabs-with-panels-panel-1\" aria-labelledby=\"demo-tabs-with-panels-tab-1\" tabindex=\"-1\" aria-selected=\"true\">\n    <div class=\"card\">\n      <header>\n        <h2>Account</h2>\n        <p>Make changes to your account here. Click save when you're done.</p>\n      </header>\n      <section>\n        <form class=\"form grid gap-6\">\n          <div class=\"grid gap-3\">\n            <label for=\"demo-tabs-account-name\">Name</label>\n            <input type=\"text\" id=\"demo-tabs-account-name\" value=\"Pedro Duarte\" />\n          </div>\n          <div class=\"grid gap-3\">\n            <label for=\"demo-tabs-account-username\">Username</label>\n            <input type=\"text\" id=\"demo-tabs-account-username\" value=\"@peduarte\" />\n          </div>\n        </form>\n      </section>\n      <footer>\n        <button type=\"button\" class=\"btn\">Save changes</button>\n      </footer>\n    </div>\n  </div>\n\n  <div role=\"tabpanel\" id=\"demo-tabs-with-panels-panel-2\" aria-labelledby=\"demo-tabs-with-panels-tab-2\" tabindex=\"-1\" aria-selected=\"false\" hidden>\n    <div class=\"card\">\n      <header>\n        <h2>Password</h2>\n        <p>Change your password here. After saving, you'll be logged out.</p>\n      </header>\n      <section>\n        <form class=\"form grid gap-6\">\n          <div class=\"grid gap-3\">\n            <label for=\"demo-tabs-password-current\">Current password</label>\n            <input type=\"password\" id=\"demo-tabs-password-current\" />\n          </div>\n          <div class=\"grid gap-3\">\n            <label for=\"demo-tabs-password-new\">New password</label>\n            <input type=\"password\" id=\"demo-tabs-password-new\" />\n          </div>\n        </form>\n      </section>\n      <footer>\n        <button type=\"button\" class=\"btn\">Save Password</button>\n      </footer>\n    </div>\n  </div>\n</div>"
+            },
+            {
+                "description": "Example 2",
+                "content": "<script src=\"https://cdn.jsdelivr.net/npm/basecoat-css@0.3.1/dist/js/basecoat.min.js\" defer></script>\n<script src=\"https://cdn.jsdelivr.net/npm/basecoat-css@0.3.1/dist/js/tabs.min.js\" defer></script>"
+            },
+            {
+                "description": "Example 3",
+                "content": "<div class=\"tabs w-full\" id=\"demo-tabs-with-panels\">\n  <nav role=\"tablist\" aria-orientation=\"horizontal\" class=\"w-full\">\n    <button type=\"button\" role=\"tab\" id=\"demo-tabs-with-panels-tab-1\" aria-controls=\"demo-tabs-with-panels-panel-1\" aria-selected=\"true\" tabindex=\"0\">Account</button>\n\n    <button type=\"button\" role=\"tab\" id=\"demo-tabs-with-panels-tab-2\" aria-controls=\"demo-tabs-with-panels-panel-2\" aria-selected=\"false\" tabindex=\"0\">Password</button>\n  </nav>\n\n  <div role=\"tabpanel\" id=\"demo-tabs-with-panels-panel-1\" aria-labelledby=\"demo-tabs-with-panels-tab-1\" tabindex=\"-1\" aria-selected=\"true\">\n    <div class=\"card\">\n      <header>\n        <h2>Account</h2>\n        <p>Make changes to your account here. Click save when you're done.</p>\n      </header>\n      <section>\n        <form class=\"form grid gap-6\">\n          <div class=\"grid gap-3\">\n            <label for=\"demo-tabs-account-name\">Name</label>\n            <input type=\"text\" id=\"demo-tabs-account-name\" value=\"Pedro Duarte\" />\n          </div>\n          <div class=\"grid gap-3\">\n            <label for=\"demo-tabs-account-username\">Username</label>\n            <input type=\"text\" id=\"demo-tabs-account-username\" value=\"@peduarte\" />\n          </div>\n        </form>\n      </section>\n      <footer>\n        <button type=\"button\" class=\"btn\">Save changes</button>\n      </footer>\n    </div>\n  </div>\n\n  <div role=\"tabpanel\" id=\"demo-tabs-with-panels-panel-2\" aria-labelledby=\"demo-tabs-with-panels-tab-2\" tabindex=\"-1\" aria-selected=\"false\" hidden>\n    <div class=\"card\">\n      <header>\n        <h2>Password</h2>\n        <p>Change your password here. After saving, you'll be logged out.</p>\n      </header>\n      <section>\n        <form class=\"form grid gap-6\">\n          <div class=\"grid gap-3\">\n            <label for=\"demo-tabs-password-current\">Current password</label>\n            <input type=\"password\" id=\"demo-tabs-password-current\" />\n          </div>\n          <div class=\"grid gap-3\">\n            <label for=\"demo-tabs-password-new\">New password</label>\n            <input type=\"password\" id=\"demo-tabs-password-new\" />\n          </div>\n        </form>\n      </section>\n      <footer>\n        <button type=\"button\" class=\"btn\">Save Password</button>\n      </footer>\n    </div>\n  </div>\n</div>"
+            },
+            {
+                "description": "Example 4",
+                "content": "{% set account_panel %}\n<div class=\"card\">\n  <header>\n    <h2>Account</h2>\n    <p>Make changes to your account here. Click save when you're done.</p>\n  </header>\n  <section>\n    <form class=\"form grid gap-6\">\n      <div class=\"grid gap-3\">\n        <label for=\"demo-tabs-account-name\">Name</label>\n        <input type=\"text\" id=\"demo-tabs-account-name\" value=\"Pedro Duarte\" />\n      </div>\n      <div class=\"grid gap-3\">\n        <label for=\"demo-tabs-account-username\">Username</label>\n        <input type=\"text\" id=\"demo-tabs-account-username\" value=\"@peduarte\" />\n      </div>\n    </form>\n  </section>\n  <footer>\n    <button type=\"button\" class=\"btn\">Save changes</button>\n  </footer>\n</div>\n{% endset %}\n\n{% set password_panel %}\n<div class=\"card\">\n  <header>\n    <h2>Password</h2>\n    <p>Change your password here. After saving, you'll be logged out.</p>\n  </header>\n  <section>\n    <form class=\"form grid gap-6\">\n      <div class=\"grid gap-3\">\n        <label for=\"demo-tabs-password-current\">Current password</label>\n        <input type=\"password\" id=\"demo-tabs-password-current\" />\n      </div>\n      <div class=\"grid gap-3\">\n        <label for=\"demo-tabs-password-new\">New password</label>\n        <input type=\"password\" id=\"demo-tabs-password-new\"/>\n      </div>\n    </form>\n  </section>\n  <footer>\n    <button type=\"button\" class=\"btn\">Save Password</button>\n  </footer>\n</div>\n{% endset %}\n\n{% set tabsets_demo = [\n{ tab: \"Account\", panel: account_panel },\n{ tab: \"Password\", panel: password_panel }\n] %}\n\n{{ tabs(\n  id='demo-tabs-with-panels',\n  tabsets=tabsets_demo,\n  main_attrs={ \"class\": \"w-full\" },\n  tablist_attrs={ \"class\": \"w-full\" }\n) }}"
+            }
+        ]
+    },
+    {
+        "title": "Textarea",
+        "description": "Displays a form textarea or a component that looks like a textarea.",
+        "usage": {
+            "description": "",
+            "language": "html",
+            "content": ""
+        },
+        "html_examples": [
+            {
+                "description": "Example 1",
+                "content": "<textarea class=\"textarea\" placeholder=\"Type your message here\"></textarea>"
+            },
+            {
+                "description": "Example 2",
+                "content": "<textarea class=\"textarea\" placeholder=\"Type your message here\"></textarea>"
+            },
+            {
+                "description": "Example 3",
+                "content": "<textarea class=\"textarea\" placeholder=\"Type your message here\"></textarea>"
+            },
+            {
+                "description": "Example 4",
+                "content": "<textarea class=\"textarea\" placeholder=\"Type your message here\" aria-invalid=\"true\"></textarea>"
+            },
+            {
+                "description": "Example 5",
+                "content": "<textarea class=\"textarea\" placeholder=\"Type your message here\" disabled></textarea>"
+            },
+            {
+                "description": "Example 6",
+                "content": "<div class=\"grid gap-3\">\n  <label for=\"textarea-with-label\" class=\"label\">Label</label>\n  <textarea id=\"textarea-with-label\" class=\"textarea\" placeholder=\"Type your message here\"></textarea>\n</div>"
+            },
+            {
+                "description": "Example 7",
+                "content": "<div class=\"grid gap-3\">\n  <label for=\"textarea-with-label\" class=\"label\">Label</label>\n  <textarea id=\"textarea-with-label\" class=\"textarea\" placeholder=\"Type your message here\"></textarea>\n  <p class=\"text-muted-foreground text-sm\">Type your message and press enter to send.</p>\n</div>"
+            },
+            {
+                "description": "Example 8",
+                "content": "<div class=\"grid gap-3\">\n  <textarea id=\"textarea-with-label\" class=\"textarea\" placeholder=\"Type your message here\"></textarea>\n  <button type=\"submit\" class=\"btn\">Submit</button>\n</div>"
+            },
+            {
+                "description": "Example 9",
+                "content": "<form class=\"form space-y-6\">\n  <div class=\"grid gap-3\">\n    <label for=\"textarea-form\" class=\"label\">Bio</label>\n    <textarea id=\"textarea-form\" placeholder=\"Tell us a bit about yourself\"></textarea>\n    <p class=\"text-muted-foreground text-sm\">You can @mention other users and organizations.</p>\n  </div>\n  <button type=\"submit\" class=\"btn\">Submit</button>\n</form>"
+            }
+        ]
+    },
+    {
+        "title": "Theme Switcher",
+        "description": "A component that allows the user to switch between light and dark mode.",
+        "usage": {
+            "description": "",
+            "language": "html",
+            "content": ""
+        },
+        "html_examples": [
+            {
+                "description": "Example 1",
+                "content": "<button\n  type=\"button\"\n  aria-label=\"Toggle dark mode\"\n  data-tooltip=\"Toggle dark mode\"\n  data-side=\"bottom\"\n  onclick=\"document.dispatchEvent(new CustomEvent('basecoat:theme'))\"\n  class=\"btn-icon-outline size-8\"\n>\n  <span class=\"hidden dark:block\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"12\" cy=\"12\" r=\"4\" /><path d=\"M12 2v2\" /><path d=\"M12 20v2\" /><path d=\"m4.93 4.93 1.41 1.41\" /><path d=\"m17.66 17.66 1.41 1.41\" /><path d=\"M2 12h2\" /><path d=\"M20 12h2\" /><path d=\"m6.34 17.66-1.41 1.41\" /><path d=\"m19.07 4.93-1.41 1.41\" /></svg></span>\n  <span class=\"block dark:hidden\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z\" /></svg></span>\n</button>"
+            },
+            {
+                "description": "Example 2",
+                "content": "<script>\n  (() => {\n    try {\n      const stored = localStorage.getItem('themeMode');\n      if (stored ? stored === 'dark'\n                  : matchMedia('(prefers-color-scheme: dark)').matches) {\n        document.documentElement.classList.add('dark');\n      }\n    } catch (_) {}\n\n    const apply = dark => {\n      document.documentElement.classList.toggle('dark', dark);\n      try { localStorage.setItem('themeMode', dark ? 'dark' : 'light'); } catch (_) {}\n    };\n\n    document.addEventListener('basecoat:theme', (event) => {\n      const mode = event.detail?.mode;\n      apply(mode === 'dark' ? true\n            : mode === 'light' ? false\n            : !document.documentElement.classList.contains('dark'));\n    });\n  })();\n</script>"
+            },
+            {
+                "description": "Example 3",
+                "content": "<button\n  type=\"button\"\n  aria-label=\"Toggle dark mode\"\n  data-tooltip=\"Toggle dark mode\"\n  data-side=\"bottom\"\n  onclick=\"document.dispatchEvent(new CustomEvent('basecoat:theme'))\"\n  class=\"btn-icon-outline size-8\"\n>\n  <span class=\"hidden dark:block\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"12\" cy=\"12\" r=\"4\" /><path d=\"M12 2v2\" /><path d=\"M12 20v2\" /><path d=\"m4.93 4.93 1.41 1.41\" /><path d=\"m17.66 17.66 1.41 1.41\" /><path d=\"M2 12h2\" /><path d=\"M20 12h2\" /><path d=\"m6.34 17.66-1.41 1.41\" /><path d=\"m19.07 4.93-1.41 1.41\" /></svg></span>\n  <span class=\"block dark:hidden\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z\" /></svg></span>\n</button>"
+            },
+            {
+                "description": "Example 4",
+                "content": "<!-- Toggles the theme -->\n<button type=\"button\" onclick=\"document.dispatchEvent(new CustomEvent('basecoat:theme'));\">Toggle theme</button>\n<!-- Sets the theme to dark -->\n<button type=\"button\" onclick=\"document.dispatchEvent(new CustomEvent('basecoat:theme', { detail: { mode: 'dark' } }));\">Set dark theme</button>"
+            }
+        ]
+    },
+    {
+        "title": "Toast",
+        "description": "A succinct message that is displayed temporarily.",
+        "usage": {
+            "description": "",
+            "language": "html",
+            "content": ""
+        },
+        "html_examples": [
+            {
+                "description": "Example 1",
+                "content": "<button\n  class=\"btn-outline\"\n  hx-trigger=\"click\"\n  hx-get=\"/fragments/toast/success\"\n  hx-target=\"#toaster\"\n  hx-swap=\"beforeend\"\n>\n  Toast from backend (with HTMX)\n</button>"
+            },
+            {
+                "description": "Example 2",
+                "content": "<button\n  class=\"btn-outline\"\n  onclick=\"document.dispatchEvent(new CustomEvent('basecoat:toast', {\n    detail: {\n      config: {\n        category: 'success',\n        title: 'Success',\n        description: 'A success toast called from the front-end.',\n        cancel: {\n          label: 'Dismiss'\n        }\n      }\n    }\n  }))\"\n>\n  Toast from front-end\n</button>"
+            },
+            {
+                "description": "Example 3",
+                "content": "<script src=\"https://cdn.jsdelivr.net/npm/basecoat-css@0.3.1/dist/js/basecoat.min.js\" defer></script>\n<script src=\"https://cdn.jsdelivr.net/npm/basecoat-css@0.3.1/dist/js/toast.min.js\" defer></script>"
+            },
+            {
+                "description": "Example 4",
+                "content": "<div id=\"toaster\" class=\"toaster\"></div>"
+            },
+            {
+                "description": "Example 5",
+                "content": "<div id=\"toaster\" class=\"toaster\">\n  <div class=\"toast\" role=\"status\" aria-atomic=\"true\" aria-hidden=\"false\" data-category=\"success\">\n    <div class=\"toast-content\">\n      <svg aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n        <circle cx=\"12\" cy=\"12\" r=\"10\" />\n        <path d=\"m9 12 2 2 4-4\" />\n      </svg>\n\n      <section>\n        <h2>Success</h2>\n        <p>A success toast called from the front-end.</p>\n      </section>\n\n      <footer>\n        <button type=\"button\" class=\"btn\" data-toast-action>Dismiss</button>\n      </footer>\n    </div>\n  </div>\n</div>"
+            },
+            {
+                "description": "Example 6",
+                "content": "<button\n  class=\"btn-outline\"\n  onclick=\"document.dispatchEvent(new CustomEvent('basecoat:toast', {\n    detail: {\n      config: {\n        category: 'success',\n        title: 'Success',\n        description: 'A success toast called from the front-end.',\n        cancel: {\n          label: 'Dismiss'\n        }\n      }\n    }\n  }))\">\n  Toast from front-end\n</button>"
+            }
+        ]
+    },
+    {
+        "title": "Tooltip",
+        "description": "A popup that displays information related to an element when the element receives keyboard focus or the mouse hovers over it.",
+        "usage": {
+            "description": "",
+            "language": "html",
+            "content": ""
+        },
+        "html_examples": [
+            {
+                "description": "Example 1",
+                "content": "<button class=\"btn-outline\" data-tooltip=\"Add to library\">Hover</button>"
+            },
+            {
+                "description": "Example 2",
+                "content": "<button class=\"btn-outline\" data-tooltip=\"Tooltip text\" data-side=\"bottom\" data-align=\"center\">Bottom left</button>"
+            },
+            {
+                "description": "Example 3",
+                "content": "<button class=\"btn-outline\" data-tooltip=\"Default tooltip\">Default</button>"
+            },
+            {
+                "description": "Example 4",
+                "content": "<button class=\"btn-outline\" data-tooltip=\"Right side tooltip\" data-side=\"right\">Right</button>"
+            },
+            {
+                "description": "Example 5",
+                "content": "<button class=\"btn-outline\" data-tooltip=\"Bottom side and start aligned tooltip\" data-side=\"bottom\" data-align=\"start\">Bottom + Start</button>"
+            }
+        ]
+    }
+]
