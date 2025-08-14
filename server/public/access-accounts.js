@@ -28,6 +28,10 @@ class AccessAccountsManager {
             this.closeAccountModal();
         });
 
+        document.getElementById('closeAccountModal').addEventListener('click', () => {
+            this.closeAccountModal();
+        });
+
         document.getElementById('accountForm').addEventListener('submit', (e) => {
             e.preventDefault();
             this.saveAccount();
@@ -49,19 +53,6 @@ class AccessAccountsManager {
 
         document.getElementById('accountName').addEventListener('input', (e) => {
             this.validateName(e.target.value);
-        });
-
-        // Close modals on outside click
-        document.getElementById('accountModal').addEventListener('click', (e) => {
-            if (e.target.id === 'accountModal') {
-                this.closeAccountModal();
-            }
-        });
-
-        document.getElementById('deleteModal').addEventListener('click', (e) => {
-            if (e.target.id === 'deleteModal') {
-                this.closeDeleteModal();
-            }
         });
     }
 
@@ -149,37 +140,39 @@ class AccessAccountsManager {
             : 'Never';
 
         return `
-            <div class="account-card" data-account-id="${account.id}">
-                <div class="account-header">
-                    <div class="account-info">
-                        <h3 class="account-name">${account.name}</h3>
-                        <div class="account-meta">
-                            <div class="meta-item">
-                                <span class="material-icons">key</span>
+            <div class="card account-card" data-account-id="${account.id}">
+                <header class="flex items-start justify-between">
+                    <div>
+                        <h3 class="text-lg font-semibold">${account.name}</h3>
+                        <div class="grid gap-1 mt-2 text-sm text-muted-foreground">
+                            <div class="flex items-center gap-2">
+                                <span class="material-symbols-outlined text-base">key</span>
                                 PIN: ${account.pin}
                             </div>
-                            <div class="meta-item">
-                                <span class="material-icons">folder</span>
+                            <div class="flex items-center gap-2">
+                                <span class="material-symbols-outlined text-base">folder</span>
                                 ${account.assignedFolders.length} folders
                             </div>
-                            <div class="meta-item">
-                                <span class="material-icons">access_time</span>
+                            <div class="flex items-center gap-2">
+                                <span class="material-symbols-outlined text-base">access_time</span>
                                 Last used: ${lastAccessed}
                             </div>
                         </div>
                     </div>
                     <div class="account-actions">
-                        <button class="btn-icon-small edit-account" title="Edit Account" data-account-id="${account.id}">
-                            <span class="material-icons">edit</span>
+                        <button class="btn-icon edit-account" title="Edit Account" data-account-id="${account.id}">
+                            <span class="material-symbols-outlined">edit</span>
                         </button>
-                        <button class="btn-icon-small danger delete-account" title="Delete Account" data-account-id="${account.id}">
-                            <span class="material-icons">delete</span>
+                        <button class="btn-icon delete-account" title="Delete Account" data-account-id="${account.id}">
+                            <span class="material-symbols-outlined">delete</span>
                         </button>
                     </div>
-                </div>
-                <div class="folder-tags">
-                    ${folderTags}
-                </div>
+                </header>
+                <section class="mt-4">
+                    <div class="flex flex-wrap gap-1">
+                        ${folderTags}
+                    </div>
+                </section>
             </div>
         `;
     }
@@ -219,12 +212,12 @@ class AccessAccountsManager {
 
         this.clearErrors();
         this.renderFolderGrid(account ? account.assignedFolders : []);
-        modal.classList.remove('hidden');
+        modal.showModal();
         document.getElementById('accountName').focus();
     }
 
     closeAccountModal() {
-        document.getElementById('accountModal').classList.add('hidden');
+        document.getElementById('accountModal').close();
         this.currentEditingAccount = null;
     }
 
@@ -244,32 +237,31 @@ class AccessAccountsManager {
         gridElement.innerHTML = this.folders.map(folder => {
             const isSelected = selectedFolders.includes(folder.name);
             return `
-                <div class="folder-checkbox ${isSelected ? 'selected' : ''}" data-folder="${folder.name}">
-                    <input type="checkbox" 
-                           id="folder-${folder.name}" 
-                           value="${folder.name}" 
-                           ${isSelected ? 'checked' : ''}>
-                    <label for="folder-${folder.name}" class="folder-checkbox-label">
-                        <span class="material-icons">folder</span>
-                        ${folder.name}
-                        <span class="folder-count">${folder.imageCount}</span>
+                <div class="folder-item ${isSelected ? 'selected' : ''}" data-folder="${folder.name}">
+                    <label class="label flex items-center gap-3 cursor-pointer">
+                        <input type="checkbox" 
+                               class="input"
+                               id="folder-${folder.name}" 
+                               value="${folder.name}" 
+                               ${isSelected ? 'checked' : ''}>
+                        <div class="flex items-center gap-2 flex-1">
+                            <span class="material-symbols-outlined">folder</span>
+                            <span class="font-medium">${folder.name}</span>
+                            <span class="text-sm text-muted-foreground ml-auto">${folder.imageCount}</span>
+                        </div>
                     </label>
                 </div>
             `;
         }).join('');
 
         // Bind folder checkbox events
-        gridElement.querySelectorAll('.folder-checkbox').forEach(checkbox => {
-            checkbox.addEventListener('click', (e) => {
-                if (e.target.type !== 'checkbox') {
-                    const input = checkbox.querySelector('input[type="checkbox"]');
-                    input.checked = !input.checked;
-                }
-                
-                if (checkbox.querySelector('input[type="checkbox"]').checked) {
-                    checkbox.classList.add('selected');
+        gridElement.querySelectorAll('.folder-item').forEach(folderItem => {
+            const checkbox = folderItem.querySelector('input[type="checkbox"]');
+            checkbox.addEventListener('change', (e) => {
+                if (e.target.checked) {
+                    folderItem.classList.add('selected');
                 } else {
-                    checkbox.classList.remove('selected');
+                    folderItem.classList.remove('selected');
                 }
             });
         });
@@ -339,7 +331,7 @@ class AccessAccountsManager {
         if (account) {
             document.getElementById('deleteAccountName').textContent = account.name;
             document.getElementById('confirmDeleteBtn').setAttribute('data-account-id', accountId);
-            document.getElementById('deleteModal').classList.remove('hidden');
+            document.getElementById('deleteModal').showModal();
         }
     }
 
@@ -366,7 +358,7 @@ class AccessAccountsManager {
     }
 
     closeDeleteModal() {
-        document.getElementById('deleteModal').classList.add('hidden');
+        document.getElementById('deleteModal').close();
     }
 
     validateForm() {

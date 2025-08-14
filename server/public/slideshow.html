@@ -5,44 +5,67 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Digital Photo Frame - Slideshow</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+        rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/basecoat-css@0.3.1/dist/basecoat.cdn.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/basecoat-css@0.3.1/dist/js/all.min.js" defer></script>
+    <!-- Theme Switcher Script -->
+    <script>
+        (() => {
+            try {
+                const stored = localStorage.getItem('themeMode');
+                if (stored ? stored === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches) {
+                    document.documentElement.classList.add('dark');
+                }
+            } catch (_) { }
+
+            document.addEventListener('basecoat:theme', (e) => {
+                const mode = e.detail?.mode || (document.documentElement.classList.contains('dark') ? 'light' : 'dark');
+                if (mode === 'dark') {
+                    document.documentElement.classList.add('dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                }
+                localStorage.setItem('themeMode', mode);
+            });
+        })();
+    </script>
+
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
-            background-color: #000;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            overflow: hidden;
-            cursor: auto;
-            transition: cursor 0.3s ease;
+            background: var(--background);
+            color: var(--foreground);
+            overscroll-behavior: none;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        body.hide-cursor {
-            cursor: none;
-        }
-
+        /* Full screen slideshow layout */
         .slideshow-container {
             position: relative;
             width: 100vw;
             height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            overflow: hidden;
+            background: black;
         }
 
         .slide {
             position: absolute;
-            width: 100%;
-            height: 100%;
-            opacity: 0;
-            transition: opacity 1s ease-in-out;
+            inset: 0;
             display: flex;
             align-items: center;
             justify-content: center;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
         }
 
         .slide.active {
@@ -50,405 +73,154 @@
         }
 
         .slide img {
-            width: 100vw;
-            height: 100vh;
-            object-fit: contain;
-            object-position: center;
-            border-radius: 0;
             max-width: 100vw;
             max-height: 100vh;
-        }
-
-        .loading {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: #fff;
-            font-size: 24px;
-            font-weight: 300;
-            text-align: center;
-        }
-
-        .loading::after {
-            content: '';
-            display: block;
-            width: 40px;
-            height: 40px;
-            margin: 20px auto;
-            border: 3px solid rgba(255, 255, 255, 0.2);
-            border-top: 3px solid #fff;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
-
-            100% {
-                transform: rotate(360deg);
-            }
-        }
-
-        .info {
-            position: absolute;
-            bottom: 40px;
-            left: 40px;
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 16px;
-            font-weight: 300;
-            background: rgba(0, 0, 0, 0.5);
-            padding: 12px 20px;
-            border-radius: 20px;
-            backdrop-filter: blur(10px);
-            transition: opacity 0.3s ease;
-        }
-
-        .info.hidden {
-            opacity: 0;
+            object-fit: contain;
         }
 
         .progress-bar {
             position: absolute;
             bottom: 0;
             left: 0;
-            height: 3px;
+            height: 4px;
             background: rgba(255, 255, 255, 0.3);
             width: 0%;
             transition: width 0.1s linear;
+            z-index: 10;
         }
 
         .controls {
             position: absolute;
-            top: 30px;
-            right: 30px;
-            display: flex;
-            gap: 15px;
+            top: 1rem;
+            right: 1rem;
+            z-index: 20;
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
 
-        .control-btn {
-            background: rgba(255, 255, 255, 0.2);
-            border: none;
-            color: white;
-            padding: 0;
-            border-radius: 50%;
-            cursor: pointer;
-            transition: background 0.3s ease;
-            backdrop-filter: blur(10px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 40px;
-            height: 40px;
+        .slideshow-container:hover .controls {
+            opacity: 1;
         }
-
-        .control-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-        }
-
-        .folder-selector-container {
-            margin-right: 15px;
-        }
-
-        .control-btn .material-icons {
-            font-size: 20px;
-        }
-
-        .error {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: #ff6b6b;
-            font-size: 20px;
-            text-align: center;
-            background: rgba(255, 107, 107, 0.1);
-            padding: 30px;
-            border-radius: 12px;
-            backdrop-filter: blur(10px);
-        }
-
-        .hidden {
-            display: none !important;
-        }
-
-        /* Fullscreen mode - cursor handled dynamically by JavaScript */
 
         .fullscreen .controls {
             opacity: 0;
-            transition: opacity 0.3s ease;
         }
 
         .fullscreen:hover .controls {
             opacity: 1;
         }
 
-        /* Mobile responsiveness */
-        @media (max-width: 768px) {
-            .info {
-                bottom: 20px;
-                left: 20px;
-                font-size: 14px;
-                padding: 10px 16px;
-            }
-
-            .controls {
-                top: 20px;
-                right: 20px;
-            }
-
-            .control-btn {
-                padding: 10px;
-                font-size: 16px;
-            }
+        .info-overlay {
+            position: absolute;
+            bottom: 2rem;
+            left: 2rem;
+            z-index: 15;
+            transition: opacity 0.3s ease;
         }
 
-        /* PIN Authentication Styles */
-
-        /* Remove only problematic transitions, preserve necessary layout */
-        .auth-button {
-            transition: none !important;
+        .info-overlay.hidden {
+            opacity: 0;
         }
 
-        .auth-button:hover {
-            transform: none !important;
+        /* Cursor auto-hide */
+        body.hide-cursor {
+            cursor: none;
         }
 
+        /* Auth overlay */
         .auth-overlay {
+            background: var(--background);
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            inset: 0;
+            z-index: 50;
             display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 9999;
-            opacity: 1;
         }
 
         .auth-overlay.hidden {
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .auth-container {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 40px;
-            border-radius: 20px;
-            text-align: center;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(10px);
-            max-width: 400px;
-            width: 90%;
-        }
-
-        .auth-title {
-            font-size: 28px;
-            font-weight: 300;
-            color: #2c3e50;
-            margin-bottom: 10px;
-        }
-
-        .auth-subtitle {
-            font-size: 16px;
-            color: #7f8c8d;
-            margin-bottom: 30px;
-        }
-
-        .pin-form {
-            display: flex;
-            flex-direction: column;
-            gap: 25px;
-            margin-top: 20px;
-        }
-
-        .pin-input {
-            font-size: 24px;
-            text-align: center;
-            padding: 15px;
-            border: 2px solid #ecf0f1;
-            border-radius: 12px;
-            background: #fff;
-            color: #2c3e50;
-            letter-spacing: 0.5em;
-            max-width: 200px;
-            margin: 0 auto;
-            position: relative;
-            z-index: 10;
-        }
-
-        .pin-input:focus {
-            outline: 3px solid rgba(52, 152, 219, 0.3);
-            outline-offset: 1px;
-            border-color: #3498db;
-        }
-
-        .pin-input.error {
-            border-color: #e74c3c;
-            outline: 3px solid rgba(231, 76, 60, 0.3);
-            outline-offset: 1px;
-        }
-
-        .pin-input:disabled {
-            background-color: #f8f9fa;
-            color: #6c757d;
-            cursor: not-allowed;
-            opacity: 0.7;
-        }
-
-        .pin-input:disabled.error {
-            border-color: #dc3545;
-            background-color: #f8d7da;
-        }
-
-
-        .auth-button {
-            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 500;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            margin: 0 auto;
-            position: relative;
-            z-index: 5;
-        }
-
-        .auth-button:hover {
-            box-shadow: 0 10px 20px rgba(52, 152, 219, 0.3);
-        }
-
-        .auth-button:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-
-        .auth-error {
-            color: #e74c3c;
-            font-size: 14px;
-            margin-top: 10px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 5px;
-            position: relative;
-            z-index: 8;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-        
-        .auth-error:not(:empty) {
-            opacity: 1;
-        }
-
-        .auth-loading {
             display: none;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            color: #7f8c8d;
-            margin-top: 10px;
-            height: 40px;
-        }
-
-        .auth-loading.show {
-            display: flex;
-        }
-
-        .spinner {
-            width: 16px;
-            height: 16px;
-            border: 2px solid #ecf0f1;
-            border-top: 2px solid #3498db;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        .logout-btn {
-            position: absolute;
-            top: 30px;
-            left: 30px;
-            background: rgba(255, 255, 255, 0.2);
-            border: none;
-            color: white;
-            padding: 10px;
-            border-radius: 50%;
-            cursor: pointer;
-            transition: background 0.3s ease;
-            backdrop-filter: blur(10px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 40px;
-            height: 40px;
-        }
-
-        .logout-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-        }
-
-        /* Mobile responsiveness for auth */
-        @media (max-width: 768px) {
-            .auth-container {
-                padding: 30px 20px;
-                margin: 20px;
-            }
-
-            .auth-title {
-                font-size: 24px;
-            }
-
-            .pin-input {
-                font-size: 20px;
-                padding: 12px;
-                max-width: 160px;
-            }
         }
     </style>
 </head>
 
 <body>
-    <!-- PIN Authentication Overlay -->
+    <!-- Authentication Overlay -->
     <div class="auth-overlay" id="authOverlay">
-        <div class="auth-container">
-            <h1 class="auth-title">Welcome</h1>
-            <p class="auth-subtitle">Enter your PIN to access the photo slideshow</p>
+        <div class="card max-w-md w-full mx-4  justify-center">
+            <header class="gap-2 flex flex-col items-center justify-center">
+                <div class="btn-lg-icon-outline">🔒</div>
+                <h2>Welcome</h2>
+                <p class="text-muted-foreground">Enter your PIN to access the photo slideshow</p>
+            </header>
 
-            <form class="pin-form" id="pinForm" novalidate>
-                <input type="password" id="pinInput" class="pin-input" placeholder="••••" maxlength="6"
-                    autocomplete="off" inputmode="numeric">
+            <section>
+                <form class="form grid gap-6" id="pinForm" novalidate>
+                    <div class="grid gap-2">
+                        <label for="pinInput" class="label">PIN</label>
+                        <input type="password" id="pinInput" class="input text-center text-2xl tracking-widest"
+                            placeholder="••••" maxlength="6" autocomplete="off" inputmode="numeric">
+                        <p class="text-muted-foreground text-sm">Enter your 4-6 digit PIN</p>
+                    </div>
+                    <button type="submit" form="pinForm" class="btn w-full" id="authButton">
+                        <span class="material-icons">lock_open</span>
+                        Access Slideshow
+                    </button>
+                </form>
+            </section>
 
-                <button type="submit" class="auth-button" id="authButton">
-                    <span class="material-icons">lock_open</span>
-                    Access Slideshow
-                </button>
+            <footer>
+                <!-- Error Alert -->
+                <div class="alert-destructive hidden mb-4" id="authErrorAlert">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10" />
+                        <line x1="15" y1="9" x2="9" y2="15" />
+                        <line x1="9" y1="9" x2="15" y2="15" />
+                    </svg>
+                    <h2>Authentication Failed</h2>
+                    <section id="authErrorMessage">Invalid PIN entered</section>
+                </div>
 
-                <div class="auth-error" id="authError"></div>
-                <div class="auth-loading" id="authLoading">
-                    <div class="spinner"></div>
+                <!-- Loading State -->
+                <div class="flex items-center justify-center gap-2 text-muted-foreground text-sm hidden mb-4"
+                    id="authLoading">
+                    <div class="bg-accent animate-pulse size-4 shrink-0 rounded-full"></div>
                     <span>Authenticating...</span>
                 </div>
-            </form>
+
+
+            </footer>
         </div>
     </div>
 
-    <div class="slideshow-container">
-        <div class="loading" id="loading">Loading your photos...</div>
-        <div class="error hidden" id="error">Unable to load images. Please check your connection.</div>
+    <!-- Slideshow Container -->
+    <div class="slideshow-container" id="slideshowContainer">
+        <!-- Loading State -->
+        <div class="absolute inset-0 flex flex-col items-center justify-center text-white" id="loadingState">
+            <div class="flex items-center gap-4 mb-4">
+                <div class="bg-white/20 animate-pulse size-12 shrink-0 rounded-full"></div>
+                <div class="grid gap-2">
+                    <div class="bg-white/20 animate-pulse rounded-md h-4 w-[200px]"></div>
+                    <div class="bg-white/20 animate-pulse rounded-md h-4 w-[150px]"></div>
+                </div>
+            </div>
+            <p class="text-xl text-center">Loading your photos...</p>
+        </div>
 
+        <!-- Error State -->
+        <div class="absolute inset-0 flex items-center justify-center hidden" id="errorState">
+            <div class="alert-destructive max-w-md">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="15" y1="9" x2="9" y2="15" />
+                    <line x1="9" y1="9" x2="15" y2="15" />
+                </svg>
+                <h2>Connection Error</h2>
+                <section id="errorMessage">Unable to load images. Please check your connection.</section>
+            </div>
+        </div>
+
+        <!-- Photo Slides -->
         <div class="slide" id="slide1">
             <img id="image1" alt="Photo">
         </div>
@@ -457,23 +229,39 @@
             <img id="image2" alt="Photo">
         </div>
 
-        <div class="info hidden" id="info">
-            <div id="filename"></div>
-            <div id="folder"></div>
-        </div>
-
+        <!-- Progress Bar -->
         <div class="progress-bar" id="progressBar"></div>
 
-        <div class="controls">
-            <div id="folderSelector" class="folder-selector-container">
+        <!-- Controls -->
+        <div class="controls flex gap-2" id="controls">
+            <div id="folderSelector" class="mr-2">
                 <!-- Folder selector will be initialized here -->
             </div>
-            <button class="control-btn" id="fullscreenBtn" title="Fullscreen">
+
+            <button class="btn-icon bg-white/20 hover:bg-white/30 backdrop-blur text-white" id="fullscreenBtn"
+                data-tooltip="Toggle Fullscreen" data-side="bottom">
                 <span class="material-icons">fullscreen</span>
             </button>
-            <button class="control-btn" id="logoutBtn" title="Logout">
+
+            <button class="btn-icon bg-white/20 hover:bg-white/30 backdrop-blur text-white" id="infoBtn"
+                data-tooltip="Show Info" data-side="bottom">
+                <span class="material-icons">info</span>
+            </button>
+
+            <button class="btn-icon bg-white/20 hover:bg-white/30 backdrop-blur text-white" id="logoutBtn"
+                data-tooltip="Logout" data-side="bottom">
                 <span class="material-icons">logout</span>
             </button>
+        </div>
+
+        <!-- Info Overlay -->
+        <div class="info-overlay hidden" id="infoOverlay">
+            <div class="card bg-background/90 backdrop-blur-md">
+                <section class="grid gap-1">
+                    <div id="filename" class="font-medium text-foreground"></div>
+                    <div id="folder" class="text-sm text-muted-foreground"></div>
+                </section>
+            </div>
         </div>
     </div>
 
@@ -490,7 +278,8 @@
                 this.pinForm = document.getElementById('pinForm');
                 this.pinInput = document.getElementById('pinInput');
                 this.authButton = document.getElementById('authButton');
-                this.authError = document.getElementById('authError');
+                this.authErrorAlert = document.getElementById('authErrorAlert');
+                this.authErrorMessage = document.getElementById('authErrorMessage');
                 this.authLoading = document.getElementById('authLoading');
 
                 this.init();
@@ -513,7 +302,6 @@
                 });
 
                 this.pinInput.addEventListener('keypress', (e) => {
-                    // Only allow numeric input
                     if (!/[0-9]/.test(e.key) && e.key !== 'Backspace' && e.key !== 'Delete' && e.key !== 'Tab') {
                         e.preventDefault();
                     }
@@ -554,9 +342,7 @@
                 try {
                     const response = await fetch('/api/auth/pin', {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
+                        headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ pin })
                     });
 
@@ -578,16 +364,12 @@
             handleAuthSuccess(account) {
                 this.isAuthenticated = true;
                 this.userAccount = account;
-                console.log('Authentication successful for account:', account.name);
 
-                // Store auth state for the session
                 sessionStorage.setItem('authenticated', 'true');
                 sessionStorage.setItem('accountName', account.name);
 
-                // Hide auth overlay
                 this.hideAuthOverlay();
 
-                // Always dispatch the authentication complete event for consistent handling
                 document.dispatchEvent(new CustomEvent('authenticationComplete', {
                     detail: { account }
                 }));
@@ -597,13 +379,11 @@
                 this.showError(error || 'Invalid PIN');
 
                 if (errorCode === 'RATE_LIMITED') {
-                    // For rate limiting, disable the input and add different styling
                     this.pinInput.disabled = true;
-                    this.pinInput.classList.add('error');
+                    this.pinInput.classList.add('border-destructive');
                     this.authButton.disabled = true;
                 } else {
-                    // For invalid PIN, just add error styling and focus input
-                    this.pinInput.classList.add('error');
+                    this.pinInput.classList.add('border-destructive');
                     this.pinInput.focus();
                 }
             }
@@ -621,7 +401,6 @@
                     this.showAuthOverlay();
                     this.clearForm();
 
-                    // Stop slideshow
                     if (window.slideshow) {
                         window.slideshow.cleanup();
                     }
@@ -630,9 +409,7 @@
 
             showAuthOverlay() {
                 this.authOverlay.classList.remove('hidden');
-                setTimeout(() => {
-                    this.pinInput.focus();
-                }, 100);
+                setTimeout(() => this.pinInput.focus(), 100);
             }
 
             hideAuthOverlay() {
@@ -644,24 +421,25 @@
                 this.pinInput.disabled = loading;
 
                 if (loading) {
-                    this.authLoading.classList.add('show');
+                    this.authLoading.classList.remove('hidden');
                     this.clearError();
                 } else {
-                    this.authLoading.classList.remove('show');
+                    this.authLoading.classList.add('hidden');
                 }
             }
 
             showError(message) {
-                this.authError.textContent = message;
-                this.authError.innerHTML = `<span class="material-icons">error</span> ${message}`;
+                this.authErrorMessage.textContent = message;
+                this.authErrorAlert.classList.remove('hidden');
             }
 
             clearError() {
-                this.authError.textContent = '';
+                this.authErrorAlert.classList.add('hidden');
+                this.authErrorMessage.textContent = '';
             }
 
             clearErrorState() {
-                this.pinInput.classList.remove('error');
+                this.pinInput.classList.remove('border-destructive');
                 this.pinInput.disabled = false;
                 this.authButton.disabled = false;
             }
@@ -670,7 +448,6 @@
                 this.pinInput.value = '';
                 this.clearError();
                 this.clearErrorState();
-                // Ensure form is fully re-enabled
                 this.pinInput.disabled = false;
                 this.authButton.disabled = false;
             }
@@ -683,21 +460,15 @@
                 this.interval = 15000; // 15 seconds
                 this.timer = null;
                 this.progressTimer = null;
-                this.activityTimer = null;
-                this.fullscreenTimer = null;
-                this.preloadedImages = [];
-                this.currentImageData = null;
+                this.cursorHideTimer = null;
                 this.wakeLock = null;
                 this.folderSelector = null;
                 this.folderStorage = new FolderStorage();
-                this.cursorHideTimer = null;
 
                 this.initializeElements();
                 this.setupEventListeners();
-                // Delay folder selector initialization until after authentication
                 this.setupCursorAutoHide();
                 this.requestWakeLock();
-                // Don't start slideshow automatically - wait for authentication
             }
 
             initializeElements() {
@@ -709,29 +480,26 @@
                     document.getElementById('image1'),
                     document.getElementById('image2')
                 ];
-                this.loading = document.getElementById('loading');
-                this.error = document.getElementById('error');
-                this.info = document.getElementById('info');
-                this.filename = document.getElementById('filename');
-                this.folder = document.getElementById('folder');
+                this.loadingState = document.getElementById('loadingState');
+                this.errorState = document.getElementById('errorState');
+                this.errorMessage = document.getElementById('errorMessage');
                 this.progressBar = document.getElementById('progressBar');
                 this.fullscreenBtn = document.getElementById('fullscreenBtn');
+                this.infoBtn = document.getElementById('infoBtn');
                 this.logoutBtn = document.getElementById('logoutBtn');
-                
-                // Ensure error div is hidden initially and images don't have invalid src
-                console.log('🔧 Initializing: Hiding error div');
-                this.error.classList.add('hidden');
-                this.images.forEach(img => {
-                    // Remove any src to prevent error events from empty/invalid src
-                    img.removeAttribute('src');
-                });
+                this.infoOverlay = document.getElementById('infoOverlay');
+                this.filename = document.getElementById('filename');
+                this.folder = document.getElementById('folder');
+
+                this.errorState.classList.add('hidden');
+                this.images.forEach(img => img.removeAttribute('src'));
             }
 
             setupEventListeners() {
                 this.fullscreenBtn.addEventListener('click', () => this.toggleFullscreen());
+                this.infoBtn.addEventListener('click', () => this.toggleInfo());
                 this.logoutBtn.addEventListener('click', () => this.logout());
 
-                // Keyboard controls
                 document.addEventListener('keydown', (e) => {
                     switch (e.key) {
                         case 'f':
@@ -742,20 +510,21 @@
                             e.preventDefault();
                             this.toggleInfo();
                             break;
+                        case 'Escape':
+                            if (document.fullscreenElement) {
+                                document.exitFullscreen();
+                            }
+                            break;
                     }
                 });
 
-                // Touch/click to show controls temporarily
                 document.addEventListener('click', () => {
                     this.showControlsTemporarily();
                 });
 
-                // Image load error handling - only show error if we're not already showing one
                 this.images.forEach(img => {
                     img.addEventListener('error', () => {
-                        // Only show error if error div is currently hidden (not already showing an error)
-                        if (this.error.classList.contains('hidden')) {
-                            console.log('Image load error for:', img.src);
+                        if (this.errorState.classList.contains('hidden')) {
                             this.showError('Failed to load image');
                         }
                     });
@@ -769,9 +538,6 @@
                         ? `/api/images/random?folder=${encodeURIComponent(selectedFolderPath)}`
                         : '/api/images/random';
 
-                    console.log('🔍 Fetching image from URL:', url);
-                    console.log('📁 Selected folder path:', selectedFolderPath);
-
                     const response = await fetch(url);
                     if (!response.ok) throw new Error('Failed to fetch image');
                     const data = await response.json();
@@ -780,10 +546,9 @@
                         throw new Error(data.error || 'Failed to fetch image');
                     }
 
-                    console.log('✅ Fetched image from', selectedFolderPath || 'all folders', ':', data.image.folder, '/', data.image.filename);
                     return data.image;
                 } catch (error) {
-                    console.error('❌ Error fetching random image:', error);
+                    console.error('Error fetching random image:', error);
                     this.showError(`Failed to load image: ${error.message}`);
                     return null;
                 }
@@ -799,8 +564,6 @@
                     const onLoad = () => {
                         img.removeEventListener('load', onLoad);
                         img.removeEventListener('error', onError);
-
-                        // Hide any existing error messages on successful load
                         this.hideError();
                         this.currentImageData = imageData;
                         resolve(true);
@@ -809,9 +572,8 @@
                     const onError = (event) => {
                         img.removeEventListener('load', onLoad);
                         img.removeEventListener('error', onError);
-                        console.error('Failed to load image:', imageData.url, 'Error:', event);
-                        // Only show error message if this is the current image being loaded
-                        if (this.error.classList.contains('hidden')) {
+                        console.error('Failed to load image:', imageData.url);
+                        if (this.errorState.classList.contains('hidden')) {
                             this.showError(`Failed to load image: ${imageData.filename}`);
                         }
                         resolve(false);
@@ -827,18 +589,12 @@
                 const currentSlideEl = this.slides[this.currentSlide];
                 const nextSlideEl = this.slides[(this.currentSlide + 1) % 2];
 
-                // Switch active slide
                 currentSlideEl.classList.remove('active');
                 nextSlideEl.classList.add('active');
 
-                // Update current slide index
                 this.currentSlide = (this.currentSlide + 1) % 2;
-
-                // Update info
                 this.updateInfo();
-
-                // Hide loading and error
-                this.loading.classList.add('hidden');
+                this.loadingState.classList.add('hidden');
                 this.hideError();
             }
 
@@ -846,12 +602,13 @@
                 if (this.currentImageData) {
                     this.filename.textContent = this.currentImageData.filename;
                     this.folder.textContent = `📁 ${this.currentImageData.folder}`;
-                    this.info.classList.remove('hidden');
 
-                    // Auto-hide info after 3 seconds
-                    setTimeout(() => {
-                        this.info.classList.add('hidden');
-                    }, 3000);
+                    // Auto-hide info after 3 seconds if visible
+                    if (!this.infoOverlay.classList.contains('hidden')) {
+                        setTimeout(() => {
+                            this.infoOverlay.classList.add('hidden');
+                        }, 3000);
+                    }
                 }
             }
 
@@ -910,7 +667,6 @@
                 }
             }
 
-
             toggleFullscreen() {
                 if (!document.fullscreenElement) {
                     document.documentElement.requestFullscreen().then(() => {
@@ -924,7 +680,7 @@
             }
 
             toggleInfo() {
-                this.info.classList.toggle('hidden');
+                this.infoOverlay.classList.toggle('hidden');
             }
 
             logout() {
@@ -935,7 +691,7 @@
 
             showControlsTemporarily() {
                 if (document.fullscreenElement) {
-                    const controls = document.querySelector('.controls');
+                    const controls = document.getElementById('controls');
                     controls.style.opacity = '1';
                     setTimeout(() => {
                         controls.style.opacity = '0';
@@ -944,200 +700,32 @@
             }
 
             showError(message) {
-                console.log('Showing error:', message);
-                this.error.textContent = message;
-                this.error.classList.remove('hidden');
-                this.loading.classList.add('hidden');
+                this.errorMessage.textContent = message;
+                this.errorState.classList.remove('hidden');
+                this.loadingState.classList.add('hidden');
             }
 
             hideError() {
-                console.log('Hiding error message');
-                this.error.classList.add('hidden');
+                this.errorState.classList.add('hidden');
             }
 
             async requestWakeLock() {
                 try {
                     if ('wakeLock' in navigator) {
                         this.wakeLock = await navigator.wakeLock.request('screen');
-                        console.log('Screen wake lock activated');
 
-                        // Re-request wake lock when page becomes visible
                         document.addEventListener('visibilitychange', async () => {
                             if (this.wakeLock !== null && document.visibilityState === 'visible') {
                                 try {
                                     this.wakeLock = await navigator.wakeLock.request('screen');
-                                    console.log('Screen wake lock re-activated');
                                 } catch (err) {
                                     console.error('Failed to re-activate wake lock:', err);
                                 }
                             }
                         });
-                    } else {
-                        console.warn('Wake Lock API not supported');
                     }
                 } catch (err) {
                     console.error('Failed to activate wake lock:', err);
-                }
-
-                // Additional screen saver prevention methods for Android TV and other devices
-                this.initScreenSaverPrevention();
-            }
-
-            initScreenSaverPrevention() {
-                // Method 1: Invisible video playing to prevent screen saver
-                this.createKeepAliveVideo();
-
-                // Method 2: Periodic user activity simulation
-                this.startActivitySimulation();
-
-                // Method 3: Fullscreen API to prevent system sleep
-                this.maintainFullscreen();
-            }
-
-            createKeepAliveVideo() {
-                // Create a silent, invisible video that loops to trick the system
-                const video = document.createElement('video');
-                video.style.position = 'absolute';
-                video.style.top = '-1px';
-                video.style.left = '-1px';
-                video.style.width = '1px';
-                video.style.height = '1px';
-                video.style.opacity = '0';
-                video.style.pointerEvents = 'none';
-                video.muted = true;
-                video.loop = true;
-                video.autoplay = true;
-                video.playsInline = true;
-
-                // Create a minimal video data URL (1-second transparent video)
-                video.src = 'data:video/mp4;base64,AAAAIGZ0eXBpc29tAAACAGlzb21pc28yYXZjMW1wNDEAAAAIZnJlZQAAAr1tZGF0AAACrgYF//+q3EXpvebZSLeWLNgg2SPu73gyNjQgLSBjb3JlIDE0OCByMjc1NSBkZDBhNjEwIC0gSC4yNjQvTVBFRy00IEFWQyBjb2RlYyAtIENvcHlsZWZ0IDIwMDMtMjAxNSAtIGh0dHA6Ly93d3cudmlkZW9sYW4ub3JnL3gyNjQuaHRtbCAtIG9wdGlvbnM6IGNhYmFjPTEgcmVmPTMgZGVibG9jaz0xOjA6MCBhbmFseXNlPTB4MzoweDExMyBtZT1oZXggc3VibWU9NyBwc3k9MSBwc3lfcmQ9MS4wMDowLjAwIG1peGVkX3JlZj0xIG1lX3JhbmdlPTE2IGNocm9tYV9tZT0xIHRyZWxsaXM9MSA4eDhkY3Q9MSBjcWZtPTAgZGVhZHpvbmU9MjEsMTEgZmFzdF9wc2tpcD0xIGNocm9tYV9xcF9vZmZzZXQ9LTIgdGhyZWFkcz02IGxvb2thaGVhZF90aHJlYWRzPTEgc2xpY2VkX3RocmVhZHM9MCBucj0wIGRlY2ltYXRlPTEgaW50ZXJsYWNlZD0wIGJsdXJheV9jb21wYXQ9MCBjb25zdHJhaW5lZF9pbnRyYT0wIGJmcmFtZXM9MyBiX3B5cmFtaWQ9MiBiX2FkYXB0PTEgYl9iaWFzPTAgZGlyZWN0PTEgd2VpZ2h0Yj0xIG9wZW5fZ29wPTAgd2VpZ2h0cD0yIGtleWludD0yNTAga2V5aW50X21pbj0yNSBzY2VuZWN1dD00MCBpbnRyYV9yZWZyZXNoPTAgcmNfbG9va2FoZWFkPTQwIHJjPWNyZiBtYnRyZWU9MSBjcmY9MjMuMCBxY29tcD0wLjYwIHFwbWluPTAgcXBtYXg9NjkgcXBzdGVwPTQgaXBfcmF0aW89MS4yNSBhcT0xOjEuMDAAgAAAAAxliIQAL//+9Qom+JAQAW5vbG6';
-
-                document.body.appendChild(video);
-
-                // Ensure video starts playing
-                video.play().catch(err => {
-                    console.log('Keep-alive video autoplay failed:', err);
-                });
-
-                console.log('Keep-alive video created for screen saver prevention');
-            }
-
-            startActivitySimulation() {
-                // Simulate user activity every 30 seconds to prevent sleep
-                this.activityTimer = setInterval(() => {
-                    // Dispatch a minimal mouse move event
-                    const event = new MouseEvent('mousemove', {
-                        bubbles: true,
-                        cancelable: true,
-                        clientX: 1,
-                        clientY: 1
-                    });
-                    document.dispatchEvent(event);
-
-                    // Also try to re-request wake lock if it was lost
-                    this.checkAndRenewWakeLock();
-                }, 30000);
-
-                console.log('Activity simulation started for screen saver prevention');
-            }
-
-            async checkAndRenewWakeLock() {
-                try {
-                    if ('wakeLock' in navigator && (!this.wakeLock || this.wakeLock.released)) {
-                        this.wakeLock = await navigator.wakeLock.request('screen');
-                        console.log('Wake lock renewed');
-                    }
-                } catch (err) {
-                    console.log('Wake lock renewal failed:', err);
-                }
-            }
-
-            maintainFullscreen() {
-                // Periodically check and maintain fullscreen to prevent system sleep
-                this.fullscreenTimer = setInterval(() => {
-                    if (!document.fullscreenElement) {
-                        // Try to enter fullscreen if not already
-                        document.documentElement.requestFullscreen().catch(() => {
-                            // Fullscreen failed, that's okay
-                        });
-                    }
-                }, 60000); // Check every minute
-
-                console.log('Fullscreen maintenance started for screen saver prevention');
-            }
-
-            releaseWakeLock() {
-                if (this.wakeLock !== null) {
-                    this.wakeLock.release();
-                    this.wakeLock = null;
-                    console.log('Screen wake lock released');
-                }
-            }
-
-            cleanup() {
-                // Clean up all timers and resources
-                this.clearTimers();
-
-                if (this.activityTimer) {
-                    clearInterval(this.activityTimer);
-                    this.activityTimer = null;
-                }
-
-                if (this.fullscreenTimer) {
-                    clearInterval(this.fullscreenTimer);
-                    this.fullscreenTimer = null;
-                }
-
-                if (this.cursorHideTimer) {
-                    clearTimeout(this.cursorHideTimer);
-                    this.cursorHideTimer = null;
-                }
-
-                this.releaseWakeLock();
-                console.log('Slideshow cleanup completed');
-            }
-
-            initializeFolderSelector() {
-                const container = document.getElementById('folderSelector');
-                if (container) {
-                    this.folderSelector = new FolderSelector(container, {
-                        onFolderChanged: (folderPath, folderName) => {
-                            console.log('Folder changed in slideshow:', folderPath, folderName);
-                            this.onFolderChanged(folderPath, folderName);
-                        },
-                        showFolderCount: true,
-                        autoClose: true
-                    });
-
-                    // Clear the initially loaded folders to prevent showing all folders
-                    // They will be reloaded properly after authentication check
-                    this.folderSelector.folders = [];
-                    this.folderSelector.renderFolders();
-                }
-            }
-
-            async onFolderChanged(folderPath, folderName) {
-                // Stop current slideshow
-                this.clearTimers();
-
-                // Reset progress
-                this.resetProgress();
-
-                console.log(`Slideshow switching to folder: ${folderName || 'All Folders'}`);
-
-                // Immediately load and show image from selected folder
-                const imageData = await this.fetchRandomImage();
-                if (imageData) {
-                    const loaded = await this.loadImage(imageData);
-                    if (loaded) {
-                        this.showImage();
-                        // Resume slideshow with new folder
-                        this.scheduleNext();
-                    } else {
-                        this.showError('Failed to load image from selected folder');
-                    }
-                } else {
-                    this.showError(`No images found in folder: ${folderName || 'All Folders'}`);
                 }
             }
 
@@ -1149,23 +737,67 @@
                 const showCursor = () => {
                     document.body.classList.remove('hide-cursor');
                     clearTimeout(this.cursorHideTimer);
-                    this.cursorHideTimer = setTimeout(hideCursor, 3000); // Hide after 3 seconds of inactivity
+                    this.cursorHideTimer = setTimeout(hideCursor, 3000);
                 };
 
-                // Show cursor on mouse movement
                 document.addEventListener('mousemove', showCursor);
                 document.addEventListener('mousedown', showCursor);
                 document.addEventListener('keydown', showCursor);
 
-                // Initially hide cursor after 3 seconds
                 this.cursorHideTimer = setTimeout(hideCursor, 3000);
             }
 
+            initializeFolderSelector() {
+                const container = document.getElementById('folderSelector');
+                if (container && window.FolderSelector) {
+                    this.folderSelector = new FolderSelector(container, {
+                        onFolderChanged: (folderPath, folderName) => {
+                            this.onFolderChanged(folderPath, folderName);
+                        },
+                        showFolderCount: true,
+                        autoClose: true
+                    });
+
+                    this.folderSelector.folders = [];
+                    this.folderSelector.renderFolders();
+                }
+            }
+
+            async onFolderChanged(folderPath, folderName) {
+                this.clearTimers();
+                this.resetProgress();
+
+                const imageData = await this.fetchRandomImage();
+                if (imageData) {
+                    const loaded = await this.loadImage(imageData);
+                    if (loaded) {
+                        this.showImage();
+                        this.scheduleNext();
+                    } else {
+                        this.showError('Failed to load image from selected folder');
+                    }
+                } else {
+                    this.showError(`No images found in folder: ${folderName || 'All Folders'}`);
+                }
+            }
+
+            cleanup() {
+                this.clearTimers();
+
+                if (this.cursorHideTimer) {
+                    clearTimeout(this.cursorHideTimer);
+                    this.cursorHideTimer = null;
+                }
+
+                if (this.wakeLock !== null) {
+                    this.wakeLock.release();
+                    this.wakeLock = null;
+                }
+            }
+
             async startSlideshow() {
-                console.log('🎬 Starting slideshow - ensuring error is hidden');
-                this.hideError(); // Ensure no error is showing when we start
-                
-                // Load first image
+                this.hideError();
+
                 const imageData = await this.fetchRandomImage();
                 if (imageData) {
                     const loaded = await this.loadImage(imageData);
@@ -1181,37 +813,26 @@
             }
         }
 
-        // Initialize authentication and slideshow when DOM is loaded
+        // Initialize when DOM is loaded
         document.addEventListener('DOMContentLoaded', () => {
-            // Initialize authentication first
             window.authManager = new AuthenticationManager();
-
-            // Initialize slideshow (it will wait for authentication)
             window.slideshow = new PhotoFrameSlideshow();
 
-            // Listen for successful authentication
             document.addEventListener('authenticationComplete', (e) => {
                 console.log('Authentication complete, starting slideshow for:', e.detail.account.name);
 
-                // Hide any existing error messages after successful authentication
                 window.slideshow.hideError();
-                
-                // Initialize folder selector after authentication
                 window.slideshow.initializeFolderSelector();
 
-                // Add a small delay to ensure session is fully established before refreshing folders
                 setTimeout(() => {
-                    // Refresh folder list after authentication to get user-specific folders
                     if (window.slideshow && window.slideshow.folderSelector) {
-                        console.log('Refreshing folder list for authenticated user');
                         window.slideshow.folderSelector.refresh();
                     }
-                }, 500); // 500ms delay to ensure session is fully established
+                }, 500);
 
                 window.slideshow.startSlideshow();
             });
 
-            // Clean up when page is unloaded
             window.addEventListener('beforeunload', () => {
                 window.slideshow.cleanup();
             });

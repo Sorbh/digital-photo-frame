@@ -1,326 +1,245 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Digital Photo Frame - Login</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/basecoat-css@0.3.1/dist/basecoat.cdn.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/basecoat-css@0.3.1/dist/js/all.min.js" defer></script>
+    
+    <!-- Theme Switcher Script -->
+    <script>
+    (() => {
+      try {
+        const stored = localStorage.getItem('themeMode');
+        if (stored ? stored === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches) {
+          document.documentElement.classList.add('dark');
         }
-
+      } catch (_) {}
+      
+      document.addEventListener('basecoat:theme', (e) => {
+        const mode = e.detail?.mode || (document.documentElement.classList.contains('dark') ? 'light' : 'dark');
+        if (mode === 'dark') {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+        localStorage.setItem('themeMode', mode);
+      });
+    })();
+    </script>
+    <style>
+        /* Basecoat-style body CSS with theme support */
         body {
-            font-family: 'Roboto', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--background);
+            color: var(--foreground);
+            overscroll-behavior: none;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px;
-        }
-
-        .login-container {
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            padding: 40px;
-            width: 100%;
-            max-width: 400px;
-            text-align: center;
-        }
-
-        .login-header {
-            margin-bottom: 30px;
-        }
-
-        .login-header .material-icons {
-            font-size: 64px;
-            color: #667eea;
-            margin-bottom: 16px;
-        }
-
-        .login-header h1 {
-            font-size: 24px;
-            font-weight: 500;
-            color: #333;
-            margin-bottom: 8px;
-        }
-
-        .login-header p {
-            color: #666;
-            font-size: 14px;
-        }
-
-        .login-form {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .form-group {
-            position: relative;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 16px 20px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 16px;
-            transition: border-color 0.3s ease;
-            outline: none;
-        }
-
-        .form-group input:focus {
-            border-color: #667eea;
-        }
-
-        .form-group input::placeholder {
-            color: #999;
-        }
-
-        .login-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 16px 24px;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .login-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
-        }
-
-        .login-btn:active {
-            transform: translateY(0);
-        }
-
-        .login-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .error-message {
-            color: #e53e3e;
-            font-size: 14px;
-            margin-top: 10px;
-            padding: 12px;
-            background: #fed7d7;
-            border-radius: 8px;
-            border: 1px solid #feb2b2;
-        }
-
-        .success-message {
-            color: #38a169;
-            font-size: 14px;
-            margin-top: 10px;
-            padding: 12px;
-            background: #c6f6d5;
-            border-radius: 8px;
-            border: 1px solid #9ae6b4;
-        }
-
-        .slideshow-link {
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid #e0e0e0;
-        }
-
-        .slideshow-link a {
-            color: #667eea;
-            text-decoration: none;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            transition: color 0.3s ease;
-        }
-
-        .slideshow-link a:hover {
-            color: #5a67d8;
         }
 
         .spinner {
-            width: 20px;
-            height: 20px;
+            width: 16px;
+            height: 16px;
             border: 2px solid transparent;
-            border-top: 2px solid white;
+            border-top: 2px solid currentColor;
             border-radius: 50%;
             animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .hidden {
             display: none;
         }
 
-        @media (max-width: 480px) {
-            .login-container {
-                padding: 30px 20px;
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
             }
         }
     </style>
 </head>
+
 <body>
-    <div class="login-container">
-        <div class="login-header">
-            <span class="material-icons">photo_camera</span>
-            <h1>Digital Photo Frame</h1>
-            <p>Enter password to access admin panel</p>
-        </div>
+    <!-- ✅ Following style guide: Use Tailwind only when absolutely necessary for layout -->
+    <div class="w-full max-w-md">
+        <!-- ✅ Following style guide: Basecoat card component with proper structure -->
+        <div class="card justify-center">
+            <!-- ✅ Following style guide: Card header pattern -->
+            <header class="flex flex-col items-center justify-center">
+                <div class="btn-lg-icon-outline">📷</div>
+                <h2>Digital Photo Frame</h2>
 
-        <form class="login-form" id="loginForm">
-            <div class="form-group">
-                <input 
-                    type="password" 
-                    name="password" 
-                    placeholder="Enter admin password"
-                    required
-                    autocomplete="current-password"
-                    id="passwordInput"
-                >
-            </div>
+            </header>
 
-            <button type="submit" class="login-btn" id="loginBtn">
-                <span class="btn-text">Login</span>
-                <div class="spinner hidden" id="spinner"></div>
-            </button>
+            <!-- ✅ Following style guide: Card main content section -->
+            <section>
+                <!-- ✅ Following style guide: Recommended form pattern -->
 
-            <div id="errorMessage" class="error-message hidden"></div>
-            <div id="successMessage" class="success-message hidden"></div>
-        </form>
+                <form class="form grid gap-6" id="loginForm">
+                    <p class="text-muted-foreground">Enter password to access admin panel</p>
+                    <div class="grid gap-2">
+                        <label for="passwordInput" class="label">Password</label>
+                        <input type="password" name="password" class="input" placeholder="Enter admin password" required
+                            autocomplete="current-password" id="passwordInput">
+                        <p class="text-muted-foreground text-sm">Enter your admin password to access the control panel.
+                        </p>
+                    </div>
 
-        <div class="slideshow-link">
-            <a href="/slideshow">
-                <span class="material-icons">slideshow</span>
-                View Slideshow (No login required)
-            </a>
+                    <button type="submit" class="btn" id="loginBtn">
+                        <span class="btn-text">Login</span>
+                        <div class="spinner" id="spinner"></div>
+                    </button>
+
+                    <!-- ✅ Following style guide: Error alert pattern -->
+                    <div id="errorMessage" class="alert-destructive" style="display: none;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10" />
+                            <line x1="12" x2="12" y1="8" y2="12" />
+                            <line x1="12" x2="12.01" y1="16" y2="16" />
+                        </svg>
+                        <h2>Login Failed</h2>
+                        <section id="errorText"></section>
+                    </div>
+
+                    <!-- ✅ Following style guide: Success alert pattern -->
+                    <div id="successMessage" class="alert" style="display: none;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10" />
+                            <path d="m9 12 2 2 4-4" />
+                        </svg>
+                        <h2>Success!</h2>
+                        <section id="successText"></section>
+                    </div>
+                </form>
+            </section>
+
+            <!-- ✅ Following style guide: Card footer pattern -->
+            <footer>
+                <a href="/slideshow" class="btn-link">
+                    <span>🎬</span>
+                    View Slideshow (No login required)
+                </a>
+            </footer>
         </div>
     </div>
+</body>
 
-    <script>
-        class LoginManager {
-            constructor() {
-                this.form = document.getElementById('loginForm');
-                this.passwordInput = document.getElementById('passwordInput');
-                this.loginBtn = document.getElementById('loginBtn');
-                this.spinner = document.getElementById('spinner');
-                this.btnText = document.querySelector('.btn-text');
-                this.errorMessage = document.getElementById('errorMessage');
-                this.successMessage = document.getElementById('successMessage');
-                
-                this.setupEventListeners();
-                this.checkUrlParams();
-            }
+<script>
+    class LoginManager {
+        constructor() {
+            this.form = document.getElementById('loginForm');
+            this.passwordInput = document.getElementById('passwordInput');
+            this.loginBtn = document.getElementById('loginBtn');
+            this.spinner = document.getElementById('spinner');
+            this.btnText = document.querySelector('.btn-text');
+            this.errorMessage = document.getElementById('errorMessage');
+            this.successMessage = document.getElementById('successMessage');
 
-            setupEventListeners() {
-                this.form.addEventListener('submit', (e) => this.handleLogin(e));
-                this.passwordInput.addEventListener('input', () => this.clearMessages());
-            }
+            this.setupEventListeners();
+            this.checkUrlParams();
+        }
 
-            checkUrlParams() {
-                const urlParams = new URLSearchParams(window.location.search);
-                const error = urlParams.get('error');
-                const expired = urlParams.get('expired');
-                
-                if (error === 'invalid') {
-                    this.showError('Invalid password. Please try again.');
-                } else if (expired === 'true') {
-                    this.showError('Your session has expired. Please login again.');
-                }
-            }
+        setupEventListeners() {
+            this.form.addEventListener('submit', (e) => this.handleLogin(e));
+            this.passwordInput.addEventListener('input', () => this.clearMessages());
+        }
 
-            async handleLogin(e) {
-                e.preventDefault();
-                
-                const password = this.passwordInput.value.trim();
-                if (!password) {
-                    this.showError('Please enter a password');
-                    return;
-                }
+        checkUrlParams() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const error = urlParams.get('error');
+            const expired = urlParams.get('expired');
 
-                this.setLoading(true);
-                this.clearMessages();
-
-                try {
-                    const response = await fetch('/api/auth/login', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({ password })
-                    });
-
-                    const data = await response.json();
-
-                    if (response.ok) {
-                        this.showSuccess('Login successful! Redirecting...');
-                        setTimeout(() => {
-                            window.location.href = '/admin';
-                        }, 1000);
-                    } else {
-                        this.showError(data.message || 'Login failed');
-                    }
-                } catch (error) {
-                    console.error('Login error:', error);
-                    this.showError('Connection error. Please try again.');
-                } finally {
-                    this.setLoading(false);
-                }
-            }
-
-            setLoading(loading) {
-                this.loginBtn.disabled = loading;
-                if (loading) {
-                    this.btnText.textContent = 'Logging in...';
-                    this.spinner.classList.remove('hidden');
-                } else {
-                    this.btnText.textContent = 'Login';
-                    this.spinner.classList.add('hidden');
-                }
-            }
-
-            showError(message) {
-                this.errorMessage.textContent = message;
-                this.errorMessage.classList.remove('hidden');
-                this.successMessage.classList.add('hidden');
-            }
-
-            showSuccess(message) {
-                this.successMessage.textContent = message;
-                this.successMessage.classList.remove('hidden');
-                this.errorMessage.classList.add('hidden');
-            }
-
-            clearMessages() {
-                this.errorMessage.classList.add('hidden');
-                this.successMessage.classList.add('hidden');
+            if (error === 'invalid') {
+                this.showError('Invalid password. Please try again.');
+            } else if (expired === 'true') {
+                this.showError('Your session has expired. Please login again.');
             }
         }
 
-        // Initialize login manager when DOM is loaded
-        document.addEventListener('DOMContentLoaded', () => {
-            new LoginManager();
-        });
-    </script>
+        async handleLogin(e) {
+            e.preventDefault();
+
+            const password = this.passwordInput.value.trim();
+            if (!password) {
+                this.showError('Please enter a password');
+                return;
+            }
+
+            this.setLoading(true);
+            this.clearMessages();
+
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    this.showSuccess('Login successful! Redirecting...');
+                    setTimeout(() => {
+                        window.location.href = '/admin';
+                    }, 1000);
+                } else {
+                    this.showError(data.message || 'Login failed');
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                this.showError('Connection error. Please try again.');
+            } finally {
+                this.setLoading(false);
+            }
+        }
+
+        setLoading(loading) {
+            this.loginBtn.disabled = loading;
+            if (loading) {
+                this.btnText.textContent = 'Logging in...';
+                this.spinner.style.display = 'inline-block';
+            } else {
+                this.btnText.textContent = 'Login';
+                this.spinner.style.display = 'none';
+            }
+        }
+
+        showError(message) {
+            const errorText = document.getElementById('errorText');
+            if (errorText) {
+                errorText.textContent = message;
+            }
+            this.errorMessage.style.display = 'grid';
+            this.successMessage.style.display = 'none';
+        }
+
+        showSuccess(message) {
+            const successText = document.getElementById('successText');
+            if (successText) {
+                successText.textContent = message;
+            }
+            this.successMessage.style.display = 'grid';
+            this.errorMessage.style.display = 'none';
+        }
+
+        clearMessages() {
+            this.errorMessage.style.display = 'none';
+            this.successMessage.style.display = 'none';
+        }
+    }
+
+    // Initialize login manager when DOM is loaded
+    document.addEventListener('DOMContentLoaded', () => {
+        new LoginManager();
+    });
+</script>
 </body>
+
 </html>
