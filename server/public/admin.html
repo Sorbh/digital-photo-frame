@@ -10,33 +10,33 @@
     <script src="https://cdn.jsdelivr.net/npm/basecoat-css@0.3.1/dist/js/all.min.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/basecoat-css@0.3.1/dist/js/dropdown-menu.min.js" defer></script>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
-    
+
     <!-- Theme Switcher Script -->
     <script>
-    (() => {
-      try {
-        const stored = localStorage.getItem('themeMode');
-        if (stored ? stored === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches) {
-          document.documentElement.classList.add('dark');
-        }
-      } catch (_) {}
-      
-      document.addEventListener('basecoat:theme', (e) => {
-        const mode = e.detail?.mode || (document.documentElement.classList.contains('dark') ? 'light' : 'dark');
-        if (mode === 'dark') {
-          document.documentElement.classList.add('dark');
-        } else {
-          document.documentElement.classList.remove('dark');
-        }
-        localStorage.setItem('themeMode', mode);
-      });
-    })();
+        (() => {
+            try {
+                const stored = localStorage.getItem('themeMode');
+                if (stored ? stored === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches) {
+                    document.documentElement.classList.add('dark');
+                }
+            } catch (_) { }
+
+            document.addEventListener('basecoat:theme', (e) => {
+                const mode = e.detail?.mode || (document.documentElement.classList.contains('dark') ? 'light' : 'dark');
+                if (mode === 'dark') {
+                    document.documentElement.classList.add('dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                }
+                localStorage.setItem('themeMode', mode);
+            });
+        })();
     </script>
-    
+
     <style>
         /* Basecoat-style body CSS with theme support */
         body {
-            
+
             background: var(--background);
             color: var(--foreground);
             overscroll-behavior: none;
@@ -98,8 +98,14 @@
             height: 48px;
             object-fit: contain;
             margin-bottom: 0.5rem;
-            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
-            transition: transform 0.2s ease;
+            transition: transform 0.2s ease, filter 0.2s ease;
+            /* Light theme - folder color matches foreground */
+            filter: brightness(0) saturate(100%) invert(14%) sepia(8%) saturate(928%) hue-rotate(201deg) brightness(93%) contrast(96%);
+        }
+
+        /* Dark theme - folder color matches foreground in dark mode */
+        .dark .admin-grid>div.folder img {
+            filter: brightness(0) saturate(100%) invert(98%) sepia(2%) saturate(1077%) hue-rotate(218deg) brightness(109%) contrast(94%);
         }
 
         .admin-grid>div.folder:hover img {
@@ -145,10 +151,10 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: linear-gradient(135deg, 
-                rgba(0, 0, 0, 0.1) 0%, 
-                rgba(0, 0, 0, 0.3) 50%,
-                rgba(0, 0, 0, 0.5) 100%);
+            background: linear-gradient(135deg,
+                    rgba(0, 0, 0, 0.1) 0%,
+                    rgba(0, 0, 0, 0.3) 50%,
+                    rgba(0, 0, 0, 0.5) 100%);
             opacity: 0;
             visibility: hidden;
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
@@ -339,10 +345,10 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: linear-gradient(135deg, 
-                rgba(var(--primary-rgb), 0.15) 0%, 
-                rgba(var(--primary-rgb), 0.05) 50%,
-                rgba(var(--primary-rgb), 0.15) 100%);
+            background: linear-gradient(135deg,
+                    rgba(var(--primary-rgb), 0.15) 0%,
+                    rgba(var(--primary-rgb), 0.05) 50%,
+                    rgba(var(--primary-rgb), 0.15) 100%);
             border-radius: 12px;
             pointer-events: none;
             z-index: 1;
@@ -388,6 +394,30 @@
 
         .hidden {
             display: none !important;
+        }
+
+        /* Empty state styling */
+        .empty-state {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 400px;
+            padding: 2rem;
+        }
+
+        .empty-state .upload-drop-zone:hover {
+            background-color: var(--muted);
+            opacity: 0.8;
+        }
+
+        .empty-state .upload-drop-zone:active {
+            transform: scale(0.98);
+        }
+
+        .empty-state .upload-drop-zone.dragover {
+            background-color: var(--muted);
+            border-color: var(--primary);
+            transform: scale(1.02);
         }
 
         /* Context Menu Items - Following Basecoat dropdown menu pattern */
@@ -500,7 +530,7 @@
             align-items: center;
             justify-content: center;
             box-shadow: 0 4px 16px -4px rgba(0, 0, 0, 0.3),
-                        0 8px 32px -8px rgba(0, 0, 0, 0.2);
+                0 8px 32px -8px rgba(0, 0, 0, 0.2);
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
             overflow: hidden;
@@ -513,10 +543,10 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: linear-gradient(135deg, 
-                rgba(255, 255, 255, 0.2) 0%, 
-                rgba(255, 255, 255, 0.05) 50%,
-                rgba(0, 0, 0, 0.1) 100%);
+            background: linear-gradient(135deg,
+                    rgba(255, 255, 255, 0.2) 0%,
+                    rgba(255, 255, 255, 0.05) 50%,
+                    rgba(0, 0, 0, 0.1) 100%);
             border-radius: 50%;
             transition: opacity 0.2s ease;
         }
@@ -524,7 +554,7 @@
         .fab-button:hover {
             transform: scale(1.05);
             box-shadow: 0 6px 20px -4px rgba(0, 0, 0, 0.4),
-                        0 12px 40px -8px rgba(0, 0, 0, 0.3);
+                0 12px 40px -8px rgba(0, 0, 0, 0.3);
         }
 
         .fab-button:hover::before {
@@ -571,24 +601,39 @@
         }
 
         @keyframes pulse-in {
-            0% { 
+            0% {
                 transform: scale(0);
                 opacity: 0;
             }
+
             50% {
                 transform: scale(1.2);
             }
-            100% { 
+
+            100% {
                 transform: scale(1);
                 opacity: 1;
             }
         }
 
         @keyframes bounce-badge {
-            0%, 100% { transform: scale(1); }
-            25% { transform: scale(1.25); }
-            50% { transform: scale(0.9); }
-            75% { transform: scale(1.1); }
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            25% {
+                transform: scale(1.25);
+            }
+
+            50% {
+                transform: scale(0.9);
+            }
+
+            75% {
+                transform: scale(1.1);
+            }
         }
 
         /* Enhanced Photo Modal Dialog */
@@ -611,19 +656,25 @@
         }
 
         @keyframes modal-fade-in {
-            from { 
+            from {
                 opacity: 0;
                 transform: scale(0.9);
             }
-            to { 
+
+            to {
                 opacity: 1;
                 transform: scale(1);
             }
         }
 
         @keyframes backdrop-fade-in {
-            from { opacity: 0; }
-            to { opacity: 1; }
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
         }
 
         .photo-modal-content {
@@ -665,10 +716,10 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: linear-gradient(135deg, 
-                rgba(255, 255, 255, 0.1) 0%, 
-                rgba(255, 255, 255, 0.05) 50%,
-                rgba(0, 0, 0, 0.1) 100%);
+            background: linear-gradient(135deg,
+                    rgba(255, 255, 255, 0.1) 0%,
+                    rgba(255, 255, 255, 0.05) 50%,
+                    rgba(0, 0, 0, 0.1) 100%);
             border-radius: 50%;
             opacity: 0;
             transition: opacity 0.2s ease;
@@ -736,7 +787,7 @@
             object-fit: contain;
             border-radius: var(--radius-lg);
             box-shadow: 0 12px 48px rgba(0, 0, 0, 0.5),
-                        0 4px 16px rgba(0, 0, 0, 0.3);
+                0 4px 16px rgba(0, 0, 0, 0.3);
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             cursor: zoom-in;
             user-select: none;
@@ -744,7 +795,7 @@
 
         .modal-photo:hover {
             box-shadow: 0 16px 64px rgba(0, 0, 0, 0.6),
-                        0 8px 24px rgba(0, 0, 0, 0.4);
+                0 8px 24px rgba(0, 0, 0, 0.4);
         }
 
         .modal-photo.zoomed {
@@ -752,37 +803,6 @@
             transform: scale(1.5);
         }
 
-        /* Enhanced Photo Info */
-        .photo-modal-info {
-            position: absolute;
-            bottom: 2rem;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.85);
-            color: white;
-            padding: 1rem 2rem;
-            border-radius: var(--radius-xl);
-            backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            max-width: 80vw;
-        }
-
-        .photo-modal-info:hover {
-            background: rgba(0, 0, 0, 0.9);
-            border-color: rgba(255, 255, 255, 0.2);
-        }
-
-        .photo-name {
-            font-size: 1.125rem;
-            font-weight: 600;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            color: white;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-        }
 
         /* Navigation hints */
         .photo-modal-hints {
@@ -937,7 +957,8 @@
 
             <!-- Floating Action Button -->
             <div id="selectionFab" class="selection-fab hidden">
-                <button id="bulkDeleteBtn" class="fab-button" data-tooltip="Delete Selected Photos" aria-label="Delete Selected Photos">
+                <button id="bulkDeleteBtn" class="fab-button" data-tooltip="Delete Selected Photos"
+                    aria-label="Delete Selected Photos">
                     <span class="material-symbols-outlined">delete</span>
                 </button>
                 <span class="fab-badge" id="fabBadge">0</span>
@@ -948,9 +969,51 @@
             </div>
 
             <div id="emptyState" class="empty-state hidden">
-                <span class="material-symbols-outlined">photo_library</span>
-                <h3>No images yet</h3>
-                <p>Upload some images to get started</p>
+                <div class="max-w-md mx-auto">
+                    <div class="text-center mb-6">
+                        <span class="material-symbols-outlined text-6xl text-muted-foreground">photo_library</span>
+                        <h3 class="text-xl font-semibold mt-4 mb-2">No images yet</h3>
+                        <p class="text-muted-foreground">Upload some images to get started</p>
+                    </div>
+
+                    <input type="file" id="emptyStateFileInput" multiple accept="image/*" hidden>
+                    <div class="upload-drop-zone border-2 border-dashed border-muted rounded-lg p-8 text-center cursor-pointer hover:bg-muted/50 transition-colors"
+                        id="emptyStateUploadZone">
+                        <span class="material-symbols-outlined text-4xl text-muted-foreground">cloud_upload</span>
+                        <p class="text-lg font-medium mt-2">Click to select images or drag and drop</p>
+                        <p class="text-sm text-muted-foreground">Supports JPEG, PNG, GIF, WebP (max 10MB each)</p>
+                    </div>
+
+                    <div id="emptyStateSelectedFiles" class="hidden mt-4">
+                        <div class="card">
+                            <header>
+                                <h3 class="text-lg font-semibold">Selected Files</h3>
+                            </header>
+                            <section>
+                                <div id="emptyStateFilesList" class="grid gap-2 text-sm text-muted-foreground">
+                                    <!-- Selected files will be listed here -->
+                                </div>
+                            </section>
+                        </div>
+                    </div>
+
+                    <div id="emptyStateUploadProgress" class="hidden mt-4">
+                        <div class="w-full bg-muted rounded-full h-2">
+                            <div class="empty-state-progress-fill bg-primary h-2 rounded-full transition-all duration-300"
+                                style="width: 0%"></div>
+                        </div>
+                        <span
+                            class="empty-state-progress-text text-sm text-muted-foreground mt-2 block text-center">Uploading...</span>
+                    </div>
+
+                    <div class="flex gap-2 justify-center mt-4">
+                        <button id="emptyStateCancelBtn" class="btn-outline hidden">Cancel</button>
+                        <button id="emptyStateUploadBtn" class="btn" disabled>
+                            <span class="material-symbols-outlined">upload</span>
+                            <span id="emptyStateUploadBtnText">Select Files</span>
+                        </button>
+                    </div>
+                </div>
             </div>
         </main>
 
@@ -983,7 +1046,8 @@
             <article>
                 <header>
                     <h2 id="create-folder-title">Create New Folder</h2>
-                    <button id="closeCreateFolderModal" class="btn-sm-icon-ghost absolute top-4 right-4" aria-label="Close">
+                    <button id="closeCreateFolderModal" class="btn-sm-icon-ghost absolute top-4 right-4"
+                        aria-label="Close">
                         <span class="material-symbols-outlined">close</span>
                     </button>
                 </header>
@@ -1095,7 +1159,8 @@
             <article>
                 <header>
                     <h2 id="bulk-delete-title">Delete Photos</h2>
-                    <button id="closeBulkDeleteModal" class="btn-sm-icon-ghost absolute top-4 right-4" aria-label="Close">
+                    <button id="closeBulkDeleteModal" class="btn-sm-icon-ghost absolute top-4 right-4"
+                        aria-label="Close">
                         <span class="material-symbols-outlined">close</span>
                     </button>
                     <p id="bulk-delete-description">Are you sure you want to delete <span id="deleteCount">0</span>
@@ -1117,19 +1182,17 @@
                 <button id="closePhotoModal" class="photo-modal-close" aria-label="Close Photo">
                     <span class="material-symbols-outlined">close</span>
                 </button>
-                
+
                 <div class="photo-modal-hints">
                     <ul>
                         <li><span class="key">ESC</span> Close photo</li>
+                        <li><span class="key">←</span> <span class="key">→</span> Navigate images</li>
                         <li><span class="key">Click</span> Zoom in/out</li>
                         <li><span class="key">Drag</span> Pan zoomed photo</li>
                     </ul>
                 </div>
-                
+
                 <img id="modalImage" src="" alt="" class="modal-photo">
-                <div class="photo-modal-info">
-                    <span id="modalPhotoName" class="photo-name"></span>
-                </div>
             </div>
         </dialog>
 

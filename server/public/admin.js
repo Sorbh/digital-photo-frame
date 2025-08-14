@@ -2,6 +2,7 @@ class PhotoFrameAdmin {
     constructor() {
         this.currentPath = this.getInitialPath();
         this.selectedFiles = [];
+        this.emptyStateSelectedFiles = []; // For empty state upload
         this.selectedItems = new Set(); // For multi-select
         this.contextMenuTarget = null;
         this.longPressTimeout = null;
@@ -10,6 +11,10 @@ class PhotoFrameAdmin {
         // Photo modal zoom/pan state
         this.isZoomed = false;
         this.dragState = { isDragging: false, startX: 0, startY: 0, translateX: 0, translateY: 0 };
+        
+        // Photo modal navigation state
+        this.currentImageIndex = -1;
+        this.availableImages = [];
         
         this.initializeEventListeners();
         this.updateURL(); // Ensure URL reflects current path
@@ -137,6 +142,9 @@ class PhotoFrameAdmin {
         // Main drop zone
         this.setupMainDragAndDrop();
 
+        // Empty state drag and drop
+        this.setupEmptyStateDragAndDrop();
+
         // Context menu
         document.addEventListener('click', (e) => {
             if (!e.target.closest('#contextMenuPopover')) {
@@ -180,8 +188,20 @@ class PhotoFrameAdmin {
 
         // Keyboard support for photo modal
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && document.getElementById('photoModal').open) {
-                this.hidePhotoModal();
+            if (document.getElementById('photoModal').open) {
+                switch (e.key) {
+                    case 'Escape':
+                        this.hidePhotoModal();
+                        break;
+                    case 'ArrowLeft':
+                        e.preventDefault();
+                        this.navigateToPreviousImage();
+                        break;
+                    case 'ArrowRight':
+                        e.preventDefault();
+                        this.navigateToNextImage();
+                        break;
+                }
             }
         });
 
@@ -211,6 +231,23 @@ class PhotoFrameAdmin {
                     window.googlePhotosSync.hideGooglePhotosModal();
                 }
             }
+        });
+
+        // Empty state upload functionality
+        document.getElementById('emptyStateUploadZone').addEventListener('click', () => {
+            document.getElementById('emptyStateFileInput').click();
+        });
+
+        document.getElementById('emptyStateFileInput').addEventListener('change', (e) => {
+            this.handleEmptyStateFileSelection(Array.from(e.target.files));
+        });
+
+        document.getElementById('emptyStateUploadBtn').addEventListener('click', () => {
+            this.uploadEmptyStateFiles();
+        });
+
+        document.getElementById('emptyStateCancelBtn').addEventListener('click', () => {
+            this.resetEmptyStateUpload();
         });
 
         // Session buttons (will be available after Google Photos sync loads)
@@ -309,6 +346,13 @@ class PhotoFrameAdmin {
         
         fileGrid.innerHTML = '';
         
+        // Update available images for navigation
+        this.availableImages = data.files.map((file, index) => ({
+            ...file,
+            index: index
+        }));
+        this.currentImageIndex = -1;
+        
         if (data.folders.length === 0 && data.files.length === 0) {
             emptyState.classList.remove('hidden');
             return;
@@ -342,7 +386,7 @@ class PhotoFrameAdmin {
         div.dataset.type = 'folder';
         div.innerHTML = `
             <div class="folder-icon">
-                <img src="css/ic_folder.png" alt="Folder" />
+                <img src="icons/ic_folder.svg" alt="Folder" />
             </div>
             <div class="folder-name">${folder.name}</div>
         `;
@@ -927,11 +971,12 @@ class PhotoFrameAdmin {
     showPhotoModal(imageUrl, imageName) {
         const modal = document.getElementById('photoModal');
         const modalImage = document.getElementById('modalImage');
-        const modalPhotoName = document.getElementById('modalPhotoName');
+        
+        // Find current image index
+        this.currentImageIndex = this.availableImages.findIndex(img => img.url === imageUrl);
         
         modalImage.src = imageUrl;
         modalImage.alt = imageName;
-        modalPhotoName.textContent = imageName;
         
         // Reset zoom state
         modalImage.classList.remove('zoomed');
@@ -1079,7 +1124,7 @@ class PhotoFrameAdmin {
         e.preventDefault();
     }
 
-    handlePointerUp(e, file, element) {
+    handlePointerUp(_e, _file, element) {
         this.cancelLongPress();
         element.classList.remove('selecting');
     }
@@ -1278,6 +1323,171 @@ class PhotoFrameAdmin {
             // Show modal
             modal.showModal();
         });
+    }
+
+    // Empty state upload methods
+    setupEmptyStateDragAndDrop() {
+        const dropZone = document.getElementById('emptyStateUploadZone');
+        
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragover');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            
+            const files = Array.from(e.dataTransfer.files).filter(file => file.type.startsWith('image/'));
+            this.handleEmptyStateFileSelection(files);
+        });
+    }
+
+    handleEmptyStateFileSelection(files) {
+        this.emptyStateSelectedFiles = files.filter(file => file.type.startsWith('image/'));
+        this.updateEmptyStateUploadButton();
+        this.updateEmptyStateFilesDisplay();
+    }
+
+    updateEmptyStateUploadButton() {
+        const btn = document.getElementById('emptyStateUploadBtn');
+        const btnText = document.getElementById('emptyStateUploadBtnText');
+        const cancelBtn = document.getElementById('emptyStateCancelBtn');
+        
+        btn.disabled = !this.emptyStateSelectedFiles || this.emptyStateSelectedFiles.length === 0;
+        
+        if (this.emptyStateSelectedFiles && this.emptyStateSelectedFiles.length > 0) {
+            btnText.textContent = `Upload ${this.emptyStateSelectedFiles.length} file${this.emptyStateSelectedFiles.length > 1 ? 's' : ''}`;
+            cancelBtn.classList.remove('hidden');
+        } else {
+            btnText.textContent = 'Select Files';
+            cancelBtn.classList.add('hidden');
+        }
+    }
+
+    updateEmptyStateFilesDisplay() {
+        const selectedFilesDiv = document.getElementById('emptyStateSelectedFiles');
+        const filesList = document.getElementById('emptyStateFilesList');
+        
+        if (this.emptyStateSelectedFiles && this.emptyStateSelectedFiles.length > 0) {
+            selectedFilesDiv.classList.remove('hidden');
+            filesList.innerHTML = this.emptyStateSelectedFiles.map(file => 
+                `<div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-sm">image</span>
+                    <span class="flex-1">${file.name}</span>
+                    <span class="text-xs">${this.formatFileSize(file.size)}</span>
+                </div>`
+            ).join('');
+        } else {
+            selectedFilesDiv.classList.add('hidden');
+        }
+    }
+
+    async uploadEmptyStateFiles() {
+        if (!this.emptyStateSelectedFiles || this.emptyStateSelectedFiles.length === 0) return;
+        
+        const formData = new FormData();
+        this.emptyStateSelectedFiles.forEach(file => {
+            formData.append('images', file);
+        });
+        formData.append('path', this.currentPath);
+        
+        this.showEmptyStateUploadProgress();
+        
+        try {
+            const response = await this.authenticatedFetch('/api/upload', {
+                method: 'POST',
+                body: formData
+            });
+            if (!response) {
+                this.hideEmptyStateUploadProgress();
+                return; // Session expired
+            }
+            
+            const data = await response.json();
+            
+            if (response.ok) {
+                this.showToast(`${data.files.length} file(s) uploaded successfully`, 'success');
+                this.resetEmptyStateUpload();
+                this.loadFolderContents(); // This will hide the empty state and show the uploaded files
+            } else {
+                this.showToast(data.message || 'Upload failed', 'error');
+            }
+        } catch (error) {
+            console.error('Error uploading files:', error);
+            this.showToast('Upload failed', 'error');
+        }
+        
+        this.hideEmptyStateUploadProgress();
+    }
+
+    showEmptyStateUploadProgress() {
+        document.getElementById('emptyStateUploadProgress').classList.remove('hidden');
+        const progressFill = document.querySelector('.empty-state-progress-fill');
+        progressFill.style.width = '0%';
+        
+        // Simulate progress
+        let progress = 0;
+        const interval = setInterval(() => {
+            progress += Math.random() * 20;
+            if (progress > 90) progress = 90;
+            progressFill.style.width = progress + '%';
+            
+            if (progress >= 90) {
+                clearInterval(interval);
+            }
+        }, 200);
+    }
+
+    hideEmptyStateUploadProgress() {
+        document.getElementById('emptyStateUploadProgress').classList.add('hidden');
+    }
+
+    resetEmptyStateUpload() {
+        this.emptyStateSelectedFiles = [];
+        document.getElementById('emptyStateFileInput').value = '';
+        this.updateEmptyStateUploadButton();
+        this.updateEmptyStateFilesDisplay();
+        this.hideEmptyStateUploadProgress();
+    }
+
+    // Photo modal navigation methods
+    navigateToNextImage() {
+        if (this.availableImages.length === 0 || this.currentImageIndex === -1) return;
+        
+        const nextIndex = (this.currentImageIndex + 1) % this.availableImages.length;
+        this.navigateToImageAtIndex(nextIndex);
+    }
+
+    navigateToPreviousImage() {
+        if (this.availableImages.length === 0 || this.currentImageIndex === -1) return;
+        
+        const prevIndex = this.currentImageIndex === 0 
+            ? this.availableImages.length - 1 
+            : this.currentImageIndex - 1;
+        this.navigateToImageAtIndex(prevIndex);
+    }
+
+    navigateToImageAtIndex(index) {
+        if (index < 0 || index >= this.availableImages.length) return;
+        
+        const image = this.availableImages[index];
+        const modalImage = document.getElementById('modalImage');
+        
+        this.currentImageIndex = index;
+        modalImage.src = image.url;
+        modalImage.alt = image.name;
+        
+        // Reset zoom state when navigating
+        modalImage.classList.remove('zoomed');
+        modalImage.style.transform = '';
+        modalImage.style.cursor = 'zoom-in';
+        this.isZoomed = false;
+        this.dragState = { isDragging: false, startX: 0, startY: 0, translateX: 0, translateY: 0 };
     }
 
 }
