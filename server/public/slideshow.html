@@ -461,6 +461,7 @@
                 this.timer = null;
                 this.progressTimer = null;
                 this.cursorHideTimer = null;
+                this.controlsHideTimer = null;
                 this.wakeLock = null;
                 this.folderSelector = null;
                 this.folderStorage = new FolderStorage();
@@ -502,11 +503,25 @@
 
                 document.addEventListener('keydown', (e) => {
                     switch (e.key) {
+                        case ' ': // Space
+                        case 'k':
+                        case 'K':
+                            e.preventDefault();
+                            this.togglePlayPause();
+                            break;
+                        case 'ArrowRight':
+                        case 'n':
+                        case 'N':
+                            e.preventDefault();
+                            this.nextImage();
+                            break;
                         case 'f':
+                        case 'F':
                             e.preventDefault();
                             this.toggleFullscreen();
                             break;
                         case 'i':
+                        case 'I':
                             e.preventDefault();
                             this.toggleInfo();
                             break;
@@ -518,8 +533,30 @@
                     }
                 });
 
+                // Mouse and touch events to show controls
+                document.addEventListener('mousemove', () => {
+                    this.showControlsTemporarily();
+                });
+                
+                document.addEventListener('touchstart', () => {
+                    this.showControlsTemporarily();
+                });
+                
                 document.addEventListener('click', () => {
                     this.showControlsTemporarily();
+                });
+
+                // Handle fullscreen change events
+                document.addEventListener('fullscreenchange', () => {
+                    if (!document.fullscreenElement) {
+                        document.body.classList.remove('fullscreen');
+                    }
+                });
+                
+                document.addEventListener('webkitfullscreenchange', () => {
+                    if (!document.webkitFullscreenElement) {
+                        document.body.classList.remove('fullscreen');
+                    }
                 });
 
                 this.images.forEach(img => {
@@ -669,18 +706,58 @@
 
             toggleFullscreen() {
                 if (!document.fullscreenElement) {
-                    document.documentElement.requestFullscreen().then(() => {
+                    // Enter fullscreen
+                    const element = document.documentElement;
+                    
+                    if (element.requestFullscreen) {
+                        element.requestFullscreen().then(() => {
+                            document.body.classList.add('fullscreen');
+                            this.showControlsTemporarily();
+                        }).catch((err) => {
+                            console.error('Error attempting to enable fullscreen:', err);
+                        });
+                    } else if (element.webkitRequestFullscreen) {
+                        element.webkitRequestFullscreen();
                         document.body.classList.add('fullscreen');
-                    });
+                        this.showControlsTemporarily();
+                    } else if (element.msRequestFullscreen) {
+                        element.msRequestFullscreen();
+                        document.body.classList.add('fullscreen');
+                        this.showControlsTemporarily();
+                    }
                 } else {
-                    document.exitFullscreen().then(() => {
+                    // Exit fullscreen
+                    if (document.exitFullscreen) {
+                        document.exitFullscreen().then(() => {
+                            document.body.classList.remove('fullscreen');
+                        }).catch((err) => {
+                            console.error('Error attempting to exit fullscreen:', err);
+                        });
+                    } else if (document.webkitExitFullscreen) {
+                        document.webkitExitFullscreen();
                         document.body.classList.remove('fullscreen');
-                    });
+                    } else if (document.msExitFullscreen) {
+                        document.msExitFullscreen();
+                        document.body.classList.remove('fullscreen');
+                    }
                 }
             }
 
             toggleInfo() {
                 this.infoOverlay.classList.toggle('hidden');
+            }
+
+            togglePlayPause() {
+                this.isPlaying = !this.isPlaying;
+                
+                if (this.isPlaying) {
+                    // Resume slideshow
+                    this.scheduleNext();
+                } else {
+                    // Pause slideshow
+                    this.clearTimers();
+                    this.resetProgress();
+                }
             }
 
             logout() {
@@ -690,13 +767,21 @@
             }
 
             showControlsTemporarily() {
-                if (document.fullscreenElement) {
-                    const controls = document.getElementById('controls');
-                    controls.style.opacity = '1';
-                    setTimeout(() => {
-                        controls.style.opacity = '0';
-                    }, 3000);
+                const controls = document.getElementById('controls');
+                
+                // Clear any existing hide timer
+                if (this.controlsHideTimer) {
+                    clearTimeout(this.controlsHideTimer);
                 }
+                
+                // Show controls
+                controls.style.opacity = '1';
+                controls.style.transition = 'opacity 0.3s ease';
+                
+                // Hide controls after 3 seconds of inactivity
+                this.controlsHideTimer = setTimeout(() => {
+                    controls.style.opacity = '0';
+                }, 3000);
             }
 
             showError(message) {
@@ -787,6 +872,11 @@
                 if (this.cursorHideTimer) {
                     clearTimeout(this.cursorHideTimer);
                     this.cursorHideTimer = null;
+                }
+
+                if (this.controlsHideTimer) {
+                    clearTimeout(this.controlsHideTimer);
+                    this.controlsHideTimer = null;
                 }
 
                 if (this.wakeLock !== null) {
