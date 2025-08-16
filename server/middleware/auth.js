@@ -21,8 +21,11 @@ const requireAuth = (req, res, next) => {
         if (err) console.error('Error destroying expired session:', err);
       });
 
+      // Check both req.path and req.originalUrl for API requests
+      const isApiRequest = req.path.startsWith('/api/') || req.originalUrl.startsWith('/api/');
+      
       // If it's an API request, return JSON error with session expired flag
-      if (req.path.startsWith('/api/')) {
+      if (isApiRequest) {
         return res.status(401).json({
           message: 'Session expired',
           code: 'SESSION_EXPIRED',
@@ -39,8 +42,11 @@ const requireAuth = (req, res, next) => {
 
   console.log('❌ Authentication failed for:', req.path);
 
+  // Check both req.path and req.originalUrl for API requests
+  const isApiRequest = req.path.startsWith('/api/') || req.originalUrl.startsWith('/api/');
+  
   // If it's an API request, return JSON error
-  if (req.path.startsWith('/api/')) {
+  if (isApiRequest) {
     return res.status(401).json({
       message: 'Authentication required',
       code: 'AUTH_REQUIRED',

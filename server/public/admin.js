@@ -42,7 +42,18 @@ class PhotoFrameAdmin {
 
     // Handle session expiration
     handleSessionExpired() {
-        this.showToast('Session expired. Redirecting to login...', 'error');
+        // Use error style for session expiration (red styling)
+        document.dispatchEvent(new CustomEvent('basecoat:toast', {
+            detail: {
+                config: {
+                    category: 'error',
+                    title: 'Session Expired',
+                    description: 'Your session has expired. Redirecting to login...',
+                    duration: 8000 // Longer duration for important message
+                }
+            }
+        }));
+        
         setTimeout(() => {
             window.location.href = '/login?expired=true';
         }, 2000);
@@ -956,16 +967,37 @@ class PhotoFrameAdmin {
     }
 
     showToast(message, type = 'info') {
-        const container = document.getElementById('toastContainer');
-        const toast = document.createElement('div');
-        toast.className = `toast ${type}`;
-        toast.textContent = message;
+        // Map our existing types to Basecoat categories
+        const categoryMap = {
+            'info': 'info',
+            'success': 'success',
+            'error': 'error',
+            'warning': 'warning'
+        };
         
-        container.appendChild(toast);
+        const category = categoryMap[type] || 'info';
         
-        setTimeout(() => {
-            toast.remove();
-        }, 3000);
+        // Determine title based on type
+        const titleMap = {
+            'success': 'Success!',
+            'error': 'Error!',
+            'warning': 'Warning!',
+            'info': 'Info'
+        };
+        
+        const title = titleMap[type] || 'Notification';
+        
+        // Dispatch Basecoat toast event
+        document.dispatchEvent(new CustomEvent('basecoat:toast', {
+            detail: {
+                config: {
+                    category: category,
+                    title: title,
+                    description: message,
+                    duration: 5000
+                }
+            }
+        }));
     }
 
     showPhotoModal(imageUrl, imageName) {
