@@ -42,7 +42,7 @@ class PhotoFrameAdmin {
 
     // Handle session expiration
     handleSessionExpired() {
-        // Use error style for session expiration (red styling)
+        // Use Basecoat error toast for session expiration
         document.dispatchEvent(new CustomEvent('basecoat:toast', {
             detail: {
                 config: {

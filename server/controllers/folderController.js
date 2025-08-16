@@ -117,8 +117,8 @@ class FolderController {
       let folders = [];
       let images = [];
       
-      // Check if user has access restrictions (not admin)
-      const hasAccessRestrictions = req.session && req.session.accessAccount && req.session.accessAccount.assignedFolders && !req.session.authenticated;
+      // Check if user has access restrictions (PIN authenticated users, not admin)
+      const hasAccessRestrictions = req.session && req.session.accessAccount && req.session.accessAccount.assignedFolders && req.session.accessAccount.assignedFolders.length > 0 && !req.session.authenticated;
       let allowedFolders = null;
       
       if (hasAccessRestrictions) {
@@ -176,7 +176,13 @@ class FolderController {
           
           // Apply access control filtering for images
           if (hasAccessRestrictions) {
-            const imageAllowed = allowedFolders.includes(imageFolder);
+            const imageAllowed = allowedFolders.some(allowedFolder => {
+              // Check if image folder matches allowed folder exactly
+              if (imageFolder === allowedFolder) return true;
+              // Check if image folder is a child of an allowed folder
+              if (imageFolder.startsWith(allowedFolder + path.sep)) return true;
+              return false;
+            });
             if (!imageAllowed) {
               console.log('❌ Image Access Control - Access denied to image:', relativePath);
               continue; // Skip this image

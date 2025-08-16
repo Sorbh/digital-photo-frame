@@ -65,15 +65,21 @@ class ImageController {
       
       let availableImages = allImages;
       
-      // Apply access account folder restrictions if user is authenticated
-      if (req.session && req.session.accessAccount && req.session.accessAccount.assignedFolders) {
+      // Apply access account folder restrictions if user is PIN authenticated (not admin)
+      if (req.session && req.session.accessAccount && req.session.accessAccount.assignedFolders && req.session.accessAccount.assignedFolders.length > 0 && !req.session.authenticated) {
         const assignedFolders = req.session.accessAccount.assignedFolders;
         console.log('🔒 Access Control - User assigned folders:', assignedFolders);
         console.log('📁 Access Control - Total images before access filter:', allImages.length);
         
         availableImages = allImages.filter(img => {
           const imgFolder = path.dirname(img.relativePath);
-          const hasAccess = assignedFolders.includes(imgFolder);
+          const hasAccess = assignedFolders.some(allowedFolder => {
+            // Check if image folder matches allowed folder exactly
+            if (imgFolder === allowedFolder) return true;
+            // Check if image folder is a child of an allowed folder
+            if (imgFolder.startsWith(allowedFolder + path.sep)) return true;
+            return false;
+          });
           if (hasAccess) {
             console.log('✅ Access Control - Access granted to:', img.relativePath, 'in folder:', imgFolder);
           }
@@ -96,9 +102,9 @@ class ImageController {
       if (folderFilter) {
         const decodedFolder = decodeURIComponent(folderFilter);
         console.log('🔍 API Filter - Requested folder:', decodedFolder);
-        console.log('📁 API Filter - Total images before filter:', allImages.length);
+        console.log('📁 API Filter - Total images before filter:', availableImages.length);
         
-        availableImages = allImages.filter(img => {
+        availableImages = availableImages.filter(img => {
           const imgFolder = path.dirname(img.relativePath);
           const match = imgFolder === decodedFolder || imgFolder.startsWith(decodedFolder + path.sep);
           if (match) {
