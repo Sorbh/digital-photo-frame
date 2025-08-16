@@ -131,9 +131,30 @@ class PhotoFrameAdmin {
         // Logout
         document.getElementById('logoutBtn').addEventListener('click', () => this.logout());
         
-        // Theme toggle
+        // Theme toggle with system option
         document.getElementById('themeToggle').addEventListener('click', () => {
-            document.dispatchEvent(new CustomEvent('basecoat:theme'));
+            const currentMode = localStorage.getItem('themeMode') || 'system';
+            let nextMode;
+            
+            // Cycle through: light → dark → system → light
+            switch (currentMode) {
+                case 'light':
+                    nextMode = 'dark';
+                    break;
+                case 'dark':
+                    nextMode = 'system';
+                    break;
+                case 'system':
+                default:
+                    nextMode = 'light';
+                    break;
+            }
+            
+            document.dispatchEvent(new CustomEvent('basecoat:theme', {
+                detail: { mode: nextMode }
+            }));
+            
+            this.updateThemeButton(nextMode);
         });
         
         document.getElementById('confirmUploadBtn').addEventListener('click', () => this.uploadFiles());
@@ -270,6 +291,29 @@ class PhotoFrameAdmin {
                 window.googlePhotosSync.createPickerSession();
             }
         });
+        
+        // Initialize theme button on page load
+        this.updateThemeButton(localStorage.getItem('themeMode') || 'system');
+    }
+
+    updateThemeButton(mode) {
+        const themeButton = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+        
+        switch (mode) {
+            case 'light':
+                themeIcon.textContent = 'light_mode';
+                themeButton.title = 'Switch to dark mode';
+                break;
+            case 'dark':
+                themeIcon.textContent = 'dark_mode';
+                themeButton.title = 'Switch to system theme';
+                break;
+            case 'system':
+                themeIcon.textContent = 'brightness_auto';
+                themeButton.title = 'Switch to light mode';
+                break;
+        }
     }
 
     setupUploadDragAndDrop() {

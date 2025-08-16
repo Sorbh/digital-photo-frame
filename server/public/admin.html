@@ -14,20 +14,38 @@
     <!-- Theme Switcher Script -->
     <script>
         (() => {
-            try {
-                const stored = localStorage.getItem('themeMode');
-                if (stored ? stored === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches) {
-                    document.documentElement.classList.add('dark');
-                }
-            } catch (_) { }
-
-            document.addEventListener('basecoat:theme', (e) => {
-                const mode = e.detail?.mode || (document.documentElement.classList.contains('dark') ? 'light' : 'dark');
-                if (mode === 'dark') {
+            const applyTheme = (mode) => {
+                if (mode === 'system') {
+                    // Use system preference
+                    if (matchMedia('(prefers-color-scheme: dark)').matches) {
+                        document.documentElement.classList.add('dark');
+                    } else {
+                        document.documentElement.classList.remove('dark');
+                    }
+                } else if (mode === 'dark') {
                     document.documentElement.classList.add('dark');
                 } else {
                     document.documentElement.classList.remove('dark');
                 }
+            };
+
+            try {
+                const stored = localStorage.getItem('themeMode') || 'system';
+                applyTheme(stored);
+            } catch (_) { }
+
+            // Listen for system theme changes when in system mode
+            const mediaQuery = matchMedia('(prefers-color-scheme: dark)');
+            mediaQuery.addEventListener('change', () => {
+                const stored = localStorage.getItem('themeMode') || 'system';
+                if (stored === 'system') {
+                    applyTheme('system');
+                }
+            });
+
+            document.addEventListener('basecoat:theme', (e) => {
+                const mode = e.detail?.mode || 'system';
+                applyTheme(mode);
                 localStorage.setItem('themeMode', mode);
             });
         })();
@@ -915,9 +933,8 @@
                     <span class="material-symbols-outlined">upload</span>
                     Upload
                 </button>
-                <button id="themeToggle" class="btn-icon" title="Toggle theme">
-                    <span class="material-symbols-outlined dark:hidden">light_mode</span>
-                    <span class="material-symbols-outlined hidden dark:block">dark_mode</span>
+                <button id="themeToggle" class="btn-icon" title="Switch to dark mode">
+                    <span class="material-symbols-outlined" id="themeIcon">brightness_auto</span>
                 </button>
                 <button id="logoutBtn" class="btn-icon" title="Logout">
                     <span class="material-symbols-outlined">logout</span>
