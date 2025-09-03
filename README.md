@@ -3,7 +3,7 @@
    
 ### Open Source Digital Photo Frame
 
-[Website](https://sora-frame.vercel.app/)  |  [Quick Start](https://sora-frame.vercel.app/)  |  [Docs](https://docs-sora-frame.vercel.app)  |  [API References](https://docs-sora-frame.vercel.app/api-reference)
+[Website](https://sora-frame.vercel.app/)  |  [Quick Start](https://docs-sora-frame.vercel.app/quickstart/)  |  [Docs](https://docs-sora-frame.vercel.app/)  |  [API References](https://docs-sora-frame.vercel.app/api-reference/introduction)
 
 </div>
 
